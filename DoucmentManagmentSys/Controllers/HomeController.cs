@@ -7,6 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using DoucmentManagmentSys.Repo;
+using DoucmentManagmentSys.RoleManagment;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNet.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 
 namespace DoucmentManagmentSys.Controllers
@@ -18,10 +23,16 @@ namespace DoucmentManagmentSys.Controllers
 
         private readonly IRepository<Document> mainRepo;
 
-        public HomeController(ILogger<HomeController> logger, IRepository<Document> repository)
+        private readonly IRoleManagment _roleManagment;
+
+        public SignInManager<IdentityUser> _signInManager { get; set; }
+
+        public HomeController(ILogger<HomeController> logger, IRepository<Document> repository, IRoleManagment roleManagment, SignInManager<IdentityUser> signInManager)
         {
             _logger = logger;
             mainRepo = repository;
+            _roleManagment = roleManagment;
+            _signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -39,7 +50,7 @@ namespace DoucmentManagmentSys.Controllers
                 if (oFile.ContentType != "application/pdf")
                 {
                     ViewBag.Message = "File type is not supported.";
-                    return View("Index", mainRepo.GetAll());
+                    return RedirectToAction("index", "Home");
                 }
                 string strFileName;
                 string strFilePath;
@@ -79,12 +90,12 @@ namespace DoucmentManagmentSys.Controllers
                     ViewBag.Message = "File is empty.";
                 }
                 // Display the result of the upload.
-                return View("Index", mainRepo.GetAll());
+                return RedirectToAction("index", "Home");
             }
             else
             {
                 ViewBag.Message = "No File Selected.";
-                return View("Index", mainRepo.GetAll());
+                return RedirectToAction("index", "Home");
             }
 
         }
@@ -160,8 +171,7 @@ namespace DoucmentManagmentSys.Controllers
             {
                 mainRepo.Delete(document);
                 mainRepo.SaveChanges();
-                ViewBag.Message = "File deleted successfully.";
-                return View("Index", mainRepo.GetAll());
+                return RedirectToAction("index", "Home", ViewBag.Message = "File deleted successfully.");
             }
         }
 
@@ -183,5 +193,35 @@ namespace DoucmentManagmentSys.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> AdminAsync()
+        {
+            // Add admin logic here
+            // Assuming you have a UserManager instance named "userManager"
+
+            await _roleManagment.AssignRole(User, "Admin");
+
+            await _signInManager.SignOutAsync();
+
+            return RedirectToAction("index", "Home");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UserAsync()
+        {
+            // Add admin logic here
+            // Assuming you have a UserManager instance named "userManager"
+
+            await _roleManagment.AssignRole(User, "User");
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("index", "Home");
+        }
+
+
+
+
+
+
     }
 }
