@@ -67,7 +67,7 @@ async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUse
 {
 
 
-    string[] roleNames = { "Admin", "Revisor", "User" }; // You can add more roles as needed
+    string[] roleNames = { "Admin", "Revisor", "User", "Uploader", "Finalizer" }; // You can add more roles as needed
 
 
     IdentityResult roleResult;

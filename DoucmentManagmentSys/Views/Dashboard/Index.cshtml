@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityUser>
+@inject UserManager<IdentityUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+    <div class="container">
+        <h1>Welcome to the Admin Dashboard</h1>
+
+
+    <table class="table table-striped table-hover table-bordered">
+            <tr>
+                <th>User ID</th>
+                <th>User Name</th>
+              <th>Current Role</th> 
+                <th>New Role</th>
+                <th>Action</th>
+            </tr>
+            @foreach (var user in Model)
+            {
+            @if (user.UserName == "admoon@Email.com")
+                {
+                 continue;
+                }
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.UserName</td>
+                @{
+                    var Roles = await _UserManager.GetRolesAsync(user);
+                }
+
+                <td> <div class=" card bg-primary fw-bolder justify-content-center p-1 text-lg-center "> @(Roles[0]) </div>  </td>
+                    <td>
+                        <select id="newRole_@user.Id">
+                        @foreach (var role in _RoleManager.Roles )
+                        {
+                            @* Exclude admin role *@
+                            @if (role.Name == "Admin")
+                            {
+                                continue;
+                            }
+                            <option value="@role.Name">@role.Name</option>
+                        }
+                        <!-- Add more roles as needed -->
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn-outline-primary rounded-1 fw-bold" onclick="changeRole('@user.Id')">Change Role</button>
+                    </td>
+                </tr>
+            }
+        </table>
+
+    </div>
+
+    @section Scripts{
+        <script>
+            function changeRole(userId) {
+                var newRole = $('#newRole_' + userId).val();
+                $.ajax({
+                    url: '/Dashboard/ChangeRole',
+                    type: 'POST',
+                    data: { userId: userId, newRole: newRole },
+                    success: function (data) {
+                    alert("success" + userId + newRole);
+                        location.reload();
+                    },
+                    error: function (data) {
+                    alert("error" + userId + newRole);
+                    }
+                });
+            }
+        </script>
+    }
+

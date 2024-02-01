@@ -14,7 +14,9 @@ namespace DoucmentManagmentSys.RoleManagment
 
         public Task<bool> CreateRoles(IServiceProvider serviceProvider);
 
-        public Task<bool> AssignRole(ClaimsPrincipal User, string role);
+        public Task<bool> SwitchRole(ClaimsPrincipal User, string role);
+
+        public Task<bool> SwitchRole(IdentityUser user, string role);
 
         public Task<bool> CheckRole(ClaimsIdentity User, string role);
     }

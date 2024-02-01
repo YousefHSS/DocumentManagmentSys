@@ -17,10 +17,8 @@ namespace DoucmentManagmentSys.RoleManagment
             this.roleManager = roleManager;
 
         }
-        public async Task<bool> AssignRole(ClaimsPrincipal User, string role)
+        public async Task<bool> SwitchRole(ClaimsPrincipal User, string role)
         {
-
-
             var user = await userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -32,27 +30,13 @@ namespace DoucmentManagmentSys.RoleManagment
                 throw new Exception("Role does not exist.");
             }
 
-            var result = await userManager.AddToRoleAsync(user, role);
-            var isInRole = await userManager.IsInRoleAsync(user, role);
-            if (isInRole)
+            var currentRoles = await userManager.GetRolesAsync(user);
+            if (currentRoles.Count > 0)
             {
-                //update the user's claims princibal
-                var claims = await userManager.GetClaimsAsync(user);
-                var claim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
-                if (claim != null)
-                {
-                    await userManager.RemoveClaimAsync(user, claim);
-                }
-                await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role));
-
-
-
-
-                // User is already in the role, no need to assign it again
-                return false;
+                await userManager.RemoveFromRolesAsync(user, currentRoles);
             }
 
-
+            var result = await userManager.AddToRoleAsync(user, role);
             if (!result.Succeeded)
             {
                 throw new Exception("Failed to assign role to user. " + result.Errors);
@@ -60,6 +44,31 @@ namespace DoucmentManagmentSys.RoleManagment
 
             return true;
         }
+
+        public async Task<bool> SwitchRole(IdentityUser user, string role)
+        {
+
+            var roleExists = await roleManager.RoleExistsAsync(role);
+            if (!roleExists)
+            {
+                throw new Exception("Role does not exist.");
+            }
+
+            var currentRoles = await userManager.GetRolesAsync(user);
+            if (currentRoles.Count > 0)
+            {
+                await userManager.RemoveFromRolesAsync(user, currentRoles);
+            }
+
+            var result = await userManager.AddToRoleAsync(user, role);
+            if (!result.Succeeded)
+            {
+                throw new Exception("Failed to assign role to user. " + result.Errors);
+            }
+
+            return true;
+        }
+
 
         public async Task<bool> CheckRole(IdentityUser User, string role)
         {

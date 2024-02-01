@@ -21,7 +21,7 @@ namespace DoucmentManagmentSys.Controllers
         private readonly ILogger<HomeController> _logger;
 
 
-        private readonly IRepository<Document> mainRepo;
+        private readonly IRepository<Document> _mainRepo;
 
         private readonly IRoleManagment _roleManagment;
 
@@ -30,15 +30,15 @@ namespace DoucmentManagmentSys.Controllers
         public HomeController(ILogger<HomeController> logger, IRepository<Document> repository, IRoleManagment roleManagment, SignInManager<IdentityUser> signInManager)
         {
             _logger = logger;
-            mainRepo = repository;
+            _mainRepo = repository;
             _roleManagment = roleManagment;
             _signInManager = signInManager;
         }
 
         public IActionResult Index()
         {
-            IEnumerable<Document> documents = mainRepo.GetAll();
-            return View(mainRepo.GetAll());
+            IEnumerable<Document> documents = _mainRepo.GetAll();
+            return View(_mainRepo.GetAll());
         }
 
         [HttpPost]
@@ -128,8 +128,8 @@ namespace DoucmentManagmentSys.Controllers
                 // Save documents to the database
                 // Your code to save documents to the database goes here
                 int AddedDocuments = 0;
-                AddedDocuments = mainRepo.AddRange(documents);
-                mainRepo.SaveChanges();
+                AddedDocuments = _mainRepo.AddRange(documents);
+                _mainRepo.SaveChanges();
                 ViewBag.Message = AddedDocuments + " Files saved to database successfully.";
             }
             else
@@ -148,7 +148,7 @@ namespace DoucmentManagmentSys.Controllers
         [HttpPost]
         public async Task<IActionResult> DownloadFile(int id)
         {
-            Document document = mainRepo.GetById(id);
+            Document document = _mainRepo.GetById(id);
             if (document == null)
             {
                 return Content("document not found");
@@ -162,15 +162,15 @@ namespace DoucmentManagmentSys.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteFile(int id, string fileName)
         {
-            Document document = mainRepo.Find([id, fileName]);
+            Document document = _mainRepo.Find([id, fileName]);
             if (document == null)
             {
                 return Content("document not found");
             }
             else
             {
-                mainRepo.Delete(document);
-                mainRepo.SaveChanges();
+                _mainRepo.Delete(document);
+                _mainRepo.SaveChanges();
                 return RedirectToAction("index", "Home", ViewBag.Message = "File deleted successfully.");
             }
         }
@@ -194,29 +194,29 @@ namespace DoucmentManagmentSys.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> AdminAsync()
-        {
-            // Add admin logic here
-            // Assuming you have a UserManager instance named "userManager"
+        //[HttpGet]
+        //public async Task<IActionResult> AdminAsync()
+        //{
+        //    // Add admin logic here
+        //    // Assuming you have a UserManager instance named "userManager"
 
-            await _roleManagment.AssignRole(User, "Admin");
+        //    await _roleManagment.SwitchRole(User, "Admin");
 
-            await _signInManager.SignOutAsync();
+        //    await _signInManager.SignOutAsync();
 
-            return RedirectToAction("index", "Home");
-        }
+        //    return RedirectToAction("index", "Home");
+        //}
 
-        [HttpGet]
-        public async Task<IActionResult> UserAsync()
-        {
-            // Add admin logic here
-            // Assuming you have a UserManager instance named "userManager"
+        //[HttpGet]
+        //public async Task<IActionResult> UserAsync()
+        //{
+        //    // Add admin logic here
+        //    // Assuming you have a UserManager instance named "userManager"
 
-            await _roleManagment.AssignRole(User, "User");
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("index", "Home");
-        }
+        //    await _roleManagment.SwitchRole(User, "User");
+        //    await _signInManager.SignOutAsync();
+        //    return RedirectToAction("index", "Home");
+        //}
 
 
 
