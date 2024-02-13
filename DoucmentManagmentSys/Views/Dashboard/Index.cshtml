@@ -32,8 +32,14 @@
                 @{
                     var Roles = await _UserManager.GetRolesAsync(user);
                 }
-
-                <td> <div class=" card bg-primary fw-bolder justify-content-center p-1 text-lg-center "> @(Roles[0]) </div>  </td>
+                @if (Roles.Count !=0) { 
+                    <td> <div class=" card bg-primary fw-bolder justify-content-center p-1 text-lg-center "> @(Roles[0]) </div>  </td>
+                }
+                else
+                {
+<td> <div class=" card bg-danger fw-bolder justify-content-center p-1 text-lg-center "> No Role </div>  </td>
+                    
+                }
                     <td>
                         <select id="newRole_@user.Id">
                         @foreach (var role in _RoleManager.Roles )
@@ -63,7 +69,7 @@
                 var newRole = $('#newRole_' + userId).val();
                 $.ajax({
                     url: '/Dashboard/ChangeRole',
-                    type: 'POST',
+                    type: 'GET',
                     data: { userId: userId, newRole: newRole },
                     success: function (data) {
                     alert("success" + userId + newRole);

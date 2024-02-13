@@ -4,16 +4,19 @@ using DoucmentManagmentSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DoucmentManagmentSys.Data.Migrations
+namespace DoucmentManagmentSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240213122636_updateDocsVersion")]
+    partial class updateDocsVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +28,10 @@ namespace DoucmentManagmentSys.Data.Migrations
             modelBuilder.Entity("DoucmentManagmentSys.Models.Document", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(450)");
@@ -40,7 +46,17 @@ namespace DoucmentManagmentSys.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id", "FileName");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.ToTable("Documents");
                 });

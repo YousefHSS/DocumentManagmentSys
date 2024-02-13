@@ -9,14 +9,13 @@ namespace DoucmentManagmentSys.Repo
         // Create
         void Add(T entity);
 
-        int AddRange(IEnumerable<Document> entities);
+
 
         // Read
         T GetById(int id);
 
         T Find(params object?[]? keyValues);
 
-        T GetByName(string Name);
         IEnumerable<T> GetAll();
 
         // Update

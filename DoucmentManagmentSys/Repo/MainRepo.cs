@@ -40,11 +40,8 @@ namespace DoucmentManagmentSys.Repo
             return _context.Set<T>().Find(keyValues);
         }
 
-        public T GetByName(string Name)
-        {
 
-            return _context.Set<T>().First(u => u.GetType().GetProperty("FileName").GetValue(u).ToString() == Name);
-        }
+
 
         public void SaveChanges()
         {
@@ -56,20 +53,7 @@ namespace DoucmentManagmentSys.Repo
             _context.Set<T>().Update(entity);
         }
 
-        public int AddRange(IEnumerable<Document> entities)
-        {
-            var newDocumentIDs = entities.Select(u => u.FileName).Distinct().ToArray();
 
-            var DocumentInDb = _context.Set<Document>().Where(u => newDocumentIDs.Contains(u.FileName)).Select(u => u.FileName).ToArray();
-
-            var DocumentsNotInDb = entities.Where(u => !DocumentInDb.Contains(u.FileName));
-            foreach (Document document in DocumentsNotInDb)
-            {
-                _context.Add(document);
-            }
-
-            return DocumentsNotInDb.Count();
-        }
 
         public void UpdateRange(IEnumerable<T> entities)
         {

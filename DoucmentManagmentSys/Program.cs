@@ -22,6 +22,7 @@ builder.Services.AddTransient<RoleManager<IdentityRole>>();
 builder.Services.AddTransient<UserManager<IdentityUser>>();
 builder.Services.AddTransient<SignInManager<IdentityUser>>();
 builder.Services.AddTransient(typeof(IRepository<>), typeof(MainRepo<>));
+builder.Services.AddTransient(typeof(DocumentRepository));
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 // Add RoleManager to RoleManagment and UserManager
 
