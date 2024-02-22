@@ -1,0 +1,114 @@
+﻿
+<div >
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.FileName</td>
+            <td>@item.Version</td>
+            <td>@item.CreatedAt</td>
+            <td>@item.UpdatedAt</td>
+
+            <td> <div class="container rounded-2 shadow-sm fw-bold p-1" style="background-color: @GetStatusColor(item.status.ToString())">@item.status</div> </td>
+            @functions
+            {
+            string GetStatusColor(string status)
+            {
+                switch (status)
+                {
+                    case "Under_Revison":
+                        return "#FFC107"; // Yellow
+                    case "Under_Finlization":
+                        return "#007BFF"; // Blue
+                    case "Approved":
+                        return "#28A745"; // Green
+                    case "Rejected":
+                        return "#DC3545"; // Red
+                    default:
+                        return "#FFFFFF"; // White
+                }
+            }
+        }
+        <td>
+           
+            @using (Html.BeginForm("Update", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <INPUT id="oFile" type="file" runat="server" NAME="oFile" class="form-control">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <br />
+                    <button id="btnUpload" type="submit" text="Upload" runat="server" class="btn-secondary p-2 rounded-2">Update</button>
+                    <br />
+                    <Panel ID="frmConfirmation" Visible="False" Runat="server">
+
+                        @*    @if (TempData["Id"].ToString() == @item.Id.ToString())
+                {
+                <Label id="lblUploadResult" Runat="server"> @ViewBag.Messages </Label>
+                } *@
+
+
+                        <br />
+                    </Panel>
+                    <br />
+                }
+                @*   <td>
+            <form method="post" asp-controller="Home" asp-action="Confirmation">
+            <input type="hidden" name="id" value="@item.Id" />
+            <input type="hidden" name="FileName" value="@item.FileName" />
+            <button type="submit" class="btn-danger p-2 rounded-2">Delete</button>
+            </form>
+            </td> *@
+            <td>
+                <form method="post" asp-controller="Home" asp-action="DownloadFile">
+                    <input type="hidden" name="name" value="@item.FileName" />
+                    <input type="hidden" name="id" value="@item.Id" />
+
+                    <button type="submit" class="btn-success p-2 rounded-2">Download</button>
+                </form>
+
+            </td>
+                @{
+
+                    var action = "";
+                    var text = "";
+
+                    if (User.IsInRole("Revisor") && item.status == Document.Status.Under_Revison)
+                    {
+                        action = "Revise";
+                        text = "Send to Final Revision";
+                    }
+                    else if (User.IsInRole("Finalizer") && item.status == Document.Status.Under_Finlization)
+                    {
+                        action = "Finalize";
+                        text = "Approve";
+                    }
+                    else
+                    {
+                        action = "";
+                        text = "";
+                    }
+
+                }
+                @if(action == "")
+                {
+                <td>
+                </td>
+                }
+                else
+                {
+                    <td>
+                    <form method="post" asp-controller="Home" asp-action="Reject">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <input type="hidden" name="FileName" value="@item.FileName" />
+                    <button type="submit" class="btn-danger p-2 rounded-2">reject</button>
+                </form>
+                    <br />
+                    <form method="post" asp-controller="Home" asp-action="Approve">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <input type="hidden" name="FileName" value="@item.FileName" />
+                        <button type="submit" class="btn-success p-2 rounded-2">approve</button>
+                    </form>
+            </td> 
+                }
+           
+        </tr>
+    }
+</div>

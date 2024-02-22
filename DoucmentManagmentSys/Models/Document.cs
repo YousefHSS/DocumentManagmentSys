@@ -48,7 +48,8 @@ namespace DoucmentManagmentSys.Models
         {
             Under_Revison,
             Under_Finlization,
-            Approved
+            Approved,
+            Rejected
 
         }
         public void UpdateVersion(bool major = true, bool minor = false)
@@ -56,8 +57,6 @@ namespace DoucmentManagmentSys.Models
             Version VersionVal = new Version(Version);
             int MajorVal = VersionVal.Major;
             int MinorVal = VersionVal.Minor;
-
-
 
             if (major)
             {
@@ -71,5 +70,35 @@ namespace DoucmentManagmentSys.Models
 
             Version = new Version(MajorVal, MinorVal).ToString();
         }
+
+        public void Approve()
+        {
+            if (status == Status.Under_Revison)
+            {
+                status = Status.Under_Finlization;
+            }
+            else if (status == Status.Under_Finlization)
+            {
+                status = Status.Approved;
+            }
+
+
+
+        }
+        public void Reject()
+        {
+            if (status == Status.Under_Revison)
+            {
+                status = Status.Rejected;
+            }
+            else if (status == Status.Under_Finlization)
+            {
+                status = Status.Under_Revison;
+            }
+
+
+        }
+
+
     }
 }

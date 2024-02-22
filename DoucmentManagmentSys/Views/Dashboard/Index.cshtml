@@ -69,14 +69,14 @@
                 var newRole = $('#newRole_' + userId).val();
                 $.ajax({
                     url: '/Dashboard/ChangeRole',
-                    type: 'GET',
+                    type: 'POST',
                     data: { userId: userId, newRole: newRole },
                     success: function (data) {
                     alert("success" + userId + newRole);
                         location.reload();
                     },
                     error: function (data) {
-                    alert("error" + userId + newRole);
+                    alert("error" + userId + newRole + data);
                     }
                 });
             }

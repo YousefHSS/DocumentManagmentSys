@@ -115,6 +115,19 @@
             return docs;
 
         }
+        public static async Task<byte[]?> GetFileContent(string FileName, string strFolder = "./UploadedFiles/")
+        {
+
+            byte[]? fileData = null;
+
+            if (Directory.Exists(strFolder))
+            {
+                // Get the file content
+                fileData = await System.IO.File.ReadAllBytesAsync(strFolder + FileName);
+            }
+            return fileData;
+
+        }
 
 
     }

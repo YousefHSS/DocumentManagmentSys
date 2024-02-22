@@ -7,6 +7,8 @@
 
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
+    @* UseExtensions the search partial *@
+    @await Html.PartialAsync("_SearchPartial")
     @if( User.IsInRole("Uploader"))
     {
          @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -17,7 +19,7 @@
         <br />
         <Panel ID="frmConfirmation" Visible="False" Runat="server">
 
-                    <Label id="lblUploadResult" Runat="server"> @ViewBag.Message</Label>
+                    
 
                 
             <br />
@@ -25,7 +27,7 @@
         <br />
     }
     }
-
+    <Label id="lblUploadResult" Runat="server"> @ViewBag.Message</Label>
   
 
      @* <a asp-area="" asp-controller="Home" asp-action="SaveFilesToDB" class="btn-success p-2 rounded-2 text-decoration-none">Save All</a> *@
@@ -45,75 +47,14 @@
                 <th scope="col">Update</th>
                 @* <th scope="col">Delete</th> *@
                 <th scope="col">Download</th>
+                <th scope="col">Action</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.FileName</td>
-                    <td>@item.Version</td>
-                    <td>@item.CreatedAt</td>
-                    <td>@item.UpdatedAt</td>
-
-                    <td> <div class="container rounded-2 shadow-sm fw-bold p-1" style="background-color: @GetStatusColor(item.status.ToString())">@item.status</div> </td>
-                    @functions
-                    {
-                        string GetStatusColor(string status)
-                        {
-                            switch (status)
-                            {
-                                case "Under_Revison":
-                                    return "#FFC107"; // Yellow
-                                case "Approved":
-                                    return "#28A745"; // Green
-                                case "Rejected":
-                                    return "#DC3545"; // Red
-                                default:
-                                    return "#FFFFFF"; // White
-                            }
-                        }
-                    }
-<td>
-                        @using (Html.BeginForm("Update", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                        {
-                            <INPUT id="oFile" type="file" runat="server" NAME="oFile" class="form-control">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <br />
-                            <button id="btnUpload" type="submit" text="Upload" runat="server" class="btn-secondary p-2 rounded-2">Update</button>
-                            <br />
-                            <Panel ID="frmConfirmation" Visible="False" Runat="server">
-                                
-                                    @if (TempData["Id"].ToString() == @item.Id.ToString())
-                                    {
-                                        <Label id="lblUploadResult" Runat="server"> @ViewBag.Messages </Label>
-                                    }
-                             
-                              
-                                <br />
-                            </Panel>
-                            <br />
-                        }
-                  @*   <td>
-                        <form method="post" asp-controller="Home" asp-action="Confirmation">
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <input type="hidden" name="FileName" value="@item.FileName" />
-                            <button type="submit" class="btn-danger p-2 rounded-2">Delete</button>
-                        </form>
-                    </td> *@
-                    <td>
-                        <form method="post" asp-controller="Home" asp-action="DownloadFile">
-                            <input type="hidden" name="name" value="@item.FileName" />
-                            <input type="hidden" name="id" value="@item.Id" />
-
-                        <button type="submit" class="btn-success p-2 rounded-2">Download</button>
-                        </form>
-                        
-                    </td>
-                </tr>
-            }
+        <tbody class="DocsListPartial">
+            @await Html.PartialAsync("_DocsListPartial", Model)
         </tbody>
     </table>
+    
 @*     var user = User.IsInRole("Admin");
     <div>@user</div>
 
@@ -144,6 +85,25 @@ else
 @section Scripts{
 
 <script>
+
+        function Search() {
+            var search = $(".form-control").val();
+            $.ajax({
+                url: "/Home/Search",
+                type: "POST",
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                data: { search: search },
+                success: function (data) {
+                    
+                    // replace the whole page with the new data
+
+                    $(".DocsListPartial").html(data);
+
+                }
+            });
+        }
        
     </script>
 

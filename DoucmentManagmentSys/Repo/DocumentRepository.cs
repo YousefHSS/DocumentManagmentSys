@@ -38,12 +38,14 @@ namespace DoucmentManagmentSys.Repo
             MessageResult Result = new MessageResult();
             Result.Status = true;
             Result.Message = "Document updated successfully";
+            //Get file content from Uploaded files
+
             var DocumentInDb = _context.Set<Document>().Where(u => (u.Id == id && u.FileName == newName)).FirstOrDefault();
             if (DocumentInDb != null)
             {
                 DocumentInDb.FileName = newName;
                 DocumentInDb.UpdatedAt = DateTime.Now;
-                DocumentInDb.UpdateVersion();
+                DocumentInDb.Content = ServerFileManager.GetFileContent(newName).Result ?? DocumentInDb.Content;
                 _context.Update(DocumentInDb);
             }
             else
@@ -54,6 +56,13 @@ namespace DoucmentManagmentSys.Repo
 
 
             return Result;
+        }
+
+        public IEnumerable<Document> Search(string search)
+        {
+            var DocumentInDb = _context.Set<Document>().Where(u => u.FileName.Contains(search)).ToList();
+
+            return DocumentInDb;
         }
 
 

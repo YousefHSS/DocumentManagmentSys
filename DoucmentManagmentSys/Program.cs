@@ -1,9 +1,10 @@
 using DoucmentManagmentSys.Data;
+using DoucmentManagmentSys.Models.Static;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<RoleManager<IdentityRole>>();
 builder.Services.AddTransient<UserManager<IdentityUser>>();
 builder.Services.AddTransient<SignInManager<IdentityUser>>();
+//builder.Services.AddTransient(typeof(EmailSender));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient(typeof(IRepository<>), typeof(MainRepo<>));
 builder.Services.AddTransient(typeof(DocumentRepository));
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));

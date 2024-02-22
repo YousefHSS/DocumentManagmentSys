@@ -14,6 +14,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Routing;
 using DoucmentManagmentSys.Models.Static;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using CC.Web.Helpers;
+
 
 
 namespace DoucmentManagmentSys.Controllers
@@ -21,6 +25,7 @@ namespace DoucmentManagmentSys.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+
 
 
         private readonly DocumentRepository _DocsRepo;
@@ -35,6 +40,8 @@ namespace DoucmentManagmentSys.Controllers
             _DocsRepo = repository;
             _roleManagment = roleManagment;
             _signInManager = signInManager;
+
+
         }
 
         public IActionResult Index(string Message, string Messages)
@@ -48,6 +55,7 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Uploader")]
         public async Task<IActionResult> UploadFile(IFormFile oFile)
         {
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
@@ -58,7 +66,6 @@ namespace DoucmentManagmentSys.Controllers
             }
 
             return RedirectToAction("index", "Home", new { Message = result.Message });
-
         }
 
 
@@ -88,9 +95,6 @@ namespace DoucmentManagmentSys.Controllers
             {
                 _DocsRepo.SaveChanges();
             }
-
-
-
 
             ServerFileManager.CleanDirectory(strFolder);
             return Result;
@@ -169,39 +173,80 @@ namespace DoucmentManagmentSys.Controllers
             return View("Confirmation");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Search(string search)
+        {
+            if (search == null || search == string.Empty)
+            {
+                return PartialView("_DocsListPartial", _DocsRepo.GetAll());
+            }
+            else
+            {
+                return PartialView("_DocsListPartial", _DocsRepo.Search(search));
+            }
+
+
+        }
+
+        [HttpGet]
+        public IActionResult GSearch(string search)
+        {
+            if (search == null || search == string.Empty)
+            {
+                return View("index", _DocsRepo.GetAll());
+            }
+            else
+            {
+                return View("index", _DocsRepo.Search(search));
+            }
+
+
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Finalizer ,Revisor")]
+        public async Task<IActionResult> Approve(int id, string Filename)
+        {
+            MessageResult result = new MessageResult();
+            result.Status = false;
+            result.Message = "File not approved successfully.";
+            Document Doc = _DocsRepo.Find([id, Filename]);
+            if ((Doc.status == Document.Status.Under_Finlization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
+            {
+                result.Status = true;
+                result.Message = "File Approved successfully.";
+                return RedirectToAction("SendMail", "Mail", new { Filename = Filename });
+            }
+
+            return RedirectToAction("index", "Home", new { Message = result.Status });
+
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Revisor ,Finalizer")]
+        public void Reject(int id, string Filename)
+        {
+            Document Doc = _DocsRepo.Find([id, Filename]);
+            if ((Doc.status == Document.Status.Under_Finlization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
+            {
+                Doc.Reject();
+            }
+
+        }
+
+
+
+        public IActionResult Docs()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        //[HttpGet]
-        //public async Task<IActionResult> AdminAsync()
-        //{
-        //    // Add admin logic here
-        //    // Assuming you have a UserManager instance named "userManager"
-
-        //    await _roleManagment.SwitchRole(User, "Admin");
-
-        //    await _signInManager.SignOutAsync();
-
-        //    return RedirectToAction("index", "Home");
-        //}
-
-        //[HttpGet]
-        //public async Task<IActionResult> UserAsync()
-        //{
-        //    // Add admin logic here
-        //    // Assuming you have a UserManager instance named "userManager"
-
-        //    await _roleManagment.SwitchRole(User, "User");
-        //    await _signInManager.SignOutAsync();
-        //    return RedirectToAction("index", "Home");
-        //}
-
-
-
 
 
 
