@@ -6,11 +6,12 @@ namespace DoucmentManagmentSys.Models
     {
         public string link;
         public string action;
-
-        public MailModel(string link, string action)
+        public string? Reason { get; set; }
+        public MailModel(string link, string action, string? reason)
         {
             this.link = link;
             this.action = action;
+            Reason = reason;
         }
 
 

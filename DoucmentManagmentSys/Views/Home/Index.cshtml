@@ -7,6 +7,7 @@
 
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
+    
     @* UseExtensions the search partial *@
     @await Html.PartialAsync("_SearchPartial")
     @if( User.IsInRole("Uploader"))
@@ -104,7 +105,27 @@ else
                 }
             });
         }
-       
+        $(document).ready(function () {
+
+            const container = document.getElementsByClassName('bubbleContainer');
+            
+            
+            // get elemenent after the container
+
+            for (let i = 0; i < container.length; i++) {
+                const bubble = container[i].querySelector('.bubble');
+                container[i].addEventListener('mouseover', () => {
+                    bubble.classList.add('active');
+                    
+                });
+
+                container[i].addEventListener('mouseout', () => {
+                    bubble.classList.remove('active');
+                    
+                });
+            }
+
+        });
     </script>
 
 }

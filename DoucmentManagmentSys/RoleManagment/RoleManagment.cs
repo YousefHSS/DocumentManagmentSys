@@ -102,5 +102,11 @@ namespace DoucmentManagmentSys.RoleManagment
             return true;
         }
 
+        public string?[] GetUsersByRole(string role)
+        {
+            var users = userManager.GetUsersInRoleAsync(role).Result;
+            return users.Select(u => u.Email).ToArray();
+        }
+
     }
 }

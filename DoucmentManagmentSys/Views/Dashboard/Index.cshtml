@@ -32,9 +32,28 @@
                 @{
                     var Roles = await _UserManager.GetRolesAsync(user);
                 }
-                @if (Roles.Count !=0) { 
-                    <td> <div class=" card bg-primary fw-bolder justify-content-center p-1 text-lg-center "> @(Roles[0]) </div>  </td>
-                }
+                    @{
+                        
+                        string roleColor = "bg-primary"; // default color for roles
+                        if (Roles.Count != 0) {
+                            if (Roles[0] == "Revisor")
+                            {
+                                roleColor = " bg-info"; // color for Admin
+                            }
+
+                            else if (Roles[0] == "User")
+                            {
+                                    roleColor = "bg-success"; // color for User
+                            } // add more roles as needed
+                            else if (Roles[0] == "Uploader")
+                            {
+                                roleColor = "bg-warning"; // color for User
+                            } // add more roles as needed
+                        }
+                    }
+                    @if (Roles.Count != 0) { 
+                        <td> <div class="card @roleColor  fw-bolder justify-content-center p-1 text-lg-center "> @(Roles[0]) </div>  </td>
+                    }
                 else
                 {
 <td> <div class=" card bg-danger fw-bolder justify-content-center p-1 text-lg-center "> No Role </div>  </td>

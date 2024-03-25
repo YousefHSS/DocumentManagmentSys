@@ -3,6 +3,7 @@ using DoucmentManagmentSys.Models.Static;
 using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using DoucmentManagmentSys.RoleManagment;
 
 namespace DoucmentManagmentSys.Controllers
 {
@@ -10,9 +11,13 @@ namespace DoucmentManagmentSys.Controllers
     {
         private readonly IEmailSender emailSender;
 
-        public MailController(IEmailSender emailSender)
+        private readonly IRoleManagment _roleManagment;
+
+
+        public MailController(IEmailSender emailSender, IRoleManagment roleManagment)
         {
             this.emailSender = emailSender;
+            this._roleManagment = roleManagment;
         }
 
         public IActionResult Index()
@@ -21,18 +26,44 @@ namespace DoucmentManagmentSys.Controllers
             return View();
         }
 
-        public async Task<IActionResult> SendMailAsync(string Filename)
+        public async Task<IActionResult> SendMailAsync(string Filename, string actionTaken, Document.Status status, string? reason)
         {
-            //Doc.Approve();
-            //_DocsRepo.SaveChanges();
+            // Get the domain from the current HTTP context
             string domain = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
-            MailModel mailModel = new MailModel($"{domain}{Url.Action("GSearch", "Home", new { search = Filename })}", "Approve");
 
-            //MailModel mailModel = new MailModel(Url.+Url.Action("GSearch", "Home", new { search = Filename }), "Approve");
+            // Create a new MailModel with the search URL and action
+            MailModel mailModel = new MailModel($"{domain}{Url.Action("GSearch", "Home", new { search = Filename })}", actionTaken, reason);
+
+            // Render the view for the mail model
             ViewResult view = View("Index", mailModel);
 
+            // Get the body of the email by rendering the view asynchronously
             var body = ControllerExtensions.RenderViewAsync(this, "Index", mailModel, true).Result;
-            await emailSender.SendEmailAsync("yousefhussen139@gmail.com", "Test", body);
+
+            // Default role is "Uploader"
+            var role = "Uploader";
+
+            // Determine the role based on the document status
+            switch (status)
+            {
+                case Document.Status.Under_Revison:
+                    role = "Revisor";
+                    break;
+                case Document.Status.Under_Finalization:
+                    role = "Finalizer";
+                    break;
+            }
+
+            // Get the users with the determined role
+            string[] users = _roleManagment.GetUsersByRole(role);
+
+            // Send an email to each user
+            foreach (var user in users)
+            {
+                await emailSender.SendEmailAsync(user, Filename + " has been " + actionTaken, body);
+            }
+
+            // Redirect to the home page with a success message
             return RedirectToAction("index", "Home", new { Message = "Mail Sent." });
         }
 

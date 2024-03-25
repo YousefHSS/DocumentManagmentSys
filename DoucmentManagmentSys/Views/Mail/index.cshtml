@@ -35,7 +35,7 @@
         .button {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #006600;
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
@@ -50,11 +50,31 @@
     </style>
 </head>
 <body>
+    @{
+        string a;
+        
+         if (Model != null)
+        {
+                     a = Model.action;
+
+        }
+        else
+        {
+             a ="none";
+
+        }
+    }
     <div class="container">
-        <h1>A Document has been @Model.action </h1>
-        <p>This is a simple styled HTML email.</p>
+        <h1>A Document has been @a </h1>
+        @{
+            if (Model.Reason != null)
+            {
+                <p>Document has been rejected because @Model.Reason</p>
+
+            }
+        }
         <p>to Check the document please click on the below link.</p>
-        <a href="@Model.link" class="button">Click Here</a>
+        <a href="@(Model != null ? Model.link : "#")" class="button fw-bolder" style="-webkit-text-stroke: 0.3px black;">Click Here</a>
     </div>
 </body>
 </html>

@@ -1,22 +1,11 @@
 using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Web;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNet.Identity;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc.Routing;
 using DoucmentManagmentSys.Models.Static;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using CC.Web.Helpers;
 
 
 
@@ -206,33 +195,52 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Finalizer ,Revisor")]
-        public async Task<IActionResult> Approve(int id, string Filename)
+        public IActionResult Approve(int id, string Filename)
         {
-            MessageResult result = new MessageResult();
-            result.Status = false;
-            result.Message = "File not approved successfully.";
+            MessageResult result = new MessageResult("File not Approved.");
             Document Doc = _DocsRepo.Find([id, Filename]);
-            if ((Doc.status == Document.Status.Under_Finlization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
+            if ((Doc.status == Document.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
             {
+                Doc.Approve();
+                _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Approved successfully.";
-                return RedirectToAction("SendMail", "Mail", new { Filename = Filename });
+                return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Approved", status = Doc.status });
             }
 
             return RedirectToAction("index", "Home", new { Message = result.Status });
 
         }
+        [HttpPost]
+        [Authorize(Roles = "Finalizer ,Revisor")]
+        [ValidateAntiForgeryToken]
+        public IActionResult RejectPopup(int id, string Filename)
+        {
+            return PartialView("_ReasonPopup", _DocsRepo.Find([id, Filename]));
+        }
+
+
 
         [HttpPost]
         [Authorize(Roles = "Revisor ,Finalizer")]
-        public void Reject(int id, string Filename)
+        [ValidateAntiForgeryToken]
+        public IActionResult Reject(int id, string Filename, string reason)
         {
+            MessageResult result = new MessageResult("File not Rejected.");
             Document Doc = _DocsRepo.Find([id, Filename]);
-            if ((Doc.status == Document.Status.Under_Finlization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
+            if ((Doc.status == Document.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
             {
-                Doc.Reject();
+                //displayRejectPopup
+
+
+                Doc.Reject(reason);
+                _DocsRepo.SaveChanges();
+                result.Status = true;
+                result.Message = "File Rejected successfully.";
+                return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Rejected", status = Doc.status, reason = reason });
             }
 
+            return RedirectToAction("index", "Home", new { Message = result.Status });
         }
 
 

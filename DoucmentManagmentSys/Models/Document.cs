@@ -23,6 +23,8 @@ namespace DoucmentManagmentSys.Models
         public DateTime UpdatedAt { get; set; }
         public string Version { get; set; }
 
+        public string? Reason { get; set; }
+
         public Status status { get; set; }
 
 
@@ -47,7 +49,7 @@ namespace DoucmentManagmentSys.Models
         public enum Status
         {
             Under_Revison,
-            Under_Finlization,
+            Under_Finalization,
             Approved,
             Rejected
 
@@ -73,11 +75,12 @@ namespace DoucmentManagmentSys.Models
 
         public void Approve()
         {
+            Reason = null;
             if (status == Status.Under_Revison)
             {
-                status = Status.Under_Finlization;
+                status = Status.Under_Finalization;
             }
-            else if (status == Status.Under_Finlization)
+            else if (status == Status.Under_Finalization)
             {
                 status = Status.Approved;
             }
@@ -85,13 +88,14 @@ namespace DoucmentManagmentSys.Models
 
 
         }
-        public void Reject()
+        public void Reject(string reason)
         {
+            Reason = reason;
             if (status == Status.Under_Revison)
             {
                 status = Status.Rejected;
             }
-            else if (status == Status.Under_Finlization)
+            else if (status == Status.Under_Finalization)
             {
                 status = Status.Under_Revison;
             }

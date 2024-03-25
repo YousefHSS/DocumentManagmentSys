@@ -19,5 +19,7 @@ namespace DoucmentManagmentSys.RoleManagment
         public Task<bool> SwitchRole(IdentityUser user, string role);
 
         public Task<bool> CheckRole(ClaimsIdentity User, string role);
+
+        public string[] GetUsersByRole(string role);
     }
 }
