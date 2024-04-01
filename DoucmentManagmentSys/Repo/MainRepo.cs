@@ -40,6 +40,12 @@ namespace DoucmentManagmentSys.Repo
             return _context.Set<T>().Find(keyValues);
         }
 
+        //GetWhere
+        public IEnumerable<T> GetWhere(System.Linq.Expressions.Expression<System.Func<T, bool>> predicate)
+        {
+            return _context.Set<T>().Where(predicate);
+        }
+
 
 
 

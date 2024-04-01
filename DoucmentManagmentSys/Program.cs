@@ -1,9 +1,12 @@
 using DoucmentManagmentSys.Data;
+using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Models.Static;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,10 +29,38 @@ builder.Services.AddTransient<SignInManager<IdentityUser>>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient(typeof(IRepository<>), typeof(MainRepo<>));
 builder.Services.AddTransient(typeof(DocumentRepository));
+builder.Services.AddTransient(typeof(MainRepo< HistoryAction>));
+builder.Services.AddTransient(typeof(MainRepo< HistoryLog>));
+
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
-// Add RoleManager to RoleManagment and UserManager
 
-
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(6);
+    options.SlidingExpiration = true;
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+    options.Cookie.Name = "DocumentManagmentSys";
+    //options.Events = new CookieAuthenticationEvents
+    //{
+    //    OnRedirectToLogin = ctx =>
+    //    {
+    //        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+    //        {
+    //            ctx.Response.StatusCode = 401;
+    //        }
+    //        else
+    //        {
+    //            ctx.Response.Redirect(ctx.RedirectUri);
+    //        }
+    //        return Task.CompletedTask;
+    //    }
+    //};
+});
 
 var app = builder.Build();
 
@@ -50,7 +81,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
@@ -62,6 +95,10 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
     CreateRoles(app.Services, userManager, roleManager).Wait();    // do you things here
 }
+
+
+
+
 
 
 app.Run();
@@ -110,4 +147,6 @@ async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUse
         }
     }
 }
+
+
 

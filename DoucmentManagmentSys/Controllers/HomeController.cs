@@ -108,6 +108,8 @@ namespace DoucmentManagmentSys.Controllers
             else
             {
 
+                return RedirectToAction("AddActionToLog", "HistoryLog",new {action = HistoryAction.Downloaded , id=id, doc_name=name });
+
                 return File(document.Content, FileTypes.GetContentType(document.FileName), document.FileName);
             }
         }
@@ -153,6 +155,7 @@ namespace DoucmentManagmentSys.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Confirmation(int id, string FileName)
@@ -211,6 +214,7 @@ namespace DoucmentManagmentSys.Controllers
             return RedirectToAction("index", "Home", new { Message = result.Status });
 
         }
+
         [HttpPost]
         [Authorize(Roles = "Finalizer ,Revisor")]
         [ValidateAntiForgeryToken]
@@ -255,6 +259,7 @@ namespace DoucmentManagmentSys.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
 
 
 
