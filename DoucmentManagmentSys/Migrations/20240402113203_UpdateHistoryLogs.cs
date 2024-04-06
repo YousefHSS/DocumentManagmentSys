@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DoucmentManagmentSys.Migrations
 {
     /// <inheritdoc />
-    public partial class HistroyLogsUpdate : Migration
+    public partial class UpdateHistoryLogs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,23 +39,24 @@ namespace DoucmentManagmentSys.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Action = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    HistoryLogid = table.Column<int>(type: "int", nullable: true)
+                    historyLogid = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HistoryActions", x => x.id);
                     table.ForeignKey(
-                        name: "FK_HistoryActions_HistoryLogs_HistoryLogid",
-                        column: x => x.HistoryLogid,
+                        name: "FK_HistoryActions_HistoryLogs_historyLogid",
+                        column: x => x.historyLogid,
                         principalTable: "HistoryLogs",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_HistoryActions_HistoryLogid",
+                name: "IX_HistoryActions_historyLogid",
                 table: "HistoryActions",
-                column: "HistoryLogid");
+                column: "historyLogid");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HistoryLogs_Document_idId_Document_idFileName",

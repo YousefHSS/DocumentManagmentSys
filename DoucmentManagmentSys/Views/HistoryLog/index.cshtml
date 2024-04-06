@@ -1,0 +1,47 @@
+﻿@* the history Log Page *@
+@model IEnumerable<HistoryAction>?
+@* Title For Page *@
+<h1>Audit History of <strong>@TempData["Document"]</strong></h1>
+@if (Model!=null)
+{
+    @* a simple bootstrap table *@
+    <table class="table table-striped border">
+        <thead>
+            <tr>
+                <th>Action Taken</th>
+                <th>Created</th>
+                <th>Taken By</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Action)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+
+
+        </tr>
+    
+    }
+    </tbody>
+    </table>
+}
+else
+{
+    <tr>
+        <td>
+            No history
+        </td>
+    </tr>
+}
+

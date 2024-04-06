@@ -76,16 +76,16 @@ namespace DoucmentManagmentSys.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("HistoryLogid")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("historyLogid")
+                        .HasColumnType("int");
+
                     b.HasKey("id");
 
-                    b.HasIndex("HistoryLogid");
+                    b.HasIndex("historyLogid");
 
                     b.ToTable("HistoryActions");
                 });
@@ -316,9 +316,13 @@ namespace DoucmentManagmentSys.Migrations
 
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryAction", b =>
                 {
-                    b.HasOne("DoucmentManagmentSys.Models.HistoryLog", null)
+                    b.HasOne("DoucmentManagmentSys.Models.HistoryLog", "historyLog")
                         .WithMany("HistoryActions")
-                        .HasForeignKey("HistoryLogid");
+                        .HasForeignKey("historyLogid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("historyLog");
                 });
 
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryLog", b =>

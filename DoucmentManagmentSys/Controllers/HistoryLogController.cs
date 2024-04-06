@@ -2,96 +2,89 @@
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DoucmentManagmentSys.Controllers
 {
-    
+
     public class HistoryLogController : Controller
     {
-        public SignInManager<IdentityUser> _signInManager { get; set; }
         private readonly MainRepo<HistoryAction> _HistoryActionRepo;
         private readonly MainRepo<HistoryLog> _HistoryLogRepo;
         private readonly DocumentRepository _DocumentRepo;
 
 
-        public HistoryLogController( SignInManager<IdentityUser> signInManager, MainRepo<HistoryAction> repository, MainRepo<HistoryLog> repositorylog , DocumentRepository repositorydoc)
+        public HistoryLogController(MainRepo<HistoryAction> repository, MainRepo<HistoryLog> repositorylog, DocumentRepository repositorydoc)
         {
-            _signInManager = signInManager;
             _HistoryActionRepo = repository;
             _HistoryLogRepo = repositorylog;
             _DocumentRepo = repositorydoc;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        public IActionResult Index(string doc_name)
         {
-            //return partial view
-            return PartialView();
-        }
-        [HttpGet]
-        public  IActionResult  AddActionToLog(string action,int id, string doc_name) 
-        {
+                        //get document by name
+            var Document = _DocumentRepo.GetWhere(x => x.FileName == doc_name).FirstOrDefault();
 
-            //get username from session
-            var test = GetNormalizedUserName(User.Identity.GetUserId()).Result;
-
-            //create history action
-            HistoryAction historyAction = new HistoryAction {
-                Action = action,
-                UserName = test?? "not Found"
-            };
-            //get document by id
-            var Document = _DocumentRepo.Find([id, doc_name]);
-            //check history log of document if exist
+            //get history log of document
             var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == Document).FirstOrDefault();
-            _HistoryActionRepo.Add(historyAction);
-            if (historyLog == null)
+            //return view with history log
+            //get all history actions with that log id
+            List<HistoryAction>? HistoryActions =null;
+            if (historyLog != null)
             {
-
-                //create new history log
-                HistoryLog New_historyLog = new HistoryLog
-                {
-                    Document_id = Document,
-                    HistoryActions = new Collection<HistoryAction> { historyAction }
-                };
-                //add history log to db
-                _HistoryLogRepo.Add(New_historyLog);
+                HistoryActions = _HistoryActionRepo.GetWhere(x => x.historyLog == historyLog).ToList();
             }
-            else
-            {
-
-                //add history action to history log
-                historyLog.HistoryActions.Add(historyAction);
-                
-                //update history log
-                _HistoryLogRepo.Update(historyLog);
-            }
-            _HistoryLogRepo.SaveChanges();
-            _HistoryActionRepo.SaveChanges();
-            return RedirectToAction("index", "Home", new { Message = "Action Added Successfully" });
-
-
-
-
-
-
+            TempData["Document"] = doc_name;
+            //return partial view
+            return View(model: HistoryActions);
         }
-        public async Task<string?> GetNormalizedUserName(string userId)
+        [HttpPost]
+        public  void  AddLogThenProcced(string actionName,int id, string doc_name) 
         {
-            // Retrieve the user by their ID
-            var user = await _signInManager.UserManager.FindByIdAsync(userId);
+            
+            ////get username from session
+            //var test = User.Identity.Name;
 
-            if (user == null)
-            {
-                return null; // Or handle the scenario where the user is not found
-            }
+            ////create history action
+            //HistoryAction historyAction = new HistoryAction {
+            //    Action = actionName,
+            //    UserName = test?? "not Found"
+            //};
+            ////get document by id
+            //var Document = _DocumentRepo.Find([id, doc_name]);
+            ////check history log of document if exist
+            //var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == Document).FirstOrDefault();
+            //_HistoryActionRepo.Add(historyAction);
+            //if (historyLog == null)
+            //{
 
-            // Get the normalized username
-            var normalizedUserName = user.NormalizedUserName;
+            //    //create new history log
+            //    HistoryLog New_historyLog = new HistoryLog
+            //    {
+            //        Document_id = Document,
+            //        HistoryActions = new Collection<HistoryAction> { historyAction }
+            //    };
+            //    //add history log to db
+            //    _HistoryLogRepo.Add(New_historyLog);
+            //}
+            //else
+            //{
 
-            return normalizedUserName;
+            //    //add history action to history log
+            //    historyLog.HistoryActions.Add(historyAction);
+                
+            //    //update history log
+            //    _HistoryLogRepo.Update(historyLog);
+            //}
+            //_HistoryLogRepo.SaveChanges();
+            //_HistoryActionRepo.SaveChanges();
+            ViewBag.message = "done";
         }
+
 
 
     }

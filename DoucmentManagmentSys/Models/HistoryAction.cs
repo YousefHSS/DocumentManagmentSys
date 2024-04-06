@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DoucmentManagmentSys.Migrations;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,6 +13,9 @@ namespace DoucmentManagmentSys.Models
 
         [ForeignKey("AspNetUsers")]
         public required string UserName { get; set; }
+
+        [Required]
+        public HistoryLog historyLog { get; set; }
         public DateTime CreatedAt { get; set; }
         public HistoryAction()
         {

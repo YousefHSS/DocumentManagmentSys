@@ -6,6 +6,7 @@ using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
 using DoucmentManagmentSys.Models.Static;
 using Microsoft.AspNetCore.Authorization;
+using DoucmentManagmentSys.Controllers.Helpers;
 
 
 
@@ -19,16 +20,22 @@ namespace DoucmentManagmentSys.Controllers
 
         private readonly DocumentRepository _DocsRepo;
 
+        private readonly MainRepo<HistoryAction> _HistoryActionRepo;
+
+        private readonly MainRepo<HistoryLog> _HistoryLogRepo;
+
         private readonly IRoleManagment _roleManagment;
 
         public SignInManager<IdentityUser> _signInManager { get; set; }
 
-        public HomeController(ILogger<HomeController> logger, DocumentRepository repository, IRoleManagment roleManagment, SignInManager<IdentityUser> signInManager)
+        public HomeController(ILogger<HomeController> logger, DocumentRepository repository, IRoleManagment roleManagment, SignInManager<IdentityUser> signInManager, MainRepo<HistoryAction> HistoryActionRepo, MainRepo<HistoryLog> HistoryLogRepo)
         {
             _logger = logger;
             _DocsRepo = repository;
             _roleManagment = roleManagment;
             _signInManager = signInManager;
+            _HistoryActionRepo = HistoryActionRepo;
+            _HistoryLogRepo = HistoryLogRepo;
 
 
         }
@@ -62,10 +69,13 @@ namespace DoucmentManagmentSys.Controllers
         public async Task<MessageResult> SaveToDB()
         {
             string strFolder = "./UploadedFiles/";
-            MessageResult Result = _DocsRepo.AddRange(await ServerFileManager.FilesToDocs());
+            List<Document> documents = await ServerFileManager.FilesToDocs();
+            MessageResult Result = _DocsRepo.AddRange(documents);
 
             if (Result.Status)
             {
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Updated, documents[0], _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+
                 _DocsRepo.SaveChanges();
             }
 
@@ -82,6 +92,8 @@ namespace DoucmentManagmentSys.Controllers
             MessageResult Result = _DocsRepo.Update(id, newName);
             if (Result.Status)
             {
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Updated, newName, id, _DocsRepo, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+
                 _DocsRepo.SaveChanges();
             }
 
@@ -92,6 +104,7 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult DownloadFile(string name, int id)
         {
             string Message = "Download Started.";
@@ -108,7 +121,6 @@ namespace DoucmentManagmentSys.Controllers
             else
             {
 
-                return RedirectToAction("AddActionToLog", "HistoryLog",new {action = HistoryAction.Downloaded , id=id, doc_name=name });
 
                 return File(document.Content, FileTypes.GetContentType(document.FileName), document.FileName);
             }
@@ -208,6 +220,17 @@ namespace DoucmentManagmentSys.Controllers
                 _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Approved successfully.";
+                if (Doc.status == Document.Status.Under_Finalization)
+                {
+                    AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+
+                }
+                else
+                {
+                    AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                }
+
+                
                 return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Approved", status = Doc.status });
             }
 
@@ -241,6 +264,7 @@ namespace DoucmentManagmentSys.Controllers
                 _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Rejected successfully.";
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
                 return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Rejected", status = Doc.status, reason = reason });
             }
 

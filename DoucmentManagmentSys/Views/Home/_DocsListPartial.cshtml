@@ -135,6 +135,15 @@
                     </form>
                 </td>
                 }
+                <td>
+                    <form asp-action="Index" asp-controller="HistoryLog">
+                <input type="hidden" name="doc_name" value="@item.FileName" />
+                        <button type="submit" class="btn-block p-2 rounded-2 w-100" @* onclick="showLogs('@item.FileName')" *@>
+                                <img class="navbar-toggler-icon" src="~/PNGs/log.png" alt="History" />
+                        </button>
+                    </form>
+
+                </td>
 
         </tr>
     }
@@ -142,7 +151,7 @@
 
 
     <script>
-
+        
         
         function Reject(FileName, id) {
                         $.ajax({
@@ -166,3 +175,9 @@
 
 
     </script>
+
+        <script src="~/js/Logs.js">
+         
+        </script>
+   
+
