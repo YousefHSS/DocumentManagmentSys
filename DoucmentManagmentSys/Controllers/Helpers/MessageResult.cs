@@ -1,4 +1,4 @@
-﻿namespace DoucmentManagmentSys.Models.Static
+﻿namespace DoucmentManagmentSys.Controllers.Helpers
 {
     public struct MessageResult
     {

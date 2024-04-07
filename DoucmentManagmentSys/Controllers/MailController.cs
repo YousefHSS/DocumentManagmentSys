@@ -1,5 +1,5 @@
 ﻿using CC.Web.Helpers;
-using DoucmentManagmentSys.Models.Static;
+
 using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -26,7 +26,7 @@ namespace DoucmentManagmentSys.Controllers
             return View();
         }
 
-        public async Task<IActionResult> SendMailAsync(string Filename, string actionTaken, Document.Status status, string? reason)
+        public async Task<IActionResult> SendMailAsync(string Filename, string actionTaken, PrimacyDocument.Status status, string? reason)
         {
             // Get the domain from the current HTTP context
             string domain = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
@@ -46,10 +46,10 @@ namespace DoucmentManagmentSys.Controllers
             // Determine the role based on the document status
             switch (status)
             {
-                case Document.Status.Under_Revison:
+                case PrimacyDocument.Status.Under_Revison:
                     role = "Revisor";
                     break;
-                case Document.Status.Under_Finalization:
+                case PrimacyDocument.Status.Under_Finalization:
                     role = "Finalizer";
                     break;
             }

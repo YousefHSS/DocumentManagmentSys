@@ -11,7 +11,7 @@ namespace DoucmentManagmentSys.Data
         {
         }
 
-        DbSet<Document> Documents { get; set; }
+        DbSet<PrimacyDocument> Documents { get; set; }
         DbSet<HistoryLog> HistoryLogs { get; set; }
         DbSet<HistoryAction> HistoryActions { get; set; }
     }

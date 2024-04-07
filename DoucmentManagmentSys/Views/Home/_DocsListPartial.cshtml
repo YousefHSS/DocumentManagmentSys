@@ -99,12 +99,12 @@
                     var action = "";
                     var text = "";
 
-                    if (User.IsInRole("Revisor") && item.status == Document.Status.Under_Revison)
+                    if (User.IsInRole("Revisor") && item.status == PrimacyDocument.Status.Under_Revison)
                     {
                         action = "Revise";
                         text = "Send to Final Revision";
                     }
-                    else if (User.IsInRole("Finalizer") && item.status == Document.Status.Under_Finalization)
+                    else if (User.IsInRole("Finalizer") && item.status == PrimacyDocument.Status.Under_Finalization)
                     {
                         action = "Finalize";
                         text = "Approve";

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Document>
+﻿@model IEnumerable<PrimacyDocument>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -10,7 +10,7 @@
     
     @* UseExtensions the search partial *@
     @await Html.PartialAsync("_SearchPartial")
-    @if( User.IsInRole("Uploader"))
+    @if( User.IsInRole("Uploader") || User.IsInRole("Revisor"))
     {
          @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {

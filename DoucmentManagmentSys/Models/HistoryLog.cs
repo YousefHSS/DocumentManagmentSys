@@ -11,7 +11,7 @@ namespace DoucmentManagmentSys.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
-        public required Document Document_id { get; set; }
+        public required PrimacyDocument Document_id { get; set; }
         public ICollection<HistoryAction> HistoryActions { get; set; } = new List<HistoryAction>();
 
 

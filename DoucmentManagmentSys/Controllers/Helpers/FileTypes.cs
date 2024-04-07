@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace DoucmentManagmentSys.Models.Static
+namespace DoucmentManagmentSys.Controllers.Helpers
 {
     public class FileTypes
     {
@@ -12,9 +12,19 @@ namespace DoucmentManagmentSys.Models.Static
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 };
 
+
+        public static List<string> AllowedFileTypesWord { get; } = new List<string>()
+                {
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                };
+
         public static bool IsFileTypeAllowed(string fileType)
         {
             return AllowedFileTypes.Contains(fileType.ToLower());
+        }
+        public static bool IsFileTypeWord(string fileType) {
+            return AllowedFileTypesWord.Contains(GetContentType(fileType.ToLower()));
         }
         //Get Content type from name of file
         public static string GetContentType(string fileName)

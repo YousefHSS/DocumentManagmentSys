@@ -1,4 +1,6 @@
-﻿namespace DoucmentManagmentSys.Models.Static
+﻿using DoucmentManagmentSys.Models;
+
+namespace DoucmentManagmentSys.Controllers.Helpers
 {
     public class ServerFileManager
     {
@@ -24,7 +26,7 @@
                 // Save the uploaded file to the server.
                 strFilePath = strFolder + strFileName;
 
-                using (FileStream fs = System.IO.File.Create(strFilePath))
+                using (FileStream fs = File.Create(strFilePath))
                 {
                     oFile.CopyTo(fs);
                     fs.Flush();
@@ -85,13 +87,13 @@
 
         public static void CleanDirectory(string Folder)
         {
-            Array.ForEach(Directory.GetFiles(Folder), System.IO.File.Delete);
+            Array.ForEach(Directory.GetFiles(Folder), File.Delete);
         }
 
-        public static async Task<List<Document>> FilesToDocs(string strFolder = "./UploadedFiles/")
+        public static async Task<List<PrimacyDocument>> FilesToDocs(string strFolder = "./UploadedFiles/")
         {
 
-            List<Document> docs = new List<Document>();
+            List<PrimacyDocument> docs = new List<PrimacyDocument>();
 
             if (Directory.Exists(strFolder))
             {
@@ -99,9 +101,9 @@
 
                 foreach (string fileName in fileNames)
                 {
-                    byte[] fileData = await System.IO.File.ReadAllBytesAsync(fileName);
+                    byte[] fileData = await File.ReadAllBytesAsync(fileName);
 
-                    Document document = new Document
+                    PrimacyDocument document = new PrimacyDocument
                     {
                         FileName = Path.GetFileName(fileName),
                         Content = fileData
@@ -123,7 +125,7 @@
             if (Directory.Exists(strFolder))
             {
                 // Get the file content
-                fileData = await System.IO.File.ReadAllBytesAsync(strFolder + FileName);
+                fileData = await File.ReadAllBytesAsync(strFolder + FileName);
             }
             return fileData;
 

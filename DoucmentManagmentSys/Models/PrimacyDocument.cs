@@ -9,7 +9,7 @@ namespace DoucmentManagmentSys.Models
     [PrimaryKey(nameof(Id), nameof(FileName))]
 
     [Index(nameof(Id), IsUnique = true)]
-    public class Document
+    public class PrimacyDocument
     {
         // Properties
         [Key]
@@ -30,7 +30,7 @@ namespace DoucmentManagmentSys.Models
 
 
         // Constructors
-        public Document()
+        public PrimacyDocument()
         {
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;

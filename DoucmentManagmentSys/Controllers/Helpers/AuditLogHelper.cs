@@ -9,7 +9,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
     public class AuditLogHelper
     {
         public AuditLogHelper() { }
-        public static void AddLogThenProcced(string actionName,Document document , MainRepo<HistoryLog> _HistoryLogRepo,  MainRepo<HistoryAction> _HistoryActionRepo, string Username)
+        public static void AddLogThenProcced(string actionName,PrimacyDocument document , MainRepo<HistoryLog> _HistoryLogRepo,  MainRepo<HistoryAction> _HistoryActionRepo, string Username)
         {
             
 

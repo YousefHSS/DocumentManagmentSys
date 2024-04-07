@@ -42,48 +42,7 @@ namespace DoucmentManagmentSys.Controllers
             //return partial view
             return View(model: HistoryActions);
         }
-        [HttpPost]
-        public  void  AddLogThenProcced(string actionName,int id, string doc_name) 
-        {
-            
-            ////get username from session
-            //var test = User.Identity.Name;
-
-            ////create history action
-            //HistoryAction historyAction = new HistoryAction {
-            //    Action = actionName,
-            //    UserName = test?? "not Found"
-            //};
-            ////get document by id
-            //var Document = _DocumentRepo.Find([id, doc_name]);
-            ////check history log of document if exist
-            //var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == Document).FirstOrDefault();
-            //_HistoryActionRepo.Add(historyAction);
-            //if (historyLog == null)
-            //{
-
-            //    //create new history log
-            //    HistoryLog New_historyLog = new HistoryLog
-            //    {
-            //        Document_id = Document,
-            //        HistoryActions = new Collection<HistoryAction> { historyAction }
-            //    };
-            //    //add history log to db
-            //    _HistoryLogRepo.Add(New_historyLog);
-            //}
-            //else
-            //{
-
-            //    //add history action to history log
-            //    historyLog.HistoryActions.Add(historyAction);
-                
-            //    //update history log
-            //    _HistoryLogRepo.Update(historyLog);
-            //}
-            //_HistoryLogRepo.SaveChanges();
-            //_HistoryActionRepo.SaveChanges();
-            ViewBag.message = "done";
-        }
+       
 
 
 

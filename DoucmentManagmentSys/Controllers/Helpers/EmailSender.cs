@@ -1,11 +1,8 @@
-﻿
-
-
-using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net;
 using System.Net.Mail;
 
-namespace DoucmentManagmentSys.Models.Static
+namespace DoucmentManagmentSys.Controllers.Helpers
 {
     public class EmailSender : IEmailSender
     {
@@ -21,13 +18,13 @@ namespace DoucmentManagmentSys.Models.Static
             var username = _configuration["Email:Username"];
             var password = _configuration["Email:Password"];
 
-            var gmailClient = new System.Net.Mail.SmtpClient
+            var gmailClient = new SmtpClient
             {
                 Host = "smtp.gmail.com",
                 Port = 587,
                 EnableSsl = true,
                 UseDefaultCredentials = false,
-                Credentials = new System.Net.NetworkCredential(username, password)
+                Credentials = new NetworkCredential(username, password)
             };
 
             return gmailClient.SendMailAsync(

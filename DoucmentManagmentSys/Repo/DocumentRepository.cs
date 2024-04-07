@@ -1,26 +1,26 @@
-﻿using DoucmentManagmentSys.Data;
+﻿using DoucmentManagmentSys.Controllers.Helpers;
+using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Models;
-using DoucmentManagmentSys.Models.Static;
 
 namespace DoucmentManagmentSys.Repo
 {
-    public class DocumentRepository : MainRepo<Document>
+    public class DocumentRepository : MainRepo<PrimacyDocument>
     {
         public DocumentRepository(ApplicationDbContext context) : base(context)
         {
         }
 
-        public MessageResult AddRange(IEnumerable<Document> entities)
+        public MessageResult AddRange(IEnumerable<PrimacyDocument> entities)
         {
             MessageResult Result = new MessageResult();
             Result.Status = true;
             Result.Message = "Documents added successfully";
             var newDocumentIDs = entities.Select(u => u.FileName).Distinct().ToArray();
 
-            var DocumentInDb = _context.Set<Document>().Where(u => newDocumentIDs.Contains(u.FileName)).Select(u => u.FileName).ToArray();
+            var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => newDocumentIDs.Contains(u.FileName)).Select(u => u.FileName).ToArray();
 
             var DocumentsNotInDb = entities.Where(u => !DocumentInDb.Contains(u.FileName));
-            foreach (Document document in DocumentsNotInDb)
+            foreach (PrimacyDocument document in DocumentsNotInDb)
             {
                 _context.Add(document);
             }
@@ -40,7 +40,7 @@ namespace DoucmentManagmentSys.Repo
             Result.Message = "Document updated successfully";
             //Get file content from Uploaded files
 
-            var DocumentInDb = _context.Set<Document>().Where(u => (u.Id == id && u.FileName == newName)).FirstOrDefault();
+            var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => (u.Id == id && u.FileName == newName)).FirstOrDefault();
             if (DocumentInDb != null)
             {
                 DocumentInDb.FileName = newName;
@@ -58,9 +58,9 @@ namespace DoucmentManagmentSys.Repo
             return Result;
         }
 
-        public IEnumerable<Document> Search(string search)
+        public IEnumerable<PrimacyDocument> Search(string search)
         {
-            var DocumentInDb = _context.Set<Document>().Where(u => u.FileName.Contains(search)).ToList();
+            var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => u.FileName.Contains(search)).ToList();
 
             return DocumentInDb;
         }

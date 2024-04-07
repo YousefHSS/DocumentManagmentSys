@@ -4,7 +4,6 @@ using System.Diagnostics;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
-using DoucmentManagmentSys.Models.Static;
 using Microsoft.AspNetCore.Authorization;
 using DoucmentManagmentSys.Controllers.Helpers;
 
@@ -51,7 +50,7 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Uploader")]
+        [Authorize(Roles = "Uploader,Revisor")]
         public async Task<IActionResult> UploadFile(IFormFile oFile)
         {
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
@@ -69,7 +68,7 @@ namespace DoucmentManagmentSys.Controllers
         public async Task<MessageResult> SaveToDB()
         {
             string strFolder = "./UploadedFiles/";
-            List<Document> documents = await ServerFileManager.FilesToDocs();
+            List<PrimacyDocument> documents = await ServerFileManager.FilesToDocs();
             MessageResult Result = _DocsRepo.AddRange(documents);
 
             if (Result.Status)
@@ -112,7 +111,7 @@ namespace DoucmentManagmentSys.Controllers
 
 
 
-            Document document = _DocsRepo.Find([id, name]);
+            PrimacyDocument document = _DocsRepo.Find([id, name]);
             if (document == null)
             {
                 Message = "document not found";
@@ -130,7 +129,7 @@ namespace DoucmentManagmentSys.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteFile(int id, string fileName)
         {
-            Document document = _DocsRepo.Find([id, fileName]);
+            PrimacyDocument document = _DocsRepo.Find([id, fileName]);
             if (document == null)
             {
                 return Content("document not found");
@@ -213,17 +212,18 @@ namespace DoucmentManagmentSys.Controllers
         public IActionResult Approve(int id, string Filename)
         {
             MessageResult result = new MessageResult("File not Approved.");
-            Document Doc = _DocsRepo.Find([id, Filename]);
-            if ((Doc.status == Document.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
+            PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
+            if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
             {
                 Doc.Approve();
                 _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Approved successfully.";
-                if (Doc.status == Document.Status.Under_Finalization)
+                if (Doc.status == PrimacyDocument.Status.Under_Finalization)
                 {
                     AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
-
+                    WordDocumentHelper.InsertToFooter("test", Doc);
+                    _DocsRepo.SaveChanges();
                 }
                 else
                 {
@@ -254,8 +254,8 @@ namespace DoucmentManagmentSys.Controllers
         public IActionResult Reject(int id, string Filename, string reason)
         {
             MessageResult result = new MessageResult("File not Rejected.");
-            Document Doc = _DocsRepo.Find([id, Filename]);
-            if ((Doc.status == Document.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == Document.Status.Under_Revison && User.IsInRole("Revisor")))
+            PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
+            if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
             {
                 //displayRejectPopup
 
