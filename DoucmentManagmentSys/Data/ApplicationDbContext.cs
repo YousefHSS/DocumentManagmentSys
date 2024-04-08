@@ -28,20 +28,84 @@ namespace DoucmentManagmentSys.Data
                 {
                     Id = "8e445865-a24d-4543-a6c6-9443d048cdb9", // primary key
                     UserName = "Uploader",
+                    EmailConfirmed = true,
+                    Email = "Uploader@email.com",
                     NormalizedUserName = "UPLOADER",
                     PasswordHash = hasher.HashPassword(null, "Pa$$w0rd")
                 }
             );
+            
+            //Revisor Account
+            modelBuilder.Entity<IdentityUser>().HasData(
+                new IdentityUser
+                {
+                    Id = "3b62472e-4f66-49fa-a20f-e7685b9565d9", // primary key
+                    UserName = "Revisor",
+                    EmailConfirmed = true,
+                    Email = "Revisor@email.com",
+                    NormalizedUserName = "REVISOR",
+                    PasswordHash = hasher.HashPassword(null, "Pa$$w0rd")
+                }
+            );
 
+            //Finalizer Account
 
-            //Seeding the relation between our user and role to AspNetUserRoles table
+            modelBuilder.Entity<IdentityUser>().HasData(
+                new IdentityUser
+                {
+                    Id = "3b62472e-4f66-49fa-a20f-e7685b9565d6", // primary key
+                    UserName = "Finalizer",
+                    EmailConfirmed = true,
+                    Email = "Finalizer@email.com",
+                    NormalizedUserName = "FINALIZER",
+                    PasswordHash = hasher.HashPassword(null, "Pa$$w0rd")
+                }
+            );
+
+            //create Roles
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole
+                {
+                    Id = "cac43a6e-f7bb-4448-baaf-1add431ccbbf",
+                    Name = "Uploader",
+                    NormalizedName = "UPLOADER"
+                },
+                new IdentityRole
+                {
+                    Id = "cac43a6e-f7bb-4448-baaf-1add431ccbbd",
+                    Name = "Revisor",
+                    NormalizedName = "REVISOR"
+                },
+                new IdentityRole
+                {
+                    Id = "cac43a6e-f7bb-4448-baaf-1add431ccbbe",
+                    Name = "Finalizer",
+                    NormalizedName = "FINALIZER"
+                }
+
+            );
+
+                        //assign roles to users
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string>
                 {
-                    RoleId = "2c5e174e-3b0e-446f-86af-483d56fd7210",
+                    RoleId = "cac43a6e-f7bb-4448-baaf-1add431ccbbf",
                     UserId = "8e445865-a24d-4543-a6c6-9443d048cdb9"
+                },
+                new IdentityUserRole<string>
+                {
+                    RoleId = "cac43a6e-f7bb-4448-baaf-1add431ccbbd",
+                    UserId = "3b62472e-4f66-49fa-a20f-e7685b9565d9"
+                },
+                new IdentityUserRole<string>
+                {
+                    RoleId = "cac43a6e-f7bb-4448-baaf-1add431ccbbe",
+                    UserId = "3b62472e-4f66-49fa-a20f-e7685b9565d6"
                 }
+
             );
+
+
 
 
         }
