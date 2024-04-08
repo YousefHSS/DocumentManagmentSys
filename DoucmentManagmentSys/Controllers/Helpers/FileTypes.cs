@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DoucmentManagmentSys.Models;
+using System.Collections;
 
 namespace DoucmentManagmentSys.Controllers.Helpers
 {
@@ -47,6 +48,13 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                     break;
             }
             return contentType;
+        }
+
+        public static void ChangeTypeTo(string newExt, PrimacyDocument document)
+        { 
+            string newFileName = Path.GetFileNameWithoutExtension(document.FileName) + newExt;
+            document.FileName = newFileName;
+
         }
     }
 }

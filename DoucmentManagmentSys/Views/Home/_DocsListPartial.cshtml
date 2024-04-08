@@ -9,8 +9,8 @@
             <td>@item.UpdatedAt</td>
 
             <td>
-                <div class="container rounded-2 shadow-sm fw-bold p-1" style="background-color: @GetStatusColor(item.status.ToString())"> @item.status.ToString().Replace("_", " ") </div>
-                <div class="container bubbleContainer">
+                <div class="rounded-2 fw-bold p-1 container shadow-sm" style="background-color: @GetStatusColor(item.status.ToString())"> @item.status.ToString().Replace("_", " ") </div>
+                <div class="bubbleContainer container">
                     
                 @* a red notification will appear here *@
                     @if (item.Reason != null)
@@ -50,7 +50,7 @@
 
         }
         <td>
-            
+            @if (User.IsInRole("Revisor") || User.IsInRole("Uploader")){
             @using (Html.BeginForm("Update", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <INPUT id="oFile" type="file" runat="server" NAME="oFile" class="form-control">
@@ -59,31 +59,20 @@
                     <button id="btnUpload" type="submit" text="Upload" runat="server" class="btn-secondary p-2 rounded-2">Update</button>
                     <br />
                     <Panel ID="frmConfirmation" Visible="False" Runat="server">
-
-                        @*    @if (TempData["Id"].ToString() == @item.Id.ToString())
-                {
-                <Label id="lblUploadResult" Runat="server"> @ViewBag.Messages </Label>
-                } *@
-
-
                         <br />
                     </Panel>
                     <br />
                 }
-                @*   <td>
-            <form method="post" asp-controller="Home" asp-action="Confirmation">
-            <input type="hidden" name="id" value="@item.Id" />
-            <input type="hidden" name="FileName" value="@item.FileName" />
-            <button type="submit" class="btn-danger p-2 rounded-2">Delete</button>
-            </form>*@
+
+            }
         </td> 
             <td>
-                <form method="post" asp-controller="Home" asp-action="DownloadFile">
+                <form method="post" asp-controller="Home" asp-action="DownloadFile" style="display:ruby;">
                     <input type="hidden" name="name" value="@item.FileName" />
                     <input type="hidden" name="id" value="@item.Id" />
 
 
-                    <button type="submit" class="btn-success p-2 rounded-2 ">
+                    <button type="submit" class="btn-success p-2 rounded-2">
                             @* download icon *@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                             <path d="M8 1a7 7 0 0 1 7 7v4a1 1 0 0 1-2 0V8a5 5 0 0 0-5-5 5 5 0 0 0-5 5v4a1 1 0 0 1-2 0V8a7 7 0 0 1 7-7z" />

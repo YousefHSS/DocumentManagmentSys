@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DoucmentManagmentSys.Controllers.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Mono.TextTemplating;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -39,11 +40,11 @@ namespace DoucmentManagmentSys.Models
         }
 
         // Methods
-        public void UpdateContent(byte[] newContent, Status newStatus)
+        public void UpdateContent(byte[] newContent, Status? newStatus=null)
         {
             Content = newContent;
             UpdatedAt = DateTime.Now;
-            status = newStatus;
+            status = newStatus?? this.status;
         }
 
         public enum Status
@@ -54,23 +55,30 @@ namespace DoucmentManagmentSys.Models
             Rejected
 
         }
-        public void UpdateVersion(bool major = true, bool minor = false)
+        public void UpdateVersion()
         {
-            Version VersionVal = new Version(Version);
-            int MajorVal = VersionVal.Major;
-            int MinorVal = VersionVal.Minor;
-
-            if (major)
+            if (Version == null)
             {
-                MajorVal++;
-
+                Version = "0.1";
             }
-            if (minor)
+            else
             {
-                MinorVal++;
-            }
+                string[] versionParts = Version.Split('.');
+                int majorVersion = int.Parse(versionParts[0]);
+                int minorVersion = int.Parse(versionParts[1]);
 
-            Version = new Version(MajorVal, MinorVal).ToString();
+                if (minorVersion < 9)
+                {
+                    minorVersion++;
+                }
+                else
+                {
+                    majorVersion++;
+                    minorVersion = 0;
+                }
+
+                Version = $"{majorVersion}.{minorVersion}";
+            }
         }
 
         public void Approve()
@@ -83,7 +91,11 @@ namespace DoucmentManagmentSys.Models
             else if (status == Status.Under_Finalization)
             {
                 status = Status.Approved;
+                WordDocumentHelper.ConvertDocxStreamToPdfAndUpdateContent(this);
+                UpdateVersion();
             }
+
+            
 
 
 
