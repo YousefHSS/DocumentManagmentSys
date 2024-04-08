@@ -1,4 +1,5 @@
 ﻿using DoucmentManagmentSys.Controllers.Helpers;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Mono.TextTemplating;
 using System.ComponentModel.DataAnnotations;
@@ -17,16 +18,18 @@ namespace DoucmentManagmentSys.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-
+        [Required]
         public string FileName { get; set; }
+        public string FileExtensiton { get; set; }
         public byte[] Content { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string Version { get; set; }
-
         public string? Reason { get; set; }
-
         public Status status { get; set; }
+
+        [ForeignKey(nameof(Id))]
+        public string Creator { get; set; }
 
 
 
@@ -35,7 +38,7 @@ namespace DoucmentManagmentSys.Models
         {
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
-            Version = new System.Version("0.1").ToString();
+            Version = new System.Version("0.0").ToString();
             status = Status.Under_Revison;
         }
 
@@ -59,7 +62,7 @@ namespace DoucmentManagmentSys.Models
         {
             if (Version == null)
             {
-                Version = "0.1";
+                Version = "0.0";
             }
             else
             {
@@ -91,7 +94,7 @@ namespace DoucmentManagmentSys.Models
             else if (status == Status.Under_Finalization)
             {
                 status = Status.Approved;
-                WordDocumentHelper.ConvertDocxStreamToPdfAndUpdateContent(this);
+                WordDocumentHelper.ConvertToPdfAndUpdate(this);
                 UpdateVersion();
             }
 

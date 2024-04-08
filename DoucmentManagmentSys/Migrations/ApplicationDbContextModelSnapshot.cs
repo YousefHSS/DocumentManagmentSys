@@ -22,45 +22,6 @@ namespace DoucmentManagmentSys.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DoucmentManagmentSys.Models.Document", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<byte[]>("Content")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Version")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id", "FileName");
-
-                    b.HasIndex("Id")
-                        .IsUnique();
-
-                    b.ToTable("Documents");
-                });
-
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryAction", b =>
                 {
                     b.Property<int>("id")
@@ -110,6 +71,53 @@ namespace DoucmentManagmentSys.Migrations
                     b.HasIndex("Document_idId", "Document_idFileName");
 
                     b.ToTable("HistoryLogs");
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.PrimacyDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Creator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileExtensiton")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id", "FileName");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -327,7 +335,7 @@ namespace DoucmentManagmentSys.Migrations
 
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryLog", b =>
                 {
-                    b.HasOne("DoucmentManagmentSys.Models.Document", "Document_id")
+                    b.HasOne("DoucmentManagmentSys.Models.PrimacyDocument", "Document_id")
                         .WithMany()
                         .HasForeignKey("Document_idId", "Document_idFileName")
                         .OnDelete(DeleteBehavior.Cascade)

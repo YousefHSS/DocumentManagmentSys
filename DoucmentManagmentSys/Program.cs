@@ -132,7 +132,28 @@ async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUse
     var adminUser = new IdentityUser
     {
         UserName = adminEmail,
-        Email = adminEmail
+        Email = adminEmail,
+        EmailConfirmed = true
+    };
+
+    var uploader = new IdentityUser
+    {
+        UserName = "Uploader@Email.com",
+        Email = "Uploader@Email.com",
+        EmailConfirmed = true
+    };
+
+    var revisor = new IdentityUser
+    {
+        UserName = "Revisor@Email.com",
+        Email = "Revisor@Email.com",
+        EmailConfirmed = true
+    };
+    var finalizer = new IdentityUser
+    {
+        UserName = "Finalizer@Email.com",
+        Email = "Finalizer@Email.com",
+        EmailConfirmed = true
     };
 
     // Check if the admin exists, create it if not
@@ -140,10 +161,16 @@ async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUse
     if (user == null)
     {
         var createAdmin = await userManager.CreateAsync(adminUser, adminPassword);
+        var createUploader = await userManager.CreateAsync(uploader, adminPassword);
+        var createRevisor = await userManager.CreateAsync(revisor, adminPassword);
+        var createFinalizer = await userManager.CreateAsync(finalizer, adminPassword);
         if (createAdmin.Succeeded)
         {
             // Here we assign the new user the "Admin" role 
             await userManager.AddToRoleAsync(adminUser, "Admin");
+            await userManager.AddToRoleAsync(uploader, "Uploader");
+            await userManager.AddToRoleAsync(revisor, "Revisor");
+            await userManager.AddToRoleAsync(finalizer, "Finalizer");
         }
     }
 }

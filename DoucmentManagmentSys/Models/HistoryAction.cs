@@ -1,4 +1,4 @@
-﻿using DoucmentManagmentSys.Migrations;
+﻿//using DoucmentManagmentSys.Migrations;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -34,6 +34,10 @@ namespace DoucmentManagmentSys.Models
         public static string Rejected = "Rejected";
         public static string Revised = "Revised";
         public static string Downloaded = "Downloaded";
-        
+
+        internal static string[] GetAllActionTypes()
+        {
+            return [Created, Updated, Deleted, Approved, Rejected, Revised, Downloaded];
+        }
     }
 }

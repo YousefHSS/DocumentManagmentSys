@@ -52,9 +52,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
         public static void ChangeTypeTo(string newExt, PrimacyDocument document)
         { 
-            string newFileName = Path.GetFileNameWithoutExtension(document.FileName) + newExt;
-            document.FileName = newFileName;
-
+            document.FileExtensiton = newExt;
         }
     }
 }

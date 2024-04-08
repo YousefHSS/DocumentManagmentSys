@@ -1,6 +1,5 @@
 ﻿using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
-
 using System.Collections.ObjectModel;
 
 
@@ -8,6 +7,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 {
     public class AuditLogHelper
     {
+
         public AuditLogHelper() { }
         public static void AddLogThenProcced(string actionName,PrimacyDocument document , MainRepo<HistoryLog> _HistoryLogRepo,  MainRepo<HistoryAction> _HistoryActionRepo, string Username)
         {
@@ -84,6 +84,18 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             }
             _HistoryLogRepo.SaveChanges();
             _HistoryActionRepo.SaveChanges();
+
+        }
+
+        internal static List<HistoryAction> GetLatestActionsOfDocument(PrimacyDocument doc, MainRepo<HistoryAction> _HistoryActionRepo, MainRepo<HistoryLog> _HistoryLogRepo)
+        {
+            //get all action Types
+            var actionTypes = HistoryAction.GetAllActionTypes();
+            //get history log of doc
+            var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == doc).FirstOrDefault();
+            //get latest history action of each action type for this doc
+            return actionTypes.Select(actionType => _HistoryActionRepo.GetWhere(x => x.Action == actionType && x.historyLog == historyLog)).SelectMany(x => x).ToList();
+
 
         }
     }

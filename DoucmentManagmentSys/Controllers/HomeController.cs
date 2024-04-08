@@ -6,6 +6,7 @@ using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using DoucmentManagmentSys.Controllers.Helpers;
+using Microsoft.AspNet.Identity;
 
 
 
@@ -68,7 +69,7 @@ namespace DoucmentManagmentSys.Controllers
         public async Task<MessageResult> SaveToDB()
         {
             string strFolder = "./UploadedFiles/";
-            List<PrimacyDocument> documents = await ServerFileManager.FilesToDocs();
+            List<PrimacyDocument> documents = await ServerFileManager.FilesToDocs(User.Identity.GetUserId());
             MessageResult Result = _DocsRepo.AddRange(documents);
 
             if (Result.Status)
@@ -121,7 +122,7 @@ namespace DoucmentManagmentSys.Controllers
             {
 
 
-                return File(document.Content, FileTypes.GetContentType(document.FileName), document.FileName);
+                return File(document.Content, FileTypes.GetContentType(document.FileName+document.FileExtensiton), document.FileName);
             }
         }
 
@@ -215,22 +216,22 @@ namespace DoucmentManagmentSys.Controllers
             PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
             if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
             {
+
+
+                if (Doc.status == PrimacyDocument.Status.Under_Finalization)
+                {
+                    AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                    WordDocumentHelper.AddFinalFooter(Doc, _HistoryActionRepo, _HistoryLogRepo);
+                }
+                else if (Doc.status == PrimacyDocument.Status.Under_Revison)
+                {
+                    AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                }
                 Doc.Approve();
                 _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Approved successfully.";
-                if (Doc.status == PrimacyDocument.Status.Under_Finalization)
-                {
-                    AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
-                    WordDocumentHelper.InsertToFooter("test", Doc);
-                    _DocsRepo.SaveChanges();
-                }
-                else
-                {
-                    AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
-                }
 
-                
                 return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Approved", status = Doc.status });
             }
 

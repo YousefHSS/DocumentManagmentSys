@@ -90,7 +90,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             Array.ForEach(Directory.GetFiles(Folder), File.Delete);
         }
 
-        public static async Task<List<PrimacyDocument>> FilesToDocs(string strFolder = "./UploadedFiles/")
+        public static async Task<List<PrimacyDocument>> FilesToDocs(string UserID ,string strFolder = "./UploadedFiles/")
         {
 
             List<PrimacyDocument> docs = new List<PrimacyDocument>();
@@ -105,7 +105,9 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
                     PrimacyDocument document = new PrimacyDocument
                     {
-                        FileName = Path.GetFileName(fileName),
+                        FileExtensiton = Path.GetExtension(fileName),
+                        FileName = Path.GetFileNameWithoutExtension(fileName),
+                        Creator = UserID,
                         Content = fileData
                     };
 

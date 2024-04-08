@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoucmentManagmentSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240304103520_addReasonColumntoDocs")]
-    partial class addReasonColumntoDocs
+    [Migration("20240408120413_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,58 @@ namespace DoucmentManagmentSys.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DoucmentManagmentSys.Models.Document", b =>
+            modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryAction", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("historyLogid")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("historyLogid");
+
+                    b.ToTable("HistoryActions");
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryLog", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("Document_idFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Document_idId")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("Document_idId", "Document_idFileName");
+
+                    b.ToTable("HistoryLogs");
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.PrimacyDocument", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,6 +93,14 @@ namespace DoucmentManagmentSys.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Creator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileExtensiton")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Reason")
                         .HasColumnType("nvarchar(max)");
@@ -266,6 +325,28 @@ namespace DoucmentManagmentSys.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryAction", b =>
+                {
+                    b.HasOne("DoucmentManagmentSys.Models.HistoryLog", "historyLog")
+                        .WithMany("HistoryActions")
+                        .HasForeignKey("historyLogid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("historyLog");
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryLog", b =>
+                {
+                    b.HasOne("DoucmentManagmentSys.Models.PrimacyDocument", "Document_id")
+                        .WithMany()
+                        .HasForeignKey("Document_idId", "Document_idFileName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Document_id");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -315,6 +396,11 @@ namespace DoucmentManagmentSys.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryLog", b =>
+                {
+                    b.Navigation("HistoryActions");
                 });
 #pragma warning restore 612, 618
         }
