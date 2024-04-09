@@ -45,6 +45,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                     {
                         // Get the main document part
                         var mainPart = doc.MainDocumentPart;
+                        CreateFooterIfDoesntExist(mainPart);
                         Document documentt = mainPart.Document;
 
                         // Get the first section properties
@@ -53,7 +54,9 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
                         if (sectionProps != null)
                         {
+                            //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
                             sectionProps.PrependChild<TitlePage>(new TitlePage());
+
                             // Get the first footer reference for the first page
                             FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.First);
 
@@ -99,6 +102,42 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
 
         }
+
+        private static void CreateFooterIfDoesntExist(MainDocumentPart? mainPart)
+        {
+            
+
+            // Check if the document already has a footer part
+            FooterPart existingFooterPart = mainPart.GetPartsOfType<FooterPart>().FirstOrDefault();
+
+            if (existingFooterPart == null)
+            {
+                // Create a new footer part
+                FooterPart newFooterPart = mainPart.AddNewPart<FooterPart>();
+                string footerPartId = mainPart.GetIdOfPart(newFooterPart);
+
+                // Create a new footer and add content
+                Footer footer = new Footer();
+                Paragraph para = new Paragraph();
+                
+                
+                footer.Append(para);
+
+                // Save the footer part
+                newFooterPart.Footer = footer;
+
+                // Get the first section properties
+                SectionProperties sectionProps = mainPart.Document.Body.Descendants<SectionProperties>().FirstOrDefault();
+
+                if (sectionProps != null)
+                {
+                    // Associate the footer part with the section
+                    FooterReference footerRef = new FooterReference() { Type = HeaderFooterValues.First, Id = footerPartId };
+                    sectionProps.Append(footerRef);
+                }
+            }
+        }
+
         public static void ConvertToPdfAndUpdate(PrimacyDocument primacyDocument)
         {
             if (FileTypes.IsFileTypeWord(primacyDocument.FileExtensiton))
