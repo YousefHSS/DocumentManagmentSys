@@ -15,6 +15,9 @@ using Spire.Doc.Fields;
 */
 using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using System.Diagnostics;
+using OpenXmlPowerTools;
+using System.Xml.Linq;
+using DocumentFormat.OpenXml;
 
 namespace DoucmentManagmentSys.Controllers.Helpers
 {
@@ -29,7 +32,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             public LibreOfficeFailedException(int exitCode) : base($"LibreOffice has failed with {exitCode}") { }
         }
 
-        public static void InsertToFooter(string Newfooter, PrimacyDocument document)
+        public static void InsertToFooter(List<string> Newfooter, PrimacyDocument document)
         {
             //checked the document is word 
             if (FileTypes.IsFileTypeWord(document.FileExtensiton))
@@ -42,19 +45,43 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                     {
                         // Get the main document part
                         var mainPart = doc.MainDocumentPart;
+                        Document documentt = mainPart.Document;
 
-                        // Get the footer part
-                        FooterPart footerPart = mainPart.FooterParts.FirstOrDefault();
-                        if (footerPart != null)
+                        // Get the first section properties
+                        SectionProperties sectionProps = documentt.Body.Descendants<SectionProperties>().FirstOrDefault();
+                        
+
+                        if (sectionProps != null)
                         {
-                            var footer = footerPart.Footer;
+                            sectionProps.PrependChild<TitlePage>(new TitlePage());
+                            // Get the first footer reference for the first page
+                            FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.First);
 
-                            // Create a new paragraph and run for the text
-                            Paragraph paragraph = new Paragraph(new Run(new Text(Newfooter)));
+                            if (firstPageFooterRef != null)
+                            {
+                                // Get the footer part for the first page
+                                FooterPart firstPageFooterPart = mainPart.GetPartById(firstPageFooterRef.Id) as FooterPart;
 
-                            // Append the paragraph to the footer
-                            footer.Append(paragraph);
+                                if (firstPageFooterPart != null)
+                                {
+                                    // Modify the content of the first page footer
+                                    foreach (Paragraph para in firstPageFooterPart.Footer.Descendants<Paragraph>())
+                                    {
+                                        foreach (string content in Newfooter) {
+                                            Run run = para.AppendChild(new Run());
+                                            run.AppendChild(new Text(content));
+                                            run.AppendChild(new Break());
+
+                                        }
+
+                                    }
+                                }
+                            }
+                            
                         }
+
+
+                    
 
                         // Save the changes
                         mainPart.Document.Save();
@@ -97,10 +124,14 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             List<HistoryAction> LastActions = new List<HistoryAction>();
             //from the aditlog helper get every last action of each action type of this document
             LastActions = AuditLogHelper.GetLatestActionsOfDocument(doc, _HistoryActionRepo, _HistoryLogRepo);
-            //footer string equals each action type plus by plus the username appended by line break
-            string FooterStrings = string.Join("\n", LastActions.Select(x => x.Action + " by " + x.UserName));
+            //footer string is a list of strings of what should be written
+            List<string> footerStrings = new List<string>();
+            foreach (var action in LastActions) { 
+                footerStrings.Add( action.Action +" by: " + action.UserName);
+            }
+            
             //update footer
-            InsertToFooter(FooterStrings, doc);
+            InsertToFooter(footerStrings, doc);
 
         }
         public static string ConvertWordFile(string file, string outputDirectory)
