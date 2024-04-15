@@ -74,7 +74,7 @@ namespace DoucmentManagmentSys.Controllers
 
             if (Result.Status)
             {
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Updated, documents[0], _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Created, documents[0], _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
 
                 _DocsRepo.SaveChanges();
             }
@@ -122,7 +122,7 @@ namespace DoucmentManagmentSys.Controllers
             {
 
 
-                return File(document.Content, FileTypes.GetContentType(document.FileName+document.FileExtensiton), document.FileName);
+                return File(document.Content, FileTypes.GetContentType(document.FileName+document.FileExtensiton), document.FileName+document.FileExtensiton);
             }
         }
 

@@ -12,7 +12,7 @@
         <h1>Welcome to the Admin Dashboard</h1>
 
 
-    <table class="table table-striped table-hover table-bordered">
+    <table class="table-striped table-hover table-bordered table">
             <tr>
                 <th>User ID</th>
                 <th>User Name</th>
@@ -52,11 +52,11 @@
                         }
                     }
                     @if (Roles.Count != 0) { 
-                        <td> <div class="card @roleColor  fw-bolder justify-content-center p-1 text-lg-center "> @(Roles[0]) </div>  </td>
+                        <td> <div class="card @roleColor fw-bolder justify-content-center p-1 text-lg-center"> @(Roles[0]) </div>  </td>
                     }
                 else
                 {
-<td> <div class=" card bg-danger fw-bolder justify-content-center p-1 text-lg-center "> No Role </div>  </td>
+<td> <div class="card bg-danger fw-bolder justify-content-center p-1 text-lg-center"> No Role </div>  </td>
                     
                 }
                     <td>

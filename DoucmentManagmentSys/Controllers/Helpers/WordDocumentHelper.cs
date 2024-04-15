@@ -18,6 +18,18 @@ using System.Diagnostics;
 using OpenXmlPowerTools;
 using System.Xml.Linq;
 using DocumentFormat.OpenXml;
+using NPOI.SS.Formula.Functions;
+using DocumentFormat.OpenXml.Drawing;
+using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using A = DocumentFormat.OpenXml.Drawing;
+using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
+using RunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
+using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
+using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
+using Path = System.IO.Path;
+using DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using ParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
+using Position = DocumentFormat.OpenXml.Wordprocessing.Position;
 
 namespace DoucmentManagmentSys.Controllers.Helpers
 {
@@ -46,49 +58,66 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                         // Get the main document part
                         var mainPart = doc.MainDocumentPart;
                         CreateFooterIfDoesntExist(mainPart);
+                        CreateHeaderIfDoesntExist(mainPart);
+                        MakeMarginsNarrow(mainPart);
                         Document documentt = mainPart.Document;
-
                         // Get the first section properties
                         SectionProperties sectionProps = documentt.Body.Descendants<SectionProperties>().FirstOrDefault();
-                        
+
+
 
                         if (sectionProps != null)
                         {
                             //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
                             sectionProps.PrependChild<TitlePage>(new TitlePage());
+                            AddImageToHeader(doc);
+
 
                             // Get the first footer reference for the first page
-                            FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.First);
+                            FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.Default);
 
                             if (firstPageFooterRef != null)
                             {
                                 // Get the footer part for the first page
-                                FooterPart firstPageFooterPart = mainPart.GetPartById(firstPageFooterRef.Id) as FooterPart;
+                                List<FooterPart> firstPageFooterPart = mainPart.FooterParts.ToList();
 
                                 if (firstPageFooterPart != null)
                                 {
+                                    foreach (FooterPart footerPart in firstPageFooterPart) { 
                                     // Modify the content of the first page footer
-                                    foreach (Paragraph para in firstPageFooterPart.Footer.Descendants<Paragraph>())
+                                    foreach (Paragraph para in footerPart.Footer.Descendants<Paragraph>())
                                     {
-                                        foreach (string content in Newfooter) {
+                                        
+                                        
+                                        foreach (string content in Newfooter)
+                                        {
                                             Run run = para.AppendChild(new Run());
-                                            run.AppendChild(new Text(content));
-                                            run.AppendChild(new Break());
+                                            run.AppendChild(new Text(content) { Space = SpaceProcessingModeValues.Preserve });
+
 
                                         }
-
+                                        
                                     }
+}
                                 }
+
+
+
                             }
-                            
+
                         }
 
 
-                    
+
+
 
                         // Save the changes
                         mainPart.Document.Save();
+
+
+
                     }
+
                     //Update Contnent
                     document.Content = ms.ToArray();
 
@@ -103,9 +132,129 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
         }
 
+        private static void CreateHeaderIfDoesntExist(MainDocumentPart? mainPart)
+        {
+            // Check if the document already has a footer part
+            HeaderPart existingHeaderPart = mainPart.GetPartsOfType<HeaderPart>().FirstOrDefault();
+
+            if (existingHeaderPart == null)
+            {
+                // Create a new footer part
+                HeaderPart newHeaderPart = mainPart.AddNewPart<HeaderPart>();
+                string footerPartId = mainPart.GetIdOfPart(newHeaderPart);
+
+                // Create a new footer and add content
+                Header header = new Header();
+                Paragraph para = new Paragraph();
+
+
+                header.Append(para);
+
+                // Save the footer part
+                newHeaderPart.Header = header;
+
+                // Get the first section properties
+                SectionProperties sectionProps = mainPart.Document.Body.Descendants<SectionProperties>().FirstOrDefault();
+
+                if (sectionProps != null)
+                {
+                    // Associate the footer part with the section
+                    HeaderReference headerRef = new HeaderReference() { Type = HeaderFooterValues.First, Id = footerPartId };
+                    sectionProps.Append(headerRef);
+                }
+            }
+            
+        }
+
+        private static void AddImageToHeader(WordprocessingDocument doc)
+        {
+            HeaderPart headerPart = doc.MainDocumentPart.HeaderParts.FirstOrDefault();
+
+            foreach (Paragraph para in headerPart.Header.Descendants<Paragraph>()) {
+
+                ImagePart imagePart = PreAddImage(headerPart);
+                var relationshipId = headerPart.GetIdOfPart(imagePart);
+                var wrapSquare = new WrapSquare()
+                {
+                    WrapText = WrapTextValues.BothSides // This sets the wrapping style to 'square'.
+                };
+                Run run = new Run();
+                Drawing drawing = new Drawing(
+
+               new DW.Inline(
+                     new DW.SimplePosition() { X = 0, Y = 0 },
+                     new DW.HorizontalPosition(
+                         new DW.PositionOffset("689900") // Use appropriate position offset
+                     )
+                     { RelativeFrom = DW.HorizontalRelativePositionValues.Page },
+                     new DW.VerticalPosition(
+                         new DW.PositionOffset("0") // Use appropriate position offset
+                     )
+                     { RelativeFrom = DW.VerticalRelativePositionValues.BottomMargin },
+                     new DW.Extent() { Cx = 512000L * 2, Cy = 512000L }, // Set the size of the image (Cx = width, Cy = height)
+                     new DW.EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                     wrapSquare,
+                     new DW.DocProperties() { Id = (UInt32Value)1U, Name = "Picture 1" },
+                     new DW.NonVisualGraphicFrameDrawingProperties(
+                         new GraphicFrameLocks() { NoChangeAspect = true }),
+                     new Graphic(
+                         new GraphicData(
+                             new PIC.Picture(
+                                 new PIC.NonVisualPictureProperties(
+                                     new PIC.NonVisualDrawingProperties() { Id = (UInt32Value)0U, Name = "New Image" },
+                                     new PIC.NonVisualPictureDrawingProperties()),
+                                 new PIC.BlipFill(
+                                     new Blip() { Embed = relationshipId },
+                                     new Stretch(new FillRectangle())),
+                                 new PIC.ShapeProperties(
+                                     new Transform2D(
+                                         new A.Offset() { X = 0L, Y = 0L },
+                                         new Extents() { Cx = 512000L, Cy = 512000L }),
+                                     new PresetGeometry(new AdjustValueList()) { Preset = ShapeTypeValues.Rectangle }))
+
+                             )
+
+                         )
+                     { }
+
+
+                )
+               {
+                   DistanceFromTop = (UInt32Value)0U,
+                   DistanceFromBottom = (UInt32Value)0U,
+                   DistanceFromLeft = (UInt32Value)0U,
+                   DistanceFromRight = (UInt32Value)0U,
+
+
+               }
+
+                )
+                    ;
+
+                run.AppendChild(drawing);
+
+                // Set the paragraph properties
+                ParagraphProperties paragraphProperties = new ParagraphProperties();
+
+                // Create the SpacingBetweenLines object
+                SpacingBetweenLines spacing = new SpacingBetweenLines();
+
+                // Set the line spacing - the value is defined in twentieths of a point (1/20 pt)
+                // Example: 240 is equivalent to 12 points (single spacing)
+                spacing.Line = "1080"; // This would set the spacing to double
+
+                // Add the SpacingBetweenLines object to the ParagraphProperties
+                paragraphProperties.Append(spacing);
+
+                // Add the ParagraphProperties to the Paragraph
+                para.PrependChild(paragraphProperties);
+                para.AppendChild(run);
+            }
+        }
+
         private static void CreateFooterIfDoesntExist(MainDocumentPart? mainPart)
         {
-            
+
 
             // Check if the document already has a footer part
             FooterPart existingFooterPart = mainPart.GetPartsOfType<FooterPart>().FirstOrDefault();
@@ -119,8 +268,8 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                 // Create a new footer and add content
                 Footer footer = new Footer();
                 Paragraph para = new Paragraph();
-                
-                
+
+
                 footer.Append(para);
 
                 // Save the footer part
@@ -132,7 +281,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                 if (sectionProps != null)
                 {
                     // Associate the footer part with the section
-                    FooterReference footerRef = new FooterReference() { Type = HeaderFooterValues.First, Id = footerPartId };
+                    FooterReference footerRef = new FooterReference() { Type = HeaderFooterValues.Default, Id = footerPartId };
                     sectionProps.Append(footerRef);
                 }
             }
@@ -153,7 +302,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                 var pdfFilePath = ConvertWordFile(filePath, "./UploadedFiles");
                 //replace content with new file content
                 primacyDocument.Content = File.ReadAllBytes(pdfFilePath);
-                FileTypes.ChangeTypeTo(".pdf",primacyDocument);
+                FileTypes.ChangeTypeTo(".pdf", primacyDocument);
                 File.Delete(pdfFilePath);
                 File.Delete(filePath);
             }
@@ -165,10 +314,11 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             LastActions = AuditLogHelper.GetLatestActionsOfDocument(doc, _HistoryActionRepo, _HistoryLogRepo);
             //footer string is a list of strings of what should be written
             List<string> footerStrings = new List<string>();
-            foreach (var action in LastActions) { 
-                footerStrings.Add( action.Action +" by: " + action.UserName);
+            foreach (var action in LastActions)
+            {
+                footerStrings.Add(action.Action + " by: " + action.UserName + " ");
             }
-            
+
             //update footer
             InsertToFooter(footerStrings, doc);
 
@@ -216,108 +366,50 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
             return outputFile;
         }
-        //public static List<MemoryStream> SplitDocIntoStreams(MemoryStream wordDocStream)
-        //{
-        //    List<MemoryStream> splitStreams = new List<MemoryStream>();
 
-        //    SDocument document = new SDocument();
-        //    document.LoadFromStream(wordDocStream, FileFormat.Docx);
+        public static void MakeMarginsNarrow(MainDocumentPart mainPart) {
+            // Get the document settings part
+            DocumentSettingsPart settingsPart = mainPart.DocumentSettingsPart;
+            if (settingsPart == null)
+            {
+                settingsPart = mainPart.AddNewPart<DocumentSettingsPart>();
+                settingsPart.Settings = new Settings();
+            }
 
-        //    int currentPageCount = 0;
-        //    int totalPages = document.PageCount;
-        //    int pageIndex = 0;
+            // Get or create the section properties for the document
+            SectionProperties sectionProperties = settingsPart.Settings.Descendants<SectionProperties>().FirstOrDefault();
+            if (sectionProperties == null)
+            {
+                sectionProperties = new SectionProperties();
+                settingsPart.Settings.Append(sectionProperties);
+            }
 
-        //    while (currentPageCount < totalPages)
-        //    {
-        //        try
-        //        {
-        //            MemoryStream stream = new MemoryStream();
-        //            SDocument newDocument = new SDocument();
-        //            while (currentPageCount < totalPages && newDocument.PageCount < 3)
-        //            {
-        //                Section section = newDocument.AddSection();
+            // Adjust the margins by setting the PageMargin properties
+            PageMargin pageMargin = new PageMargin()
+            {
+                Left = 0,    // Narrow the left margin (default is 1440 = 1 inch)
+                Right = 0,   // Narrow the right margin
+                Top = 360,     // Narrow the top margin
+                Bottom = 360   // Narrow the bottom margin
+            };
 
-        //                foreach (DocumentObject obj in document.Sections[pageIndex].Body.ChildObjects)
-        //                {
-        //                    if (obj.DocumentObjectType == DocumentObjectType.Paragraph && obj.FirstChild.DocumentObjectType== DocumentObjectType.TextRange)
-        //                    {
-        //                      var FirstChild = obj.FirstChild as TextRange;
-        //                        if (FirstChild.Text == "") {
-        //                            //add line break
-        //                            section.AddParagraph().AppendBreak(BreakType.LineBreak);
-        //                        }
+            // Apply the updated PageMargin to the SectionProperties
+            sectionProperties.Append(pageMargin);
 
-        //                    }
+            // Save the changes
+            settingsPart.Settings.Save();
+        }
 
+        public static ImagePart PreAddImage(HeaderPart HeaderPart) {
+            ImagePart imagePart = HeaderPart.AddImagePart(ImagePartType.Jpeg);
+            using (FileStream stream = new FileStream("F:\\Documents\\DoucmentManagmentSys\\DoucmentManagmentSys\\wwwroot\\logo.jpg", FileMode.Open))
+            {
+                imagePart.FeedData(stream);
+            }
+            return  imagePart;
 
+        }
 
-        //                    section.Body.ChildObjects.Add(obj.Clone());
-
-
-        //                }
-        //                currentPageCount += newDocument.PageCount;
-        //                pageIndex++;
-
-        //            }
-
-        //            newDocument.SaveToStream(stream, FileFormat.Docx);
-        //            splitStreams.Add(stream);
-        //        }
-        //        catch (ArgumentOutOfRangeException e)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-
-        //    return splitStreams;
-        //}
-        //private static byte[] ConvertToPdf(Stream s)
-        //{
-        //    try
-        //    {
-        //        string savePath = Path.GetTempPath() + Guid.NewGuid() + ".pdf";
-        //        SDocument document = new SDocument(s, FileFormat.Auto);
-        //        document.SaveToFile(savePath, FileFormat.PDF);
-
-        //        return File.ReadAllBytes(savePath);
-
-
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw e;
-        //    }
-        //}
-
-        //public static MemoryStream ConcatenatePdfs(List<MemoryStream> pdfStreams)
-        //{
-        //    MemoryStream outputPdfStream = new MemoryStream();
-
-        //    using (PdfDocument outputDocument = new PdfDocument(new PdfWriter(outputPdfStream)))
-        //    {
-        //        foreach (MemoryStream pdfStream in pdfStreams)
-        //        {
-        //            pdfStream.Seek(0, SeekOrigin.Begin); // Reset the position of the MemoryStream
-
-        //            using (PdfDocument inputDocument = new PdfDocument(new PdfReader(pdfStream)))
-        //            {
-        //                for (int i = 1; i <= inputDocument.GetNumberOfPages(); i++)
-        //                {
-        //                    outputDocument.AddPage(inputDocument.GetPage(i).CopyTo(outputDocument));
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return outputPdfStream;
-        //}
-
-        //public static string SaveMemoryStreamAsPdf(MemoryStream pdfStream, string outputFilePath)
-        //{
-        //    File.WriteAllBytes(outputFilePath, pdfStream.ToArray());
-        //    return outputFilePath;
-        //}
 
 
 

@@ -27,12 +27,12 @@ namespace DoucmentManagmentSys.Models
             UserName = userName;
             CreatedAt = DateTime.Now;
         }
-        public static string Created = "Created";
+        public static string Created = "Prepared";
         public static string Updated = "Updated";
         public static string Deleted = "Deleted";
         public static string Approved = "Approved";
         public static string Rejected = "Rejected";
-        public static string Revised = "Revised";
+        public static string Revised = "Checked";
         public static string Downloaded = "Downloaded";
 
         internal static string[] GetAllActionTypes()

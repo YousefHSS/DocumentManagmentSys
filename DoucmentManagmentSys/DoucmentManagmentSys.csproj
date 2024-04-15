@@ -28,6 +28,7 @@
 		<Folder Include="Data\Migrations\" />
 		<Folder Include="Models\Static\" />
 		<Folder Include="UploadedFiles\" />
+		<Folder Include="wwwroot\PDFs\" />
 	</ItemGroup>
 
 </Project>

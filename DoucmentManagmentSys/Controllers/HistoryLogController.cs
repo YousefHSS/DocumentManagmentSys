@@ -39,6 +39,7 @@ namespace DoucmentManagmentSys.Controllers
                 HistoryActions = _HistoryActionRepo.GetWhere(x => x.historyLog == historyLog).ToList();
             }
             TempData["Document"] = doc_name;
+            ViewData["Title"] = "Audit Log";
             //return partial view
             return View(model: HistoryActions);
         }

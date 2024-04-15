@@ -32,7 +32,7 @@ namespace DoucmentManagmentSys.Controllers
             // Get the list of all users
             var users = _userManager.Users.ToList();
 
-
+            ViewData["Title"] = "Dashboard";
             return View(users);
         }
 
