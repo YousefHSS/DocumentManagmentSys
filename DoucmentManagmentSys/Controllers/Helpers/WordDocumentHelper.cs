@@ -305,7 +305,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             List<string> footerStrings = new List<string>();
             foreach (var action in LastActions)
             {
-                footerStrings.Add(action.Action + " by: " + action.UserName + "     ");
+                footerStrings.Add(action.Action + " by: " + action.UserName + "         ");
             }
 
             //update footer and header

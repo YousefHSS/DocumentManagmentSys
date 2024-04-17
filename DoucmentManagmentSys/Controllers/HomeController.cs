@@ -87,7 +87,8 @@ namespace DoucmentManagmentSys.Controllers
 
         public async Task<MessageResult> UpdateToDB(int id, string newName)
         {
-
+            
+            
             string strFolder = "./UploadedFiles/";
             MessageResult Result = _DocsRepo.Update(id, newName);
             if (Result.Status)

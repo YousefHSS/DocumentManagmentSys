@@ -37,6 +37,8 @@ namespace DoucmentManagmentSys.Repo
 
         public MessageResult Update(int id, string NewName)
         {
+            
+
             var Cleansed = ClearFileName(NewName);
             MessageResult Result = new MessageResult();
             Result.Status = true;
@@ -46,9 +48,30 @@ namespace DoucmentManagmentSys.Repo
             var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => (u.Id == id && u.FileName == Cleansed)).FirstOrDefault();
             if (DocumentInDb != null)
             {
+                //check if extension is same as old one if the old one is pdf then check for docx
+                if (DocumentInDb.FileExtensiton == ".pdf" )
+                {
+                    if (System.IO.Path.GetExtension(NewName) != ".docx")
+                    {
+                        Result.Status = false;
+                        Result.Message = "The uploaded Document must be in .docx format";
+                        return Result;
+                    }
+                    
+                }
+                else if (System.IO.Path.GetExtension(NewName) != DocumentInDb.FileExtensiton)
+                {
+                    Result.Status = false;
+                    Result.Message = "The uploaded Document must be in " + DocumentInDb.FileExtensiton + " format";
+                    return Result;
+                }
+                
+
                 DocumentInDb.FileName = Cleansed;
                 DocumentInDb.UpdatedAt = DateTime.Now;
                 DocumentInDb.Content = ServerFileManager.GetFileContent(NewName).Result ?? DocumentInDb.Content;
+                FileTypes.ChangeTypeTo(".docx", DocumentInDb);
+                DocumentInDb.status = PrimacyDocument.Status.Under_Revison;
                 _context.Update(DocumentInDb);
             }
             else

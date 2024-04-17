@@ -94,7 +94,21 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             //get history log of doc
             var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == doc).FirstOrDefault();
             //get latest history action of each action type for this doc
-            return actionTypes.Select(actionType => _HistoryActionRepo.GetWhere(x => x.Action == actionType && x.historyLog == historyLog)).SelectMany(x => x).ToList();
+            List<HistoryAction> latestActions = new List<HistoryAction>();
+
+            foreach (var actionType in actionTypes)
+            {
+                // Get the latest history action of each action type for this doc
+                var latestAction = _HistoryActionRepo.GetWhere(x => x.Action == actionType && x.historyLog == historyLog)
+                                                     .OrderByDescending(x => x.CreatedAt) // Assuming there is a Date field to sort by
+                                                     .FirstOrDefault();
+                if (latestAction != null)
+                {
+                    latestActions.Add(latestAction);
+                }
+            }
+
+            return latestActions;
 
 
         }
