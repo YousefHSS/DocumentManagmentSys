@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DoucmentManagmentSys.Models;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -7,11 +8,11 @@ namespace DoucmentManagmentSys.RoleManagment
     public class RoleManagment : IRoleManagment
     {
 
-        public required UserManager<IdentityUser> userManager { get; set; }
+        public required UserManager<PrimacyUser> userManager { get; set; }
         public required RoleManager<IdentityRole> roleManager { get; set; }
 
 
-        public RoleManagment(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public RoleManagment(UserManager<PrimacyUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -45,7 +46,7 @@ namespace DoucmentManagmentSys.RoleManagment
             return true;
         }
 
-        public async Task<bool> SwitchRole(IdentityUser user, string role)
+        public async Task<bool> SwitchRole(PrimacyUser user, string role)
         {
 
             var roleExists = await roleManager.RoleExistsAsync(role);
@@ -70,7 +71,7 @@ namespace DoucmentManagmentSys.RoleManagment
         }
 
 
-        public async Task<bool> CheckRole(IdentityUser User, string role)
+        public async Task<bool> CheckRole(PrimacyUser User, string role)
         {
             var isInRole = await userManager.IsInRoleAsync(User, role);
             return isInRole;

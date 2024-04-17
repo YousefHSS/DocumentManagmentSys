@@ -3,33 +3,18 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
-/*
-using Humanizer;
-using iText.Kernel.Pdf;
-using iText.Kernel.Utils;
-using Spire.Doc;
-using Spire.Doc.Documents;
-using SParagraph = Spire.Doc.Documents.Paragraph;
-using SDocument = Spire.Doc.Document;
-using Spire.Doc.Fields;
-*/
 using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using System.Diagnostics;
-using OpenXmlPowerTools;
-using System.Xml.Linq;
 using DocumentFormat.OpenXml;
-using NPOI.SS.Formula.Functions;
 using DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using A = DocumentFormat.OpenXml.Drawing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
-using RunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
 using Path = System.IO.Path;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using ParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
-using Position = DocumentFormat.OpenXml.Wordprocessing.Position;
 
 namespace DoucmentManagmentSys.Controllers.Helpers
 {
@@ -37,14 +22,14 @@ namespace DoucmentManagmentSys.Controllers.Helpers
     {
         public WordDocumentHelper() { }
 
-        private static string GetLibreOfficePath() => @"C:\LibreOfficePortable\App\libreoffice\program\swriter.exe";
+        private static string GetLibreOfficePath() =>  ConfigurationHelper.GetString("LibreOfficePath");
 
         public class LibreOfficeFailedException : Exception
         {
             public LibreOfficeFailedException(int exitCode) : base($"LibreOffice has failed with {exitCode}") { }
         }
 
-        public static void InsertToFooter(List<string> Newfooter, PrimacyDocument document)
+        public static void StampFooter(List<string> Newfooter, PrimacyDocument document)
         {
             //checked the document is word 
             if (FileTypes.IsFileTypeWord(document.FileExtensiton))
@@ -55,57 +40,60 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                     ms.Write(document.Content, 0, document.Content.Length);
                     using (WordprocessingDocument doc = WordprocessingDocument.Open(ms, true))
                     {
-                        // Get the main document part
-                        var mainPart = doc.MainDocumentPart;
-                        CreateFooterIfDoesntExist(mainPart);
-                        CreateHeaderIfDoesntExist(mainPart);
-                        MakeMarginsNarrow(mainPart);
-                        Document documentt = mainPart.Document;
-                        // Get the first section properties
-                        SectionProperties sectionProps = documentt.Body.Descendants<SectionProperties>().FirstOrDefault();
+                        MainDocumentPart mainPart = doc.MainDocumentPart?? doc.AddMainDocumentPart();
+                        
+
+                            CreateFooterIfDoesntExist(mainPart);
+
+                            MakeMarginsNarrow(mainPart);
+                            Document MainPartDoc = mainPart.Document;
+                            // Get the first section properties
+                            SectionProperties sectionProps = MainPartDoc.Body.Descendants<SectionProperties>().FirstOrDefault() ?? new SectionProperties();
 
 
 
-                        if (sectionProps != null)
-                        {
-                            //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
-                            sectionProps.PrependChild<TitlePage>(new TitlePage());
-                            AddImageToHeader(doc);
-
-
-                            // Get the first footer reference for the first page
-                            FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.Default);
-
-                            if (firstPageFooterRef != null)
+                            if (sectionProps != null)
                             {
-                                // Get the footer part for the first page
-                                List<FooterPart> firstPageFooterPart = mainPart.FooterParts.ToList();
+                                //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
+                                sectionProps.PrependChild<TitlePage>(new TitlePage());
 
-                                if (firstPageFooterPart != null)
+
+
+                                // Get the first footer reference for the first page
+                                //there has to be a footer reference because we called the function CreateFooterIfDoesntExist
+                                FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.Default)!;
+
+                                if (firstPageFooterRef != null)
                                 {
-                                    foreach (FooterPart footerPart in firstPageFooterPart) { 
-                                    // Modify the content of the first page footer
-                                    foreach (Paragraph para in footerPart.Footer.Descendants<Paragraph>())
+                                    // Get the footer part for the first page
+                                    List<FooterPart> firstPageFooterPart = mainPart.FooterParts.ToList();
+
+                                    if (firstPageFooterPart != null)
                                     {
+                                        foreach (FooterPart footerPart in firstPageFooterPart)
+                                        { 
+                                            // Modify the content of the first page footer
+                                            foreach (Paragraph para in footerPart.Footer.Descendants<Paragraph>())
+                                            {
                                         
                                         
-                                        foreach (string content in Newfooter)
-                                        {
-                                            Run run = para.AppendChild(new Run());
-                                            run.AppendChild(new Text(content) { Space = SpaceProcessingModeValues.Preserve });
+                                                foreach (string content in Newfooter)
+                                                {
+                                                    Run run = para.AppendChild(new Run());
+                                                    run.AppendChild(new Text(content) { Space = SpaceProcessingModeValues.Preserve });
 
 
+                                                }
+                                        
+                                            }
                                         }
-                                        
                                     }
-}
+
+
+
                                 }
 
-
-
                             }
-
-                        }
 
 
 
@@ -114,7 +102,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                         // Save the changes
                         mainPart.Document.Save();
 
-
+                        
 
                     }
 
@@ -132,7 +120,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
         }
 
-        private static void CreateHeaderIfDoesntExist(MainDocumentPart? mainPart)
+        private static void CreateHeaderIfDoesntExist(MainDocumentPart mainPart)
         {
             // Check if the document already has a footer part
             HeaderPart existingHeaderPart = mainPart.GetPartsOfType<HeaderPart>().FirstOrDefault();
@@ -252,7 +240,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             }
         }
 
-        private static void CreateFooterIfDoesntExist(MainDocumentPart? mainPart)
+        private static void CreateFooterIfDoesntExist(MainDocumentPart mainPart)
         {
 
 
@@ -307,7 +295,8 @@ namespace DoucmentManagmentSys.Controllers.Helpers
                 File.Delete(filePath);
             }
         }
-        internal static void AddFinalFooter(PrimacyDocument doc, MainRepo<HistoryAction> _HistoryActionRepo, MainRepo<HistoryLog> _HistoryLogRepo)
+
+        internal static void StampDocument(PrimacyDocument doc, MainRepo<HistoryAction> _HistoryActionRepo, MainRepo<HistoryLog> _HistoryLogRepo)
         {
             List<HistoryAction> LastActions = new List<HistoryAction>();
             //from the aditlog helper get every last action of each action type of this document
@@ -316,13 +305,56 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             List<string> footerStrings = new List<string>();
             foreach (var action in LastActions)
             {
-                footerStrings.Add(action.Action + " by: " + action.UserName + " ");
+                footerStrings.Add(action.Action + " by: " + action.UserName + "     ");
             }
 
-            //update footer
-            InsertToFooter(footerStrings, doc);
+            //update footer and header
+            StampFooter(footerStrings, doc);
+            StampHeader(doc);
 
         }
+
+        private static void StampHeader(PrimacyDocument document)
+        {
+            //checked the document is word 
+            if (FileTypes.IsFileTypeWord(document.FileExtensiton))
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    //open memory stream
+                    ms.Write(document.Content, 0, document.Content.Length);
+                    using (WordprocessingDocument doc = WordprocessingDocument.Open(ms, true))
+                    {
+                        MainDocumentPart mainPart = doc.MainDocumentPart ?? doc.AddMainDocumentPart();
+
+                        CreateHeaderIfDoesntExist(mainPart);
+                        Document MainPartDoc = mainPart.Document;
+                        // Get the first section properties
+                        SectionProperties sectionProps = MainPartDoc.Body.Descendants<SectionProperties>().FirstOrDefault() ?? new SectionProperties();
+
+                        if (sectionProps != null)
+                        {
+                            //could cause an error
+                            //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
+                            sectionProps.PrependChild<TitlePage>(new TitlePage());
+                            AddImageToHeader(doc);
+                        }
+
+                        // Save the changes
+                        mainPart.Document.Save();
+
+                    }
+                    //Update Contnent
+                    document.Content = ms.ToArray();
+
+                    //close memory stream
+                    ms.Close();
+                }
+
+            }
+
+        }
+
         public static string ConvertWordFile(string file, string outputDirectory)
         {
             if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputDirectory)) throw new Exception("Invalid parameters passed to convert word function.");
@@ -402,7 +434,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
         public static ImagePart PreAddImage(HeaderPart HeaderPart) {
             ImagePart imagePart = HeaderPart.AddImagePart(ImagePartType.Jpeg);
-            using (FileStream stream = new FileStream("F:\\Documents\\DoucmentManagmentSys\\DoucmentManagmentSys\\wwwroot\\logo.jpg", FileMode.Open))
+            using (FileStream stream = new FileStream(Path.GetFullPath("wwwroot/images/logo.jpg"), FileMode.Open))
             {
                 imagePart.FeedData(stream);
             }

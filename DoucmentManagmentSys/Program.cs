@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,14 +18,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<PrimacyUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+// Register a factory delegate to resolve UserManager<IdentityUser> requests to UserManager<PrimacyUser>
 
+builder.Services.AddTransient<UserManager<PrimacyUser>>();
 builder.Services.AddTransient<RoleManager<IdentityRole>>();
-builder.Services.AddTransient<UserManager<IdentityUser>>();
-builder.Services.AddTransient<SignInManager<IdentityUser>>();
+
+builder.Services.AddTransient<SignInManager<PrimacyUser>>();
 //builder.Services.AddTransient(typeof(EmailSender));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient(typeof(IRepository<>), typeof(MainRepo<>));
@@ -92,7 +95,7 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<PrimacyUser>>();
     CreateRoles(app.Services, userManager, roleManager).Wait();    // do you things here
 }
 
@@ -104,7 +107,7 @@ using (var scope = app.Services.CreateScope())
 app.Run();
 
 
-async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+async Task CreateRoles(IServiceProvider serviceProvider, UserManager<PrimacyUser> userManager, RoleManager<IdentityRole> roleManager)
 {
 
 
@@ -129,31 +132,39 @@ async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUse
     string adminEmail = "admoon@Email.com"; // Admin email
     string adminPassword = "Admin123!"; // Admin password
 
-    var adminUser = new IdentityUser
+    var adminUser = new PrimacyUser
     {
         UserName = adminEmail,
         Email = adminEmail,
-        EmailConfirmed = true
+        EmailConfirmed = true,
+        Name = "Admin",
+        Surname = "Admin"
     };
 
-    var uploader = new IdentityUser
+    var uploader = new PrimacyUser
     {
         UserName = "Uploader@Email.com",
         Email = "Uploader@Email.com",
-        EmailConfirmed = true
+        EmailConfirmed = true,
+        Name = "Uploader",
+        Surname = "Uploader"
     };
 
-    var revisor = new IdentityUser
+    var revisor = new PrimacyUser
     {
         UserName = "Revisor@Email.com",
         Email = "Revisor@Email.com",
-        EmailConfirmed = true
+        EmailConfirmed = true,
+        Name = "Revisor",
+        Surname = "Revisor"
     };
-    var finalizer = new IdentityUser
+    var finalizer = new PrimacyUser
     {
         UserName = "Finalizer@Email.com",
         Email = "Finalizer@Email.com",
-        EmailConfirmed = true
+        EmailConfirmed = true,
+        Name = "Finalizer",
+        Surname = "Finalizer"
     };
 
     // Check if the admin exists, create it if not

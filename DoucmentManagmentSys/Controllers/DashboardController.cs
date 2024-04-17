@@ -1,4 +1,5 @@
 ﻿
+using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,21 +9,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace DoucmentManagmentSys.Controllers
 {
     // only accessable by admin
-    [Authorize(Roles = "Admin")]
+
     public class DashboardController : Controller
     {
 
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<PrimacyUser> _userManager;
 
         private readonly IRoleManagment _roleManagment;
 
-        public DashboardController(UserManager<IdentityUser> userManager, IRoleManagment roleManagment)
+        public DashboardController(UserManager<PrimacyUser> userManager, IRoleManagment roleManagment)
         {
             _userManager = userManager;
             _roleManagment = roleManagment;
         }
         // Action to display the dashboard
+        [Authorize(Roles = "Admin")]
         public ActionResult index()
         {
             // Get the list of users from your data source

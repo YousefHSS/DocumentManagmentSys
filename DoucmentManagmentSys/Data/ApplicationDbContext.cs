@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DoucmentManagmentSys.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<PrimacyUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

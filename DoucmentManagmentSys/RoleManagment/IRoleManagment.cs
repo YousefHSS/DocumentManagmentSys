@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DoucmentManagmentSys.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -6,7 +7,7 @@ namespace DoucmentManagmentSys.RoleManagment
 {
     public interface IRoleManagment
     {
-        UserManager<IdentityUser> userManager { get; set; }
+        UserManager<PrimacyUser> userManager { get; set; }
         RoleManager<IdentityRole> roleManager { get; set; }
 
 
@@ -16,7 +17,7 @@ namespace DoucmentManagmentSys.RoleManagment
 
         public Task<bool> SwitchRole(ClaimsPrincipal User, string role);
 
-        public Task<bool> SwitchRole(IdentityUser user, string role);
+        public Task<bool> SwitchRole(PrimacyUser user, string role);
 
         public Task<bool> CheckRole(ClaimsIdentity User, string role);
 

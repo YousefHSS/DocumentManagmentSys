@@ -26,9 +26,9 @@ namespace DoucmentManagmentSys.Controllers
 
         private readonly IRoleManagment _roleManagment;
 
-        public SignInManager<IdentityUser> _signInManager { get; set; }
+        public SignInManager<PrimacyUser> _signInManager { get; set; }
 
-        public HomeController(ILogger<HomeController> logger, DocumentRepository repository, IRoleManagment roleManagment, SignInManager<IdentityUser> signInManager, MainRepo<HistoryAction> HistoryActionRepo, MainRepo<HistoryLog> HistoryLogRepo)
+        public HomeController(ILogger<HomeController> logger, DocumentRepository repository, IRoleManagment roleManagment, SignInManager<PrimacyUser> signInManager, MainRepo<HistoryAction> HistoryActionRepo, MainRepo<HistoryLog> HistoryLogRepo)
         {
             _logger = logger;
             _DocsRepo = repository;
@@ -74,7 +74,7 @@ namespace DoucmentManagmentSys.Controllers
 
             if (Result.Status)
             {
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Created, documents[0], _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Created, documents[0], _HistoryLogRepo, _HistoryActionRepo,PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
 
                 _DocsRepo.SaveChanges();
             }
@@ -92,7 +92,7 @@ namespace DoucmentManagmentSys.Controllers
             MessageResult Result = _DocsRepo.Update(id, newName);
             if (Result.Status)
             {
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Updated, newName, id, _DocsRepo, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Updated, newName, id, _DocsRepo, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
 
                 _DocsRepo.SaveChanges();
             }
@@ -220,12 +220,12 @@ namespace DoucmentManagmentSys.Controllers
 
                 if (Doc.status == PrimacyDocument.Status.Under_Finalization)
                 {
-                    AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
-                    WordDocumentHelper.AddFinalFooter(Doc, _HistoryActionRepo, _HistoryLogRepo);
+                    AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                    WordDocumentHelper.StampDocument(Doc, _HistoryActionRepo, _HistoryLogRepo);
                 }
                 else if (Doc.status == PrimacyDocument.Status.Under_Revison)
                 {
-                    AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                    AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
                 }
                 Doc.Approve();
                 _DocsRepo.SaveChanges();
@@ -265,7 +265,7 @@ namespace DoucmentManagmentSys.Controllers
                 _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Rejected successfully.";
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected, Doc, _HistoryLogRepo, _HistoryActionRepo, User.Identity.Name!);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
                 return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Rejected", status = Doc.status, reason = reason });
             }
 
