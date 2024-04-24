@@ -1,5 +1,7 @@
 ﻿using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DoucmentManagmentSys.Repo
 {
@@ -17,6 +19,12 @@ namespace DoucmentManagmentSys.Repo
             _context.Set<T>().Add(entity);
         }
 
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _context.Set<T>().AddRange(entities);
+        }
+        
+
         public void Delete(T entity)
         {
 
@@ -27,6 +35,11 @@ namespace DoucmentManagmentSys.Repo
         public IEnumerable<T> GetAll()
         {
             return _context.Set<T>();
+        }
+
+        public IEnumerable<T> GetIncluded<TProperty>(Expression<Func<T, TProperty>> navigationPropertyPath)
+        {
+            return _context.Set<T>().Include(navigationPropertyPath);
         }
 
         public T GetById(int id)

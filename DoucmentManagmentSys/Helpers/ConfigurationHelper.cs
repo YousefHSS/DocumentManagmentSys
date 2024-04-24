@@ -1,8 +1,9 @@
-﻿namespace DoucmentManagmentSys.Controllers.Helpers
+﻿namespace DoucmentManagmentSys.Helpers
 {
     public class ConfigurationHelper
     {
-        public static string GetString(string key) {
+        public static string GetString(string key)
+        {
             IConfiguration config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")

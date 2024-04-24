@@ -17,10 +17,55 @@ namespace DoucmentManagmentSys.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.ArchivedDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("archivedDocuments");
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.ArchivedVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int?>("DocumentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.ToTable("archivedVersions");
+                });
 
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryAction", b =>
                 {
@@ -330,6 +375,15 @@ namespace DoucmentManagmentSys.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DoucmentManagmentSys.Models.ArchivedVersion", b =>
+                {
+                    b.HasOne("DoucmentManagmentSys.Models.ArchivedDocument", "Document")
+                        .WithMany("Versions")
+                        .HasForeignKey("DocumentId");
+
+                    b.Navigation("Document");
+                });
+
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryAction", b =>
                 {
                     b.HasOne("DoucmentManagmentSys.Models.HistoryLog", "historyLog")
@@ -401,6 +455,11 @@ namespace DoucmentManagmentSys.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DoucmentManagmentSys.Models.ArchivedDocument", b =>
+                {
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("DoucmentManagmentSys.Models.HistoryLog", b =>

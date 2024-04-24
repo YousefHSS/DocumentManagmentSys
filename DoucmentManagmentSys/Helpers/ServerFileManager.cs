@@ -1,6 +1,6 @@
 ﻿using DoucmentManagmentSys.Models;
 
-namespace DoucmentManagmentSys.Controllers.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class ServerFileManager
     {
@@ -46,12 +46,12 @@ namespace DoucmentManagmentSys.Controllers.Helpers
 
             string strFilePath;
 
-            result.Message = "Error Happened:";
+            result.Message = "Error : ";
 
             // Retrieve the name of the file that is posted.
             if (oFile2 == null)
             {
-                result.Message += "File is empty.";
+                result.Message += "No file selected or file is empty.";
                 result.Status = false;
             }
             else
@@ -90,7 +90,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             Array.ForEach(Directory.GetFiles(Folder), File.Delete);
         }
 
-        public static async Task<List<PrimacyDocument>> FilesToDocs(string UserID ,string strFolder = "./UploadedFiles/")
+        public static async Task<List<PrimacyDocument>> FilesToDocs(string UserID, string strFolder = "./UploadedFiles/")
         {
 
             List<PrimacyDocument> docs = new List<PrimacyDocument>();

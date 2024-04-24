@@ -3,15 +3,15 @@ using DoucmentManagmentSys.Repo;
 using System.Collections.ObjectModel;
 
 
-namespace DoucmentManagmentSys.Controllers.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class AuditLogHelper
     {
 
         public AuditLogHelper() { }
-        public static void AddLogThenProcced(string actionName,PrimacyDocument document , MainRepo<HistoryLog> _HistoryLogRepo,  MainRepo<HistoryAction> _HistoryActionRepo, string Username)
+        public static void AddLogThenProcced(string actionName, PrimacyDocument document, MainRepo<HistoryLog> _HistoryLogRepo, MainRepo<HistoryAction> _HistoryActionRepo, string Username)
         {
-            
+
 
             //create history action
             HistoryAction historyAction = new HistoryAction
@@ -48,7 +48,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
             _HistoryActionRepo.SaveChanges();
 
         }
-        public static void AddLogThenProcced(string actionName, string docname,int id, DocumentRepository _DocsRepo, MainRepo<HistoryLog> _HistoryLogRepo, MainRepo<HistoryAction> _HistoryActionRepo,  string Username)
+        public static void AddLogThenProcced(string actionName, string docname, int id, DocumentRepository _DocsRepo, MainRepo<HistoryLog> _HistoryLogRepo, MainRepo<HistoryAction> _HistoryActionRepo, string Username)
         {
             var document = _DocsRepo.Find([id, docname]);
             //create history action

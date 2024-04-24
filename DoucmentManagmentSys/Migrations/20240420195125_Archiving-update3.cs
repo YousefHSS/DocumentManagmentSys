@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DoucmentManagmentSys.Migrations
 {
     /// <inheritdoc />
-    public partial class newuser : Migration
+    public partial class Archivingupdate3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+           
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -71,6 +72,42 @@ namespace DoucmentManagmentSys.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Documents", x => new { x.Id, x.FileName });
+                });
+            migrationBuilder.CreateTable(
+               name: "archivedDocuments",
+               columns: table => new
+               {
+                   Id = table.Column<int>(type: "int", nullable: false)
+                       .Annotation("SqlServer:Identity", "1, 1"),
+                   FileName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                   Extension = table.Column<string>(type: "nvarchar(max)", nullable: false)
+               },
+               constraints: table =>
+               {
+                   table.PrimaryKey("PK_archivedDocuments", x => x.Id);
+                   //FK for filename and extension
+                   table.UniqueConstraint("UQ_archivedDocuments", x => new { x.FileName});
+
+               });
+
+            migrationBuilder.CreateTable(
+                name: "archivedVersions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    Version = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DocumentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_archivedVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_archivedVersions_archivedDocuments_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "archivedDocuments",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -222,6 +259,11 @@ namespace DoucmentManagmentSys.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_archivedVersions_DocumentId",
+                table: "archivedVersions",
+                column: "DocumentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -281,6 +323,9 @@ namespace DoucmentManagmentSys.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "archivedVersions");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -297,6 +342,9 @@ namespace DoucmentManagmentSys.Migrations
 
             migrationBuilder.DropTable(
                 name: "HistoryActions");
+
+            migrationBuilder.DropTable(
+                name: "archivedDocuments");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

@@ -1,7 +1,7 @@
 ﻿using DoucmentManagmentSys.Models;
 using System.Collections;
 
-namespace DoucmentManagmentSys.Controllers.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class FileTypes
     {
@@ -24,7 +24,8 @@ namespace DoucmentManagmentSys.Controllers.Helpers
         {
             return AllowedFileTypes.Contains(fileType.ToLower());
         }
-        public static bool IsFileTypeWord(string fileType) {
+        public static bool IsFileTypeWord(string fileType)
+        {
             return AllowedFileTypesWord.Contains(GetContentType(fileType.ToLower()));
         }
         //Get Content type from name of file
@@ -51,7 +52,7 @@ namespace DoucmentManagmentSys.Controllers.Helpers
         }
 
         public static void ChangeTypeTo(string newExt, PrimacyDocument document)
-        { 
+        {
             document.FileExtensiton = newExt;
         }
     }

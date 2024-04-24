@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace DoucmentManagmentSys.Controllers.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class EmailSender : IEmailSender
     {

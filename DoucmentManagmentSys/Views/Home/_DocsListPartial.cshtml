@@ -95,8 +95,8 @@
                     }
                     else if (User.IsInRole("Finalizer") && item.status == PrimacyDocument.Status.Under_Finalization)
                     {
-                        action = "Finalize";
-                        text = "Approve";
+                        action = "Approve";
+                        text = "Finalize";
                     }
                     else
                     {
@@ -117,10 +117,10 @@
                         <button type="button" class="btn-danger p-2 rounded-2 w-100 mb-1" onclick="Reject('@item.FileName','@item.Id')">Reject</button>
                     
                     <br />
-                    <form method="post" asp-controller="Home" asp-action="Approve">
+                    <form method="post" asp-controller="Home" asp-action=@action>
                         <input type="hidden" name="id" value="@item.Id" />
                         <input type="hidden" name="FileName" value="@item.FileName" />
-                        <button type="submit" class="btn-success p-2 rounded-2 w-100">Approve</button>
+                    <button type="submit" class="btn-success p-2 rounded-2 w-100">@action</button>
                     </form>
                 </td>
                 }

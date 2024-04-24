@@ -5,8 +5,9 @@ using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using DoucmentManagmentSys.Controllers.Helpers;
 using Microsoft.AspNet.Identity;
+using System.Reflection;
+using DoucmentManagmentSys.Helpers;
 
 
 
@@ -24,11 +25,13 @@ namespace DoucmentManagmentSys.Controllers
 
         private readonly MainRepo<HistoryLog> _HistoryLogRepo;
 
+        private readonly MainRepo<ArchivedDocument> _ArchivedDocumentRepo;
+
         private readonly IRoleManagment _roleManagment;
 
         public SignInManager<PrimacyUser> _signInManager { get; set; }
 
-        public HomeController(ILogger<HomeController> logger, DocumentRepository repository, IRoleManagment roleManagment, SignInManager<PrimacyUser> signInManager, MainRepo<HistoryAction> HistoryActionRepo, MainRepo<HistoryLog> HistoryLogRepo)
+        public HomeController(ILogger<HomeController> logger, DocumentRepository repository, IRoleManagment roleManagment, SignInManager<PrimacyUser> signInManager, MainRepo<HistoryAction> HistoryActionRepo, MainRepo<HistoryLog> HistoryLogRepo, MainRepo<ArchivedDocument> ArchivedDocumentRepo)
         {
             _logger = logger;
             _DocsRepo = repository;
@@ -36,18 +39,18 @@ namespace DoucmentManagmentSys.Controllers
             _signInManager = signInManager;
             _HistoryActionRepo = HistoryActionRepo;
             _HistoryLogRepo = HistoryLogRepo;
+            _ArchivedDocumentRepo = ArchivedDocumentRepo;
 
 
         }
 
-        public IActionResult Index(string Message, string Messages)
+        public IActionResult Index(string Message, string Messages,string? SortBY)
         {
-
             ViewBag.Message = Message ?? "";
             ViewBag.Messages = Messages ?? "";
             TempData["Id"] = TempData["Id"] ?? "";
-
-            return View(_DocsRepo.GetAll());
+            
+            return View(SortBY!=null? OrderByProperty<PrimacyDocument>(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
         }
 
         [HttpPost]
@@ -180,7 +183,7 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Search(string search)
+        public IActionResult Search(string search,string? filter )
         {
             if (search == null || search == string.Empty)
             {
@@ -210,25 +213,21 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Finalizer ,Revisor")]
+        [Authorize(Roles = "Finalizer")]
         public IActionResult Approve(int id, string Filename)
         {
             MessageResult result = new MessageResult("File not Approved.");
             PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
-            if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
+            if (Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer"))
             {
 
 
-                if (Doc.status == PrimacyDocument.Status.Under_Finalization)
-                {
-                    AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
-                    WordDocumentHelper.StampDocument(Doc, _HistoryActionRepo, _HistoryLogRepo);
-                }
-                else if (Doc.status == PrimacyDocument.Status.Under_Revison)
-                {
-                    AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
-                }
-                Doc.Approve();
+                //before approving and converting to pdf
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
+                wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
+
+                Doc.Approve(_ArchivedDocumentRepo);
                 _DocsRepo.SaveChanges();
                 result.Status = true;
                 result.Message = "File Approved successfully.";
@@ -239,6 +238,30 @@ namespace DoucmentManagmentSys.Controllers
             return RedirectToAction("index", "Home", new { Message = result.Status });
 
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Revisor")]
+        public IActionResult Revise(int id, string Filename)
+        {
+            MessageResult result = new MessageResult("File not Revised.");
+            PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
+            if (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor"))
+            {
+
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Revised, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                Doc.Revise();
+                _DocsRepo.SaveChanges();
+                result.Status = true;
+                result.Message = "File Revised successfully.";
+
+                return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Approved", status = Doc.status });
+            }
+
+            return RedirectToAction("index", "Home", new { Message = result.Status });
+
+        }
+
+
 
         [HttpPost]
         [Authorize(Roles = "Finalizer ,Revisor")]
@@ -286,6 +309,18 @@ namespace DoucmentManagmentSys.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        public static IEnumerable<T> OrderByProperty<T>(IEnumerable<T> items, string propertyName, bool ascending = true)
+        {
+            PropertyInfo propInfo = typeof(T).GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (propInfo == null)
+            {
+                throw new ArgumentException($"No property '{propertyName}' found on type '{typeof(T).Name}'");
+            }
+
+            return ascending
+                ? items.OrderBy(item => propInfo.GetValue(item, null))
+                : items.OrderByDescending(item => propInfo.GetValue(item, null));
+        }
 
 
 

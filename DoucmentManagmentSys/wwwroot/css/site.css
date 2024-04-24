@@ -331,3 +331,314 @@ body {
         box-shadow: #258cfb 0 3px 7px inset;
         transform: translateY(2px);
     }
+
+.FiltersTab {
+    border-width:1px;
+    border-color : gainsboro;
+    padding: 0.5rem;
+    border-style: solid;
+    border-bottom: 0px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.FiltersTable {
+    margin-bottom: 0rem;
+
+}
+
+.FiltersIcon {
+    filter: drop-shadow(0.5px 0.5px 0.1px #000000);
+}
+
+.box {
+    width: fit-content;
+    padding: 3px 9px;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.01);
+}
+
+    .box::after {
+        position: absolute;
+        content: "";
+        left: 10px;
+        right: 0px;
+        z-index: -1;
+        height: 76%;
+        width: 50%;
+        transform: scale(0.9) translateZ(0);
+        filter: blur(4px);
+        background: linear-gradient(to left, #ff5770, #e4428d, #c42da8, #9e16c3, #6501de, #9e16c3, #c42da8, #e4428d, #ff5770);
+        background-size: 200% 200%;
+        -webkit-animation: animateGlow 1.25s linear infinite;
+        animation: animateGlow 1.25s linear infinite;
+        transition: left 1s ease,filter 0.25s ease-out, width 1s ease;
+    }
+    .box:hover::after{
+        position: absolute;
+        content: "";
+        left: 12px;
+        right: 0px;
+        z-index: -1;
+        height: 76%;
+        width: 40%;
+        transform: scale(0.9) translateZ(0);
+        filter: blur(30px);
+        background: linear-gradient(to left, #ff5770, #e4428d, #c42da8, #9e16c3, #6501de, #9e16c3, #c42da8, #e4428d, #ff5770);
+        background-size: 200% 200%;
+        -webkit-animation: animateGlow 1.25s linear infinite;
+        animation: animateGlow 1.25s linear infinite;
+    }
+
+
+@-webkit-keyframes animateGlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+@keyframes animateGlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+.flipped {
+    transform: scaleX(-1);
+}
+
+.rotated {
+    transform: rotate(180deg);
+}
+.NoUnderline {
+    text-decoration: none;
+}
+.font-small {
+    width:fit-content;
+    font-size:1.7rem;
+}
+.fullcover{
+    width:100%;
+    height:100%;
+}
+.HoverText {
+    opacity: 0;
+    height: 0%;
+    line-height: 0;
+    width: 100%;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out,line-height 0.3s ease-in-out;
+}
+.block{
+    padding:10px;
+}
+
+.block:hover .HoverText {
+    opacity: 1;
+    height: fit-content;
+    width: 100%;
+    line-height: 1;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out,line-height 0.3s ease-in-out;
+}
+
+.specialTH {
+    padding:3px;
+    transition: width 0.3s ease-in-out; /* Add transition for smooth width change */
+}
+
+.specialTH:hover {
+    width:  15rem !important;
+
+
+}
+    .specialTH:hover .multiselect-dropdown {
+        font-size: 1rem;
+        transition: font-size 0.3s ease-in-out;
+    }
+
+.multiselect-dropdown{
+    width: inherit;
+    padding:10px !important;
+    font-size:0.7rem;
+}
+
+/*Check Box*//*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
+.checkbox-wrapper-55 input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
+}
+
+.checkbox-wrapper-55 *,
+.checkbox-wrapper-55 ::after,
+.checkbox-wrapper-55 ::before {
+    box-sizing: border-box;
+}
+
+.checkbox-wrapper-55 .rocker {
+    display: inline-block;
+    position: relative;
+    /*
+                        SIZE OF SWITCH
+                        ==============
+                        All sizes are in em - therefore
+                        changing the font-size here
+                        will change the size of the switch.
+                        See .rocker-small below as example.
+                        */
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    color: #888;
+    width: 7em;
+    height: 4em;
+    overflow: hidden;
+    border-bottom: 0.5em solid #eee;
+}
+
+.checkbox-wrapper-55 .rocker-small {
+    font-size: 0.6em;
+    transition: font-size 0.3s ease-in-out;
+}
+.specialTH:hover .rocker-small {
+    font-size: 1.0em;
+}
+
+.checkbox-wrapper-55 .rocker::before {
+    content: "";
+    position: absolute;
+    top: 0.5em;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #999;
+    border: 0.5em solid #eee;
+    border-bottom: 0;
+}
+
+.checkbox-wrapper-55 .switch-left,
+.checkbox-wrapper-55 .switch-right {
+    cursor: pointer;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5em;
+    width: 3em;
+    transition: 0.2s;
+    user-select: none;
+}
+
+.checkbox-wrapper-55 .switch-left {
+    height: 2.4em;
+    width: 2.75em;
+    left: 0.85em;
+    bottom: 0.4em;
+    background-color: #ddd;
+    transform: rotate(15deg) skewX(15deg);
+}
+
+.checkbox-wrapper-55 .switch-right {
+    right: 0.5em;
+    bottom: 0;
+    background-color: #bd5757;
+    color: #fff;
+}
+
+    .checkbox-wrapper-55 .switch-left::before,
+    .checkbox-wrapper-55 .switch-right::before {
+        content: "";
+        position: absolute;
+        width: 0.4em;
+        height: 2.45em;
+        bottom: -0.45em;
+        background-color: #ccc;
+        transform: skewY(-65deg);
+    }
+
+.checkbox-wrapper-55 .switch-left::before {
+    left: -0.4em;
+}
+
+.checkbox-wrapper-55 .switch-right::before {
+    right: -0.375em;
+    background-color: transparent;
+    transform: skewY(65deg);
+}
+
+.checkbox-wrapper-55 input:checked + .switch-left {
+    background-color: #0084d0;
+    color: #fff;
+    bottom: 0px;
+    left: 0.5em;
+    height: 2.5em;
+    width: 3em;
+    transform: rotate(0deg) skewX(0deg);
+}
+
+    .checkbox-wrapper-55 input:checked + .switch-left::before {
+        background-color: transparent;
+        width: 3.0833em;
+    }
+
+    .checkbox-wrapper-55 input:checked + .switch-left + .switch-right {
+        background-color: #ddd;
+        color: #888;
+        bottom: 0.4em;
+        right: 0.8em;
+        height: 2.4em;
+        width: 2.75em;
+        transform: rotate(-15deg) skewX(-15deg);
+    }
+
+        .checkbox-wrapper-55 input:checked + .switch-left + .switch-right::before {
+            background-color: #ccc;
+        }
+
+/* Keyboard Users */
+.checkbox-wrapper-55 input:focus + .switch-left {
+    color: #333;
+}
+
+.checkbox-wrapper-55 input:checked:focus + .switch-left {
+    color: #fff;
+}
+
+.checkbox-wrapper-55 input:focus + .switch-left + .switch-right {
+    color: #fff;
+}
+
+.checkbox-wrapper-55 input:checked:focus + .switch-left + .switch-right {
+    color: #333;
+}
+
+
+
+.HideHightTR {
+    opacity: 0;
+    max-height:0rem;
+    transition: all 0.5s ease-in-out;
+}
+.ShowHightTR {
+    max-height: 10rem !important;
+    opacity: 1;
+}
+
+
+
+.transitionTB {
+    transition: all 0.5s ease-in-out;
+    display: block !important;
+    max-height: 0rem;
+}
+
+.transitionTBShow {
+    max-height: 10rem !important;
+}

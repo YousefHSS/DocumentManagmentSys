@@ -1,0 +1,21 @@
+﻿@model IEnumerable<DoucmentManagmentSys.Models.ArchivedDocument>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="border-3 table" style="border-style:groove">
+    <thead>
+        <tr>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @await Html.PartialAsync("_ArchivedListPartial",Model)
+    </tbody>
+</table>

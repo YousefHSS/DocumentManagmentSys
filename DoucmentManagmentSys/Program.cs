@@ -1,5 +1,5 @@
-using DoucmentManagmentSys.Controllers.Helpers;
 using DoucmentManagmentSys.Data;
+using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
@@ -30,10 +30,9 @@ builder.Services.AddTransient<RoleManager<IdentityRole>>();
 builder.Services.AddTransient<SignInManager<PrimacyUser>>();
 //builder.Services.AddTransient(typeof(EmailSender));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
-builder.Services.AddTransient(typeof(IRepository<>), typeof(MainRepo<>));
+builder.Services.AddTransient(typeof(MainRepo<>));
 builder.Services.AddTransient(typeof(DocumentRepository));
-builder.Services.AddTransient(typeof(MainRepo< HistoryAction>));
-builder.Services.AddTransient(typeof(MainRepo< HistoryLog>));
+
 
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 

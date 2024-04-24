@@ -1,4 +1,4 @@
-﻿namespace DoucmentManagmentSys.Controllers.Helpers
+﻿namespace DoucmentManagmentSys.Helpers
 {
     public struct MessageResult
     {

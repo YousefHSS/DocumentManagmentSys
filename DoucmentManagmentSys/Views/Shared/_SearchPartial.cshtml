@@ -1,13 +1,141 @@
-﻿@* \html  search bar for documents styled with bootsrap*@
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="input-group mb-3">
-                <input type="text" onkeyup="Search()" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="Search()">Search</button>
+﻿
+
+@* Filters styled with bootsrap *@
+@* filters *@
+@using Microsoft.AspNetCore.Html
+@{
+    Func<dynamic, IHtmlContent> FilterHeader =
+    @<th class="specialTH" >
+            <div class="fullcover" >
+                       <div class="block">
+                            <a class="SortIcon NoUnderline" href="@ViewContext.HttpContext.Request.Path?SortBY=FileName">
+                                <img width="20vw" src="~/pngs/sortIcon.png" />
+                                <div class="HoverText font-small">
+                                    Sort Decending
+                                </div>
+                            </a>
+                    </div>
+                    <div class="block">
+                            <a class="SortIcon NoUnderline" href="@ViewContext.HttpContext.Request.Path?SortBY=FileName">
+                                <img class="flipped rotated" width="20vw" src="~/pngs/sortIcon.png" />
+                                <div class="HoverText font-small">
+                                Sort Ascending
+                                </div>
+                    
+                            </a>
+                    </div>
+            </div>
+        </th>
+    ;
+    Func<dynamic, IHtmlContent> StatusHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="fullcover">
+
+                <select class="MultiSelect" name="cars" id="cars" multiple multiselect-search="true">
+                    <option selected value="1">All</option>
+                    
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Under_Revison">Under Revison</option>
+                    <option value="Under_Finalization">Under Finalization</option>
+                </select>
+
+            </div>
+           
+           
+        </div>
+    </th>
+    ;
+    Func<dynamic, IHtmlContent> CheckBoxHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="fullcover block" style="padding:0px;">
+
+                <div class="checkbox-wrapper-55">
+                    <label class="rocker rocker-small">
+                        <input type="checkbox">
+                        <span class="switch-left">Yes</span>
+                        <span class="switch-right">No</span>
+                    </label>
+                </div>
+                <div class="HoverText font-small">
+                    Show only @item by me?
+                </div>
+                <style>
+                
+                </style>
+
+
+            </div>
+
+
+        </div>
+    </th>
+    ;
+    Func<dynamic, IHtmlContent> BlockHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="block">
+             
             </div>
         </div>
-    </div>
+    </th>
+    ;
 
+}
+
+<div class="mt-5 col-justify-center">
+    <div class="row">
+        @* \html  search bar for documents styled with bootsrap*@
+        <div class="container">
+            <div class="border-1 rounded-1 row">
+                <form method="GET">
+                    <div class="input-group mb-3">
+                        <input type="text" onkeyup="Search()" class="form-control" placeholder="Search" name="search" aria-label="Search" aria-describedby="button-addon2">
+                    <button type="submit" class="btn btn-outline-secondary" type="button" id="button-addon2" >Search</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+    @* Fliters tab that has an expand up and down button the Tab is the same width as the table below it. *@
+    
+        <div class="container">
+        <div class="FiltersTab row" onclick="toggleTransition()">
+                <div class="col">
+                    @* use the filters icon from PNGs *@
+                    <div class="box">
+                <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/filter.png" alt="filter" id="filters" />
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+
+    <table id="targetTable" class="transitionTB FiltersTable table-striped table-hover table-bordered table">
+                    <thead class="thead-dark">
+            <tr id="HH" class="HideHightTR" style="display:inline-flex">
+
+                @FilterHeader("Document Name")
+                @FilterHeader("Version")
+                @FilterHeader("Created At")
+                @FilterHeader("Updated At")
+                @StatusHeader("Status")
+                @CheckBoxHeader("Updated")
+                @CheckBoxHeader("Downloaded")
+                @BlockHeader("Latest Action")
+                @BlockHeader("History")
+
+                        </tr>
+                    </thead>
+    </table>
+
+    
 </div>
-@* @* a script to activate search with ajax *@
+    
+<script src="~/js/multiselect-dropdown.js"></script>
+
