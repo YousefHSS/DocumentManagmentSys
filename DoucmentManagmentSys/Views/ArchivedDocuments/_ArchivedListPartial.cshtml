@@ -3,7 +3,6 @@
 {
     <tr>
         <td>@(item.FileName ?? "N/A")</td>
-        <td>@item.Id</td>
         <form asp-action="download" asp-controller="ArchivedDocuments" method="post">
         <td>
             @* a list of versions with default beign latest version when clicked fetches other version from db *@

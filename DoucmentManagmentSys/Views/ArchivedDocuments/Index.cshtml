@@ -2,17 +2,17 @@
 
 @{
     ViewData["Title"] = "Index";
+    ViewData["Filters"] = false;
 }
+@await Html.PartialAsync("_SearchPartial", new ViewDataDictionary(ViewData))
+<h1>Archived Documents</h1>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="border-3 table" style="border-style:groove">
+<table class="border-3 table" style="border-style: solid;border-radius:10px">
     <thead>
         <tr>
-            <th></th>
+            <th>Document Name</th>
+            <th>Version</th>
+            <th>Download</th>
         </tr>
     </thead>
     <tbody>

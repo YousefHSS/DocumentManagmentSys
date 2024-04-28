@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNet.Identity;
 using System.Reflection;
 using DoucmentManagmentSys.Helpers;
+using System.Linq;
 
 
 
@@ -115,7 +116,6 @@ namespace DoucmentManagmentSys.Controllers
             //Get name from database and then check
 
 
-
             PrimacyDocument document = _DocsRepo.Find([id, name]);
             if (document == null)
             {
@@ -124,6 +124,7 @@ namespace DoucmentManagmentSys.Controllers
             }
             else
             {
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Downloaded, name, id, _DocsRepo, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
 
 
                 return File(document.Content, FileTypes.GetContentType(document.FileName+document.FileExtensiton), document.FileName+document.FileExtensiton);
@@ -198,16 +199,31 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [HttpGet]
-        public IActionResult GSearch(string search)
+        //DN = Document Name, VR = Version, CA = Created At, UA = Updated At, SS = Status, UP = Updated By, DD = Downloaded BY
+        public IActionResult GSearch(string search,string DN,string VR, string CA,string UA, string SS,string? UP, string? DD)
         {
-            if (search == null || search == string.Empty)
+            string[] SSArray = SS.Split(',');
+            var DocumentInDb = _DocsRepo.Search(search, DN, VR, CA, UA, SSArray);
+            var documentIds = DocumentInDb.Select(doc => doc.Id).ToList();
+            var currentUserName = PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name?? "").Result;
+
+            //UP show updated by me only from the history actions
+            if (UP != null && UP == "on")
             {
-                return View("index", _DocsRepo.GetAll());
+                var HistoryActions = _HistoryActionRepo.GetWhere(x=> (x.Action == HistoryAction.Updated && x.UserName == currentUserName),x=>x.historyLog).ToList();
+                var HistoryLogs2 = HistoryActions.Select(x => x.historyLog).ToList() ?? new List<HistoryLog>();
+                var documentIds2 = HistoryLogs2.Select(log => log.Document_id.Id).ToList() ?? new List<int>();
+                DocumentInDb = DocumentInDb.Where(doc=> documentIds2.Contains(doc.Id)).ToList();
             }
-            else
+            //DD show downloaded by me only from the history actions
+            if (DD != null && DD == "on")
             {
-                return View("index", _DocsRepo.Search(search));
+                var HistoryActions = _HistoryActionRepo.GetWhere(x => (x.Action == HistoryAction.Downloaded && x.UserName == currentUserName), x => x.historyLog).ToList();
+                var HistoryLogs2 = HistoryActions.Select(x => x.historyLog).ToList() ?? new List<HistoryLog>();
+                var documentIds2 = HistoryLogs2.Select(log => log.Document_id.Id).ToList() ?? new List<int>();
+                DocumentInDb = DocumentInDb.Where(doc => documentIds2.Contains(doc.Id)).ToList();
             }
+            return View("index", DocumentInDb);
 
 
         }
@@ -223,7 +239,7 @@ namespace DoucmentManagmentSys.Controllers
 
 
                 //before approving and converting to pdf
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name??"").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
                 wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
 

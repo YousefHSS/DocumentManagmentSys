@@ -203,6 +203,22 @@ namespace DoucmentManagmentSys.Controllers
                 return File( document.Versions.Where(v => v.Version == version).FirstOrDefault().Content , FileTypes.GetContentType(document.FileName + document.Extension), document.FileName + document.Extension);
             }
         }
+
+        [Authorize]
+        [HttpGet]
+
+        public IActionResult GSearch(string search)
+        {
+            if (search == null || search == string.Empty)
+            {
+                return View("index", _ArchivedDocumentRepo.GetAll());
+            }
+            else
+            {
+                return View("index", _ArchivedDocumentRepo.Search(search, "FileName"));
+            }
+        }
+
     }
 
 

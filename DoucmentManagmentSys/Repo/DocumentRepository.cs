@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.InkML;
 using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Models;
@@ -89,6 +90,52 @@ namespace DoucmentManagmentSys.Repo
             var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => u.FileName.Contains(search)).ToList();
 
             return DocumentInDb;
+        }
+
+        //DN = Document Name, VR = Version, CA = Created At, UA = Updated At, SS = Status, UP = Updated By Me, DD = Downloaded BY Me
+        public IEnumerable<PrimacyDocument> Search(string search, string DN, string VR, string CA, string UA, string[] SS)
+        {
+            List<PrimacyDocument> DocumentInDb = _context.Set<PrimacyDocument>().ToList();
+            if (search != null)
+            {
+                 DocumentInDb = _context.Set<PrimacyDocument>().Where(u => u.FileName.Contains(search)).ToList();
+            }
+            if (DN != null)
+            {
+                //order by document name descending
+                DocumentInDb = DN == "Descending" ? DocumentInDb.OrderByDescending(u => u.FileName).ToList() : DocumentInDb.OrderBy(u => u.FileName).ToList();
+
+            }
+            if (VR != null)
+            {
+                DocumentInDb = VR == "Descending" ? DocumentInDb.OrderByDescending(u => u.Version).ToList() : DocumentInDb.OrderBy(u => u.Version).ToList();
+
+            }
+            if(CA != null)
+            {
+                DocumentInDb = CA == "Descending" ? DocumentInDb.OrderByDescending(u => u.CreatedAt).ToList() : DocumentInDb.OrderBy(u => u.CreatedAt).ToList();
+
+            }
+            if(UA != null)
+            {
+                DocumentInDb = UA == "Descending" ? DocumentInDb.OrderByDescending(u => u.UpdatedAt).ToList() : DocumentInDb.OrderBy(u => u.UpdatedAt).ToList();
+
+            }
+            if (SS != null && SS[0]!="1")
+            {
+                //SS is array of status , get only the ones that are in the array
+                DocumentInDb = SS.Any() ? DocumentInDb.Where(u => SS.Contains(u.status.ToString())).ToList() : DocumentInDb;
+
+            }
+
+
+           
+
+
+            return DocumentInDb;
+
+
+
         }
 
         public PrimacyDocument Find(params object?[]? keyValues) {

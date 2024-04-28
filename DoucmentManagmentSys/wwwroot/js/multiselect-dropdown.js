@@ -164,7 +164,7 @@ function MultiselectDropdown(options){
 
         op.addEventListener('click',()=>{
           op.classList.toggle('checked');
-          op.querySelector("input").checked=!op.querySelector("input").checked;
+          op.querySelector("input").checked = !op.querySelector("input").checked
           op.optEl.selected=!!!op.optEl.selected;
           el.dispatchEvent(new Event('change'));
         });

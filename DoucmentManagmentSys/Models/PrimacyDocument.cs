@@ -41,7 +41,8 @@ namespace DoucmentManagmentSys.Models
         {
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
-            Version = new System.Version("0.0").ToString();
+            //version is now a 3 digit number
+            Version =  "000";
             status = Status.Under_Revison;
         }
 
@@ -65,25 +66,11 @@ namespace DoucmentManagmentSys.Models
         {
             if (Version == null)
             {
-                Version = "0.0";
+                Version = "000";
             }
             else
             {
-                string[] versionParts = Version.Split('.');
-                int majorVersion = int.Parse(versionParts[0]);
-                int minorVersion = int.Parse(versionParts[1]);
-
-                if (minorVersion < 9)
-                {
-                    minorVersion++;
-                }
-                else
-                {
-                    majorVersion++;
-                    minorVersion = 0;
-                }
-
-                Version = $"{majorVersion}.{minorVersion}";
+                 Version = (int.Parse(Version) + 1).ToString("000");
             }
         }
 
