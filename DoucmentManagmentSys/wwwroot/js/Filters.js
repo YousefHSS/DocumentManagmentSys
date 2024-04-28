@@ -152,6 +152,7 @@ function toggleTransition() {
 
     const TR = document.getElementById('HH');
     if (!TR.classList.contains('ShowHightTR')) {
+
         TR.classList.remove('d-none');
     }
     //get computed hight

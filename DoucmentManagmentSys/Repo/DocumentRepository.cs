@@ -93,7 +93,7 @@ namespace DoucmentManagmentSys.Repo
         }
 
         //DN = Document Name, VR = Version, CA = Created At, UA = Updated At, SS = Status, UP = Updated By Me, DD = Downloaded BY Me
-        public IEnumerable<PrimacyDocument> Search(string search, string DN, string VR, string CA, string UA, string[] SS)
+        public IEnumerable<PrimacyDocument> Search(string? search, string? DN, string? VR, string? CA, string? UA, string[]? SS)
         {
             List<PrimacyDocument> DocumentInDb = _context.Set<PrimacyDocument>().ToList();
             if (search != null)

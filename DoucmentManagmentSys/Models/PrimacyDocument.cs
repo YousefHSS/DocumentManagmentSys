@@ -70,7 +70,15 @@ namespace DoucmentManagmentSys.Models
             }
             else
             {
-                 Version = (int.Parse(Version) + 1).ToString("000");
+                if (Version.Contains('.'))
+                {
+                    //turn 0.1 into 001 example
+                    Version = Version.Split('.')[1].PadLeft(3, '0');
+
+
+                }
+                Version = (int.Parse(Version) + 1).ToString("000");
+                
             }
         }
 

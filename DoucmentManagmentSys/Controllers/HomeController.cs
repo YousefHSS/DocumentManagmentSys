@@ -45,13 +45,13 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-        public IActionResult Index(string Message, string Messages,string? SortBY)
+        public IActionResult Index(string Message, string Messages, string? SortBY)
         {
             ViewBag.Message = Message ?? "";
             ViewBag.Messages = Messages ?? "";
             TempData["Id"] = TempData["Id"] ?? "";
-            
-            return View(SortBY!=null? OrderByProperty<PrimacyDocument>(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
+
+            return View(SortBY != null ? OrderByProperty<PrimacyDocument>(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
         }
 
         [HttpPost]
@@ -78,7 +78,7 @@ namespace DoucmentManagmentSys.Controllers
 
             if (Result.Status)
             {
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Created, documents[0], _HistoryLogRepo, _HistoryActionRepo,PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Created, documents[0], _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
 
                 _DocsRepo.SaveChanges();
             }
@@ -91,8 +91,8 @@ namespace DoucmentManagmentSys.Controllers
 
         public async Task<MessageResult> UpdateToDB(int id, string newName)
         {
-            
-            
+
+
             string strFolder = "./UploadedFiles/";
             MessageResult Result = _DocsRepo.Update(id, newName);
             if (Result.Status)
@@ -127,7 +127,7 @@ namespace DoucmentManagmentSys.Controllers
                 AuditLogHelper.AddLogThenProcced(HistoryAction.Downloaded, name, id, _DocsRepo, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
 
 
-                return File(document.Content, FileTypes.GetContentType(document.FileName+document.FileExtensiton), document.FileName+document.FileExtensiton);
+                return File(document.Content, FileTypes.GetContentType(document.FileName + document.FileExtensiton), document.FileName + document.FileExtensiton);
             }
         }
 
@@ -184,7 +184,7 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Search(string search,string? filter )
+        public IActionResult Search(string search, string? filter)
         {
             if (search == null || search == string.Empty)
             {
@@ -199,10 +199,11 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         //DN = Document Name, VR = Version, CA = Created At, UA = Updated At, SS = Status, UP = Updated By, DD = Downloaded BY
-        public IActionResult GSearch(string search,string DN,string VR, string CA,string UA, string SS,string? UP, string? DD)
+        public IActionResult GSearch(string search,string? DN,string? VR, string? CA,string? UA, string? SS,string? UP, string? DD)
         {
-            string[] SSArray = SS.Split(',');
+            string[]? SSArray = SS?.Split(',');
             var DocumentInDb = _DocsRepo.Search(search, DN, VR, CA, UA, SSArray);
             var documentIds = DocumentInDb.Select(doc => doc.Id).ToList();
             var currentUserName = PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name?? "").Result;
@@ -227,11 +228,17 @@ namespace DoucmentManagmentSys.Controllers
 
 
         }
-
         [HttpPost]
         [Authorize(Roles = "Finalizer")]
-        public IActionResult Approve(int id, string Filename)
+        public IActionResult ConfirmApprove(int id, string Filename)
         {
+            return PartialView("_DigitalSigniturePopup", _DocsRepo.Find([id, Filename]));
+        }
+        [HttpPost]
+        [Authorize(Roles = "Finalizer")]
+        public IActionResult Approve(int id, string Filename , string Stamp="off")
+        {
+
             MessageResult result = new MessageResult("File not Approved.");
             PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
             if (Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer"))
@@ -241,7 +248,11 @@ namespace DoucmentManagmentSys.Controllers
                 //before approving and converting to pdf
                 AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name??"").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
-                wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
+                if (Stamp=="on")
+                {
+                    wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
+                }
+                
 
                 Doc.Approve(_ArchivedDocumentRepo);
                 _DocsRepo.SaveChanges();

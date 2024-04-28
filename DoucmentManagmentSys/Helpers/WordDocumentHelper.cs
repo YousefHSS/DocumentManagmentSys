@@ -323,7 +323,7 @@ namespace DoucmentManagmentSys.Helpers
             CheckDocument();
             //update footer and header
             StampFooter(footerStrings);
-            StampHeader();
+            //StampHeader();
 
         }
 
