@@ -1,0 +1,170 @@
+﻿:root {
+    --container-BgColor: #444;
+    --left-BgColor: rgba(1, 54, 67, 0.70);
+    --left-button-hover: rgb(39, 109, 109);
+    --right-bgColor: rgba(168, 114, 0, 0.45);
+    --right-button-hover: rgb(173, 138, 62);
+    --animateSpeed: 1000ms;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+h1 {
+    font-size: 5rem;
+    color: #fff;
+    position: absolute;
+    left: 50%;
+    top: 20%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: 'Playfair Display', serif;
+}
+
+.button {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: 2.6rem;
+    padding: 1.2rem 1.2rem 0rem 1rem;
+    text-align: center;
+    color: white;
+    border: 3px solid #fff;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-decoration: none;
+    transform: translateX(-50%);
+    transition: all .2s;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--container-BgColor);
+}
+
+.screen {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+}
+@keyframes moveBackground {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 100% 0;
+    }
+}
+
+
+
+    .element-with-background:hover {
+
+    }
+
+.left {
+    left: 0;
+    background: url("/PNGs/SplitScreen/left/leftSS.png") center center ;
+    background-repeat: repeat-x;
+    background-size: cover;
+    transition: all 0.5s ease-in-out;
+    max-width: 75%;
+    min-width: 25%;
+}
+
+    .left::before {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 100%;
+        background: var(--left-BgColor);
+    }
+
+    .left .button:hover {
+        background-color: var(--right-button-hover);
+        border-color: var(--right-button-hover);
+        transition: var(--animateSpeed) all ease-in-out;
+    }
+
+.right {
+    right: 0;
+    background: url("/PNGs/SplitScreen/right/rightSS.png") center center;
+    background-repeat: repeat-x;
+    background-size: cover;
+    transition: all 0.5s ease-in-out;
+    max-width: 75%;
+    min-width: 25%;
+}
+
+    .right::before {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 100%;
+        background: var(--right-bgColor);
+    }
+
+    .right .button:hover {
+        background-color: var(--left-button-hover);
+        border-color: var(--left-button-hover);
+        transition: var(--animateSpeed) all ease-out;
+    }
+
+.hover-left .left {
+    /*width: var(--hover-width);*/
+    animation: moveBackground 10s linear infinite;
+}
+
+.hover-left .right {
+    /*width: var(--small-width);*/
+    transition: all 0.5s ease-in-out;
+}
+
+/*    .hover-left .right::before {
+        z-index: 2;
+    }*/
+
+.hover-right .right {
+    /*width: var(--hover-width);*/
+    animation: moveBackground 10s linear infinite;
+}
+
+.hover-right .left {
+    /*width: var(--small-width);*/
+    transition: all 0.5s ease-in-out;
+}
+
+/*    .hover-right .left::before {
+        z-index: 2;
+    }*/
+
+@media (max-width: 800px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .button {
+        width: 12rem;
+    }
+}
+
+@media (max-height: 700px) {
+    .button {
+        top: 70%;
+    }
+}
+
+

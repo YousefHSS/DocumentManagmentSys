@@ -17,5 +17,11 @@ namespace DoucmentManagmentSys.Data
         DbSet<PrimacyDocument> Documents { get; set; }
         DbSet<HistoryLog> HistoryLogs { get; set; }
         DbSet<HistoryAction> HistoryActions { get; set; }
+
+        DbSet<ArchivedDocument> archivedDocuments { get; set; }
+
+        DbSet<ArchivedVersion> archivedVersions  { get; set; }
+
+
     }
 }

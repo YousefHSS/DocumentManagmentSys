@@ -1,0 +1,40 @@
+﻿@* pop up for rejection reason*@
+@model PrimacyDocument
+<div id="DigitalSigniturePopup" style=" /* display:none;   */" class="">
+    <div id="DigitalSigniturePopupDark" onclick="HidePopup(this)" class="position-absolute start-0 top-0 w-100 h-100 bg-dark" style="opacity:0.5; z-index:1;"></div>
+
+
+    <div id="PopupBody" class="position-fixed bg-light rounded-1 p-1 m-1 popupWhite border-2">
+        <form class="m-1 border-2" id="FinalReject" asp-action="Approve">
+            <div class="form-group">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="FileName" value="@Model.FileName" />
+                <label for="reason" class="fw-bold fs-3 m-2">Add Digital Signiture To the Footer of Document: @Model.FileName</label>
+                <th class="specialTH">
+                    <div class="fullcover">
+                        <div class="fullcover block" style="padding:0px;">
+
+                            <div class="checkbox-wrapper-55 d-flex justify-content-center">
+                                <label class="rocker rocker-small">
+                                    <input type="checkbox" name="Stamp">
+                                    <span class="switch-left">Yes</span>
+                                    <span class="switch-right">No</span>
+                                </label>
+                            </div>
+                            <style>
+
+                            </style>
+
+
+                        </div>
+
+
+                    </div>
+                </th>
+                
+                </div>
+                <button type="submit" class="btn btn-primary m-1">Submit</button>
+            </form>
+        </div>
+    </div>
+

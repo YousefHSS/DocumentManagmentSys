@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-DoucmentManagmentSys-9134b3a3-a40f-4b7e-9674-7b21d059d089</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="wwwroot\js\GetArchivedVersions.js" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="wwwroot\css\Filters.css" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
+		<PackageReference Include="DocX" Version="3.0.0" />
+		<PackageReference Include="FreeSpire.Doc" Version="12.2.0" />
+		<PackageReference Include="itext7" Version="8.0.3" />
+		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.3" />
+		<PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
+		<PackageReference Include="NPOI" Version="2.7.0" />
+		<PackageReference Include="OpenXmlPowerTools" Version="4.5.3.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Data\Migrations\" />
+		<Folder Include="Migrations\" />
+		<Folder Include="UploadedFiles\" />
+		<Folder Include="wwwroot\PDFs\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\js\GetArchivedVersions.js" />
+	</ItemGroup>
+
+</Project>

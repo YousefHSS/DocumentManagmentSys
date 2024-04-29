@@ -1,7 +1,10 @@
-﻿using DoucmentManagmentSys.Controllers.Helpers;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DoucmentManagmentSys.Helpers;
+using DoucmentManagmentSys.Repo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Mono.TextTemplating;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net.Mail;
@@ -38,7 +41,8 @@ namespace DoucmentManagmentSys.Models
         {
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
-            Version = new System.Version("0.0").ToString();
+            //version is now a 3 digit number
+            Version =  "000";
             status = Status.Under_Revison;
         }
 
@@ -62,47 +66,57 @@ namespace DoucmentManagmentSys.Models
         {
             if (Version == null)
             {
-                Version = "0.0";
+                Version = "000";
             }
             else
             {
-                string[] versionParts = Version.Split('.');
-                int majorVersion = int.Parse(versionParts[0]);
-                int minorVersion = int.Parse(versionParts[1]);
-
-                if (minorVersion < 9)
+                if (Version.Contains('.'))
                 {
-                    minorVersion++;
-                }
-                else
-                {
-                    majorVersion++;
-                    minorVersion = 0;
-                }
+                    //turn 0.1 into 001 example
+                    Version = Version.Split('.')[1].PadLeft(3, '0');
 
-                Version = $"{majorVersion}.{minorVersion}";
+
+                }
+                Version = (int.Parse(Version) + 1).ToString("000");
+                
             }
         }
 
-        public void Approve()
+        public void Approve(MainRepo<ArchivedDocument> _ArchivedDocsRepo)
         {
             Reason = null;
-            if (status == Status.Under_Revison)
+            status = Status.Approved;
+
+            WordDocumentHelper.ConvertToPdfAndUpdate(this);
+            ArchivedDocument? AD = _ArchivedDocsRepo.GetWhere(x => x.FileName == this.FileName).FirstOrDefault();
+            //check if there is an archived document with same Document Id
+            if (AD == null)
             {
-                status = Status.Under_Finalization;
+                ICollection<ArchivedVersion> versions = new Collection<ArchivedVersion>();
+
+                versions.Add(new ArchivedVersion() { Document = AD, Version = this.Version, Content = this.Content });
+                //add to the archive a new version
+                _ArchivedDocsRepo.Add(new ArchivedDocument()
+                {
+                    FileName = this.FileName,
+                    Extension = this.FileExtensiton,
+                    Versions = versions
+                });
             }
-            else if (status == Status.Under_Finalization)
+            else
             {
-                status = Status.Approved;
-                WordDocumentHelper.ConvertToPdfAndUpdate(this);
-                UpdateVersion();
+                AD.Versions.Add(new ArchivedVersion() { Document = AD, Version = this.Version, Content = this.Content });
+                _ArchivedDocsRepo.Update(AD);
             }
-
-            
-
-
+            UpdateVersion();
 
         }
+        public void Revise()
+        {
+            Reason = null;
+            status = Status.Under_Finalization;
+        }
+
         public void Reject(string reason)
         {
             Reason = reason;
