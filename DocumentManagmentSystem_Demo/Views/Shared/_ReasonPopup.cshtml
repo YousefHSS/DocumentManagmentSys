@@ -1,0 +1,29 @@
+﻿@* pop up for rejection reason*@
+@model PrimacyDocument
+<div id="rejectionReasonPopup" style=" /* display:none;   */" class="">
+    <div id="rejectionReasonPopupDark" class="position-absolute start-0 top-0 w-100 h-100 bg-dark" style="opacity:0.5; z-index:1;"></div>
+
+
+    <div id="PopupBody" class="position-fixed bg-light rounded-1 p-1 m-1 border-2 popupWhite">
+        <form class="border-2 m-1" id="FinalReject" asp-controller="Home" asp-action="Reject">
+            <div class="form-group ">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="FileName" value="@Model.FileName" />
+                <label for="reason" class="fw-bold fs-3 m-2">Rejection Reason: @Model.FileName</label>
+                <textarea class="form-control" name="reason" id="rejectionReason" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary m-1">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    @* java script if press outside the popup it will close *@
+<script>
+    var modal = document.getElementById('rejectionReasonPopupDark');
+    var modal2 = document.getElementById('rejectionReasonPopup');
+        window.onclick = function (event) {
+            if (event.target == modal) {
+            modal2.style.display = "none";
+            }
+        }
+</script>

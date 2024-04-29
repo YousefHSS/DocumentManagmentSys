@@ -12,6 +12,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Views\Shared\_PlatformDecide.cshtml.css" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="wwwroot\css\Filters.css" />
 	</ItemGroup>
 
@@ -23,7 +27,7 @@
 		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.3" />
 		<PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
@@ -47,6 +51,13 @@
 
 	<ItemGroup>
 	  <None Include="wwwroot\js\GetArchivedVersions.js" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="wwwroot\favicon.ico">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>

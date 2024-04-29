@@ -1,0 +1,36 @@
+﻿
+@foreach (ArchivedDocument item in Model)
+{
+    <tr>
+        <td>@(item.FileName ?? "N/A")</td>
+        <form asp-action="download" asp-controller="ArchivedDocuments" method="post">
+        <td>
+            @* a list of versions with default beign latest version when clicked fetches other version from db *@
+            <select name="version" onmouseover="GetVersions(@item.Id, this)" id="versions">
+                <option>Latest</option>
+           
+            </select>
+
+        </td>
+        <td>
+
+                <input type="hidden" name="id" value="@item.Id" />
+                <input type="submit" class="btn-success" value="Download" />
+            
+
+            
+        </td>
+    </form>
+
+       
+
+    </tr>
+}
+<div id="PopupPlaceHolder"></div>
+
+
+<script src="~/js/GetArchivedVersions.js">
+
+</script>
+
+

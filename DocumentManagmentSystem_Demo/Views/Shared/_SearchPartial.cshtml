@@ -1,0 +1,214 @@
+﻿@* Filters styled with bootsrap *@
+@* filters *@
+@{
+    ViewData["Filters"] = @ViewData["Filters"]?? true;
+}
+@using Microsoft.AspNetCore.Html
+@{
+    Func<dynamic, IHtmlContent> FilterHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="block" onclick="BlockClicked(this)">
+
+                <label class="SortIcon NoUnderline" >
+
+                    <div class="d-flex" id="flexboxaroundimage">
+                        <input id="chckbox" onchange="lightbox(this)" style="display:none;" type="radio" value="Descending" name="@item" />
+                        <img width="20vw" src="~/pngs/sortIcon.png" />
+                    </div>
+                    <div class="HoverText font-small">
+                        Sort Decending
+                    </div>
+                </label>
+
+            </div>
+            <div class="block" onclick="BlockClicked(this)">
+
+
+                <label class="SortIcon NoUnderline">
+                    <div class="d-flex" id="flexboxaroundimage">
+                        <input id="chckbox" onchange="lightbox(this)" style="display: none;" type="radio" value="Ascending" name="@item" />
+                        <img class="flipped rotated" width="20vw" src="~/pngs/sortIcon.png" />
+                    </div>
+                    <div class="HoverText font-small">
+                        Sort Ascending
+                    </div>
+
+                </label>
+
+
+            </div>
+            <div class="block" onclick="BlockClicked(this)">
+                <label class="SortIcon NoUnderline" href="@ViewContext.HttpContext.Request.Path?SortBY=FileName">
+                    <div class="d-flex" id="flexboxaroundimage">
+                        <input id="chckbox" onchange="lightbox(this)" style="display: none;" type="radio" value="" name="@item" checked />
+                        <img width="20vw" src="~/pngs/cancel.png" />
+                    </div>
+                    <div class="HoverText font-small">
+                        None
+                    </div>
+
+                </label>
+            </div>
+        </div>
+    </th>
+            ;
+    Func<dynamic, IHtmlContent> StatusHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="fullcover">
+
+                <select class="MultiSelect" name="Statuses" id="statuses" multiple multiselect-search="true">
+                    <option selected value="1">All</option>
+
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Under_Revison">Under Revison</option>
+                    <option value="Under_Finalization">Under Finalization</option>
+                </select>
+
+            </div>
+
+
+        </div>
+    </th>
+            ;
+    Func<dynamic, IHtmlContent> CheckBoxHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="fullcover block" style="padding:0px;">
+
+                <div class="checkbox-wrapper-55">
+                    <label class="rocker rocker-small">
+                        <input type="checkbox" name="@item">
+                        <span class="switch-left">Yes</span>
+                        <span class="switch-right">No</span>
+                    </label>
+                </div>
+                <div class="HoverText font-small">
+                    Show only @item by me?
+                </div>
+                <style>
+
+                </style>
+
+
+            </div>
+
+
+        </div>
+    </th>
+            ;
+    Func<dynamic, IHtmlContent> BlockHeader =
+    @<th class="specialTH">
+        <div class="fullcover">
+            <div class="block">
+            </div>
+        </div>
+    </th>
+    ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="mt-5 col-justify-center">
+    <div class="row">
+        @* \html  search bar for documents styled with bootsrap*@
+        <div class="container">
+            <div class="border-1 rounded-1 row">
+                <form method="GET" id="searchForm" asp-action="GSearch">
+                    @if ((bool)ViewData["Filters"]!){
+                        <input type="hidden" id="Document Name" name="DN" value="" />
+                        <input type="hidden" id="Version" name="VR" value="" />
+                        <input type="hidden" id="Created At" name="CA" value="" />
+                        <input type="hidden" id="Updated At" name="UA" value="" />
+                        <input type="hidden" id="Statuses" name="SS" value="[1]" />
+                        <input type="hidden" id="Updated" name="UP" value="" />
+                        <input type="hidden" id="Downloaded" name="DD" value="" />
+                    }
+                    
+
+                    <div class="input-group mb-3">
+                        <input type="text"  class="form-control" placeholder="Search" name="search" aria-label="Search" aria-describedby="button-addon2">
+                        <button type="submit" class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+    @if ((bool)ViewData["Filters"]!)
+    {
+        
+   
+    @* Fliters tab that has an expand up and down button the Tab is the same width as the table below it. *@
+
+    <div class="container">
+        <div class="FiltersTab row" onclick="GetNamesOfChangedValues()">
+            <div class="filterbtn col d-flex justify-content-center block">
+                @* use the filters icon from PNGs *@
+                <div class="box" onclick="toggleTransition()">
+                    <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/filter.png" alt="filter" id="filters" />
+                    
+                </div>
+                <div class="HoverText font-small">Filters</div>
+            </div>
+            <div class="filterbtn col d-flex justify-content-center block" style="display:none !important">
+                @* use the filters icon from PNGs *@
+                <div class="box" onclick="ClearFilters()">
+                    <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/cancel.png" alt="filter" id="filters" />
+                    
+                </div>
+                <div class="HoverText font-small">Clear</div>
+            </div>
+            <div class="filterbtn col d-flex justify-content-center block" style="display:none !important">
+                @* use the filters icon from PNGs *@
+                <div class="box" onclick="ApplyFilters()">
+                    <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/tick.png" alt="filter" id="filters" />
+                    
+                </div>
+                <div class="HoverText font-small">Apply</div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <table id="targetTable" class="transitionTB FiltersTable table-striped table-hover table-bordered table">
+        <thead class="thead-dark">
+            <tr id="HH" class="HideHightTR d-none" style="display:inline-flex" onchange="ActivateClearAndApply()">
+
+                @FilterHeader("Document Name")
+                @FilterHeader("Version")
+                @FilterHeader("Created At")
+                @FilterHeader("Updated At")
+                @StatusHeader("Status")
+                @CheckBoxHeader("Updated")
+                @CheckBoxHeader("Downloaded")
+                @BlockHeader("Latest Action")
+                @BlockHeader("History")
+
+            </tr>
+        </thead>
+    </table>
+
+    }
+</div>
+@if ((bool)ViewData["Filters"]!)
+{
+    <script src="~/js/Filters.js" asp-append-version="true"></script>
+<script src="~/js/multiselect-dropdown.js"></script>
+}
+

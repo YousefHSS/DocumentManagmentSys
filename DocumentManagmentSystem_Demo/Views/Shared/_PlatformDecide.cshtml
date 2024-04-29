@@ -1,0 +1,86 @@
+﻿@using DoucmentManagmentSys.Helpers
+@model string;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Screen Landing Page</title>
+    <link rel="stylesheet" href="~/css/_PlatformDecide.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <section class="screen left">
+            <h1>Released</h1>
+            <div>
+                <a asp-area="Identity" asp-page="/Account/@Model" class="button">@Model</a>
+            </div>
+        </section>
+
+        <section class="screen right">
+            <h1>Demo</h1>
+            <div>
+                <a class="button" href="@ConfigurationHelper.GetString("OtherSite")Identity/Account/@Model">@Model</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+
+                <!--Search and select the elements-- >
+        const screenWidth = window.innerWidth;
+                const right = document.querySelector(".right");
+        const left = document.querySelector(".left");
+        const container = document.querySelector(".container");
+
+        left.addEventListener("mouseenter", () => {
+            container.classList.add("hover-left");
+            changeSize();
+        })
+
+        left.addEventListener("mouseleave", () => {
+            container.classList.remove("hover-left");
+            changeSize();
+        })
+
+        right.addEventListener("mouseenter", () => {
+            container.classList.add("hover-right");
+            changeSize();
+        })
+
+        right.addEventListener("mouseleave", () => {
+            container.classList.remove("hover-right");
+            changeSize();
+        })
+
+                    function changeSize() {
+                        document.documentElement.style.setProperty('--screenWidth', `${screenWidth}px`);
+
+                        if (container.classList.contains("hover-left")) {
+                            var bigger = screenWidth * 0.75;
+                            var smaller = screenWidth * 0.25;
+                            left.style.width = `${bigger}px`;
+                            right.style.width = `${smaller}px`;
+
+                        }
+
+                        else if (container.classList.contains("hover-right")) {
+                            var bigger = screenWidth * 0.75;
+                            var smaller = screenWidth * 0.25;
+                            right.style.width = `${bigger}px`;
+                            left.style.width = `${smaller}px`;
+
+                        }
+                        else {
+                            left.style.width = `${screenWidth * 0.5}px`;
+                            right.style.width = `${screenWidth * 0.5}px`;
+                        }
+                    }
+            
+
+    </script>
+
+</body>
+</html>
