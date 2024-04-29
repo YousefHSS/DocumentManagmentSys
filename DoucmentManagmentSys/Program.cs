@@ -37,33 +37,33 @@ builder.Services.AddTransient(typeof(MainRepo< HistoryLog>));
 
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-    options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(6);
-    options.SlidingExpiration = true;
-    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
-    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
-    options.Cookie.Name = "DocumentManagmentSys";
-    //options.Events = new CookieAuthenticationEvents
-    //{
-    //    OnRedirectToLogin = ctx =>
-    //    {
-    //        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
-    //        {
-    //            ctx.Response.StatusCode = 401;
-    //        }
-    //        else
-    //        {
-    //            ctx.Response.Redirect(ctx.RedirectUri);
-    //        }
-    //        return Task.CompletedTask;
-    //    }
-    //};
-});
+//builder.Services.ConfigureApplicationCookie(options =>
+//{
+//    options.LoginPath = "/Identity/Account/Login";
+//    options.LogoutPath = "/Identity/Account/Logout";
+//    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+//    options.Cookie.HttpOnly = true;
+//    options.ExpireTimeSpan = TimeSpan.FromMinutes(6);
+//    options.SlidingExpiration = true;
+//    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+//    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+//    options.Cookie.Name = "DocumentManagmentSys";
+//    //options.Events = new CookieAuthenticationEvents
+//    //{
+//    //    OnRedirectToLogin = ctx =>
+//    //    {
+//    //        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+//    //        {
+//    //            ctx.Response.StatusCode = 401;
+//    //        }
+//    //        else
+//    //        {
+//    //            ctx.Response.Redirect(ctx.RedirectUri);
+//    //        }
+//    //        return Task.CompletedTask;
+//    //    }
+//    //};
+//});
 
 var app = builder.Build();
 
@@ -97,12 +97,57 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<PrimacyUser>>();
     CreateRoles(app.Services, userManager, roleManager).Wait();    // do you things here
+    
+        CreateOtherRoles(app.Services, userManager, roleManager).Wait();
+    
 }
 
+async Task CreateOtherRoles(IServiceProvider services, UserManager<PrimacyUser> userManager, RoleManager<IdentityRole> roleManager)
+{
+    string adminPassword = "Admin123!"; // Admin password
+    var uploader = new PrimacyUser
+    {
+        UserName = "Uploader@Email.com",
+        Email = "Uploader@Email.com",
+        EmailConfirmed = true,
+        Name = "Uploader",
+        Surname = "Uploader"
+    };
 
+    var revisor = new PrimacyUser
+    {
+        UserName = "Revisor@Email.com",
+        Email = "Revisor@Email.com",
+        EmailConfirmed = true,
+        Name = "Revisor",
+        Surname = "Revisor"
+    };
+    var finalizer = new PrimacyUser
+    {
+        UserName = "Finalizer@Email.com",
+        Email = "Finalizer@Email.com",
+        EmailConfirmed = true,
+        Name = "Finalizer",
+        Surname = "Finalizer"
+    };
 
+    // Check if the admin exists, create it if not
+    var user = await userManager.FindByEmailAsync("Uploader@Email.com");
+    if (user == null)
+    {
+        var createUploader = await userManager.CreateAsync(uploader, adminPassword);
+        var createRevisor = await userManager.CreateAsync(revisor, adminPassword);
+        var createFinalizer = await userManager.CreateAsync(finalizer, adminPassword);
+        if (createUploader.Succeeded)
+        {
+            // Here we assign the new user the "Admin" role 
+            await userManager.AddToRoleAsync(uploader, "Uploader");
+            await userManager.AddToRoleAsync(revisor, "Revisor");
+            await userManager.AddToRoleAsync(finalizer, "Finalizer");
+        }
+    }
 
-
+}
 
 app.Run();
 
@@ -141,47 +186,17 @@ async Task CreateRoles(IServiceProvider serviceProvider, UserManager<PrimacyUser
         Surname = "Admin"
     };
 
-    var uploader = new PrimacyUser
-    {
-        UserName = "Uploader@Email.com",
-        Email = "Uploader@Email.com",
-        EmailConfirmed = true,
-        Name = "Uploader",
-        Surname = "Uploader"
-    };
-
-    var revisor = new PrimacyUser
-    {
-        UserName = "Revisor@Email.com",
-        Email = "Revisor@Email.com",
-        EmailConfirmed = true,
-        Name = "Revisor",
-        Surname = "Revisor"
-    };
-    var finalizer = new PrimacyUser
-    {
-        UserName = "Finalizer@Email.com",
-        Email = "Finalizer@Email.com",
-        EmailConfirmed = true,
-        Name = "Finalizer",
-        Surname = "Finalizer"
-    };
-
     // Check if the admin exists, create it if not
     var user = await userManager.FindByEmailAsync(adminEmail);
     if (user == null)
     {
         var createAdmin = await userManager.CreateAsync(adminUser, adminPassword);
-        var createUploader = await userManager.CreateAsync(uploader, adminPassword);
-        var createRevisor = await userManager.CreateAsync(revisor, adminPassword);
-        var createFinalizer = await userManager.CreateAsync(finalizer, adminPassword);
+
         if (createAdmin.Succeeded)
         {
             // Here we assign the new user the "Admin" role 
             await userManager.AddToRoleAsync(adminUser, "Admin");
-            await userManager.AddToRoleAsync(uploader, "Uploader");
-            await userManager.AddToRoleAsync(revisor, "Revisor");
-            await userManager.AddToRoleAsync(finalizer, "Finalizer");
+
         }
     }
 }
