@@ -1,13 +1,13 @@
-using DoucmentManagmentSys.Models;
+using DocumentManagmentSystem_Demo.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using DoucmentManagmentSys.Repo;
-using DoucmentManagmentSys.RoleManagment;
+using DocumentManagmentSystem_Demo.Repo;
+using DocumentManagmentSystem_Demo.RoleManagment;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNet.Identity;
 using System.Reflection;
-using DoucmentManagmentSys.Helpers;
+using DocumentManagmentSystem_Demo.Helpers;
 using System.Linq;
 
 

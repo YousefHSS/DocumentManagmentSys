@@ -1,4 +1,4 @@
-﻿@using DoucmentManagmentSys.Helpers
+﻿@using DocumentManagmentSystem_Demo.Helpers
 @model string;
 <!DOCTYPE html>
 <html lang="en">
@@ -15,14 +15,14 @@
         <section class="screen left">
             <h1>Released</h1>
             <div>
-                <a asp-area="Identity" asp-page="/Account/@Model" class="button">@Model</a>
+                <a class="button" href="@ConfigurationHelper.GetString("OtherSite")Identity/Account/@Model">@Model</a>
             </div>
         </section>
 
         <section class="screen right">
             <h1>Demo</h1>
             <div>
-                <a class="button" href="@ConfigurationHelper.GetString("OtherSite")Identity/Account/@Model">@Model</a>
+                <a asp-area="Identity" asp-page="/Account/@Model" class="button">@Model</a>
             </div>
         </section>
     </div>

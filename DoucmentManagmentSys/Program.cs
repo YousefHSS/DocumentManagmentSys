@@ -36,33 +36,6 @@ builder.Services.AddTransient(typeof(DocumentRepository));
 
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-    options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(6);
-    options.SlidingExpiration = true;
-    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
-    options.Cookie.Name = "DocumentManagmentSys";
-    //options.Events = new CookieAuthenticationEvents
-    //{
-    //    OnRedirectToLogin = ctx =>
-    //    {
-    //        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
-    //        {
-    //            ctx.Response.StatusCode = 401;
-    //        }
-    //        else
-    //        {
-    //            ctx.Response.Redirect(ctx.RedirectUri);
-    //        }
-    //        return Task.CompletedTask;
-    //    }
-    //};
-});
 
 var app = builder.Build();
 
