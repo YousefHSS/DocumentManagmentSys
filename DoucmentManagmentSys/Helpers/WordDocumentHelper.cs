@@ -22,6 +22,7 @@ namespace DoucmentManagmentSys.Helpers
     {
         private PrimacyDocument document;
         private MemoryStream ms;
+        private MainDocumentPart? mainPart;
         public WordDocumentHelper(PrimacyDocument document)
         {
             this.document = document;
@@ -82,19 +83,16 @@ namespace DoucmentManagmentSys.Helpers
                                 foreach (FooterPart footerPart in firstPageFooterPart)
                                 {
                                     // Modify the content of the first page footer
-                                    foreach (Paragraph para in footerPart.Footer.Descendants<Paragraph>())
-                                    {
+                                    Paragraph para = new Paragraph();
 
 
-                                        foreach (string content in Newfooter)
-                                        {
-                                            Run run = para.AppendChild(new Run());
-                                            run.AppendChild(new Text(content) { Space = SpaceProcessingModeValues.Preserve });
 
+                                    //null safety on para
 
-                                        }
+                                            Run run =  para.AppendChild(new Run());
+                                            run.AppendChild(new Text("Digitally Signed") { Space = SpaceProcessingModeValues.Preserve });
+                                            footerPart.Footer.Append(para);
 
-                                    }
                                 }
                             }
 
@@ -319,8 +317,6 @@ namespace DoucmentManagmentSys.Helpers
             {
                 footerStrings.Add(action.Action + " by: " + action.UserName + "         ");
             }
-            //check if already stamped
-            CheckDocument();
             //update footer and header
             StampFooter(footerStrings);
             //StampHeader();
@@ -451,23 +447,7 @@ namespace DoucmentManagmentSys.Helpers
 
         }
 
-        private void CheckDocument()
-        {
-            //convert to word
 
-            using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(ms, true))
-            {
-                //check if there is a header
-                if (wordDoc.MainDocumentPart.HeaderParts.Count() > 0)
-                {
-
-                }
-
-            }
-
-            //check if already stamped
-
-        }
 
 
 

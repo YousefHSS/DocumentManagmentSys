@@ -8,6 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="wwwroot\css\BackgroundFloatAnimation.js" />
 	  <Content Remove="wwwroot\js\GetArchivedVersions.js" />
 	</ItemGroup>
 
@@ -16,6 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="wwwroot\css\BackgroundFloatAnimation.js" />
 	  <_ContentIncludedByDefault Remove="wwwroot\css\Filters.css" />
 	</ItemGroup>
 
@@ -50,6 +52,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="wwwroot\js\BackgroundFloatAnimation.js" />
 	  <None Include="wwwroot\js\GetArchivedVersions.js" />
 	</ItemGroup>
 

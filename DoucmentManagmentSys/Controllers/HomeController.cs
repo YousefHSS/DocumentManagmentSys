@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNet.Identity;
 using System.Reflection;
 using DoucmentManagmentSys.Helpers;
-using System.Linq;
 
 
 
@@ -16,6 +15,7 @@ namespace DoucmentManagmentSys.Controllers
 {
     public class HomeController : Controller
     {
+
         private readonly ILogger<HomeController> _logger;
 
 
@@ -42,7 +42,7 @@ namespace DoucmentManagmentSys.Controllers
             _HistoryLogRepo = HistoryLogRepo;
             _ArchivedDocumentRepo = ArchivedDocumentRepo;
 
-
+            
         }
 
         public IActionResult Index(string Message, string Messages, string? SortBY)
@@ -53,7 +53,7 @@ namespace DoucmentManagmentSys.Controllers
 
             return View(SortBY != null ? OrderByProperty<PrimacyDocument>(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
         }
-
+        
         [HttpPost]
         [Authorize(Roles = "Uploader,Revisor")]
         public async Task<IActionResult> UploadFile(IFormFile oFile)
@@ -89,10 +89,8 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-        public async Task<MessageResult> UpdateToDB(int id, string newName)
+        public MessageResult UpdateToDB(int id, string newName)
         {
-
-
             string strFolder = "./UploadedFiles/";
             MessageResult Result = _DocsRepo.Update(id, newName);
             if (Result.Status)
@@ -104,8 +102,6 @@ namespace DoucmentManagmentSys.Controllers
 
             ServerFileManager.CleanDirectory(strFolder);
             return Result;
-
-
         }
 
         [HttpPost]
@@ -150,21 +146,17 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(IFormFile oFile, int id)
+        public  IActionResult Update(IFormFile oFile, int id)
         {
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
 
             if (result.Status)
             {
-                result = await UpdateToDB(id, oFile.FileName);
+                result =  UpdateToDB(id, oFile.FileName);
             }
             ViewBag.Messages = result.Message;
-            TempData["Id"] = id;
 
             return RedirectToAction("index", "Home", new { ViewBag.Messages });
-
-
-            //return RedirectToAction("index", "Home", ViewBag.Message = "File updated successfully.");
 
         }
 
@@ -236,7 +228,7 @@ namespace DoucmentManagmentSys.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Finalizer")]
-        public IActionResult Approve(int id, string Filename , string Stamp="off")
+        public IActionResult Approve(int id, string Filename)
         {
 
             MessageResult result = new MessageResult("File not Approved.");
@@ -248,10 +240,9 @@ namespace DoucmentManagmentSys.Controllers
                 //before approving and converting to pdf
                 AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name??"").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
-                if (Stamp=="on")
-                {
+
                     wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
-                }
+                
                 
 
                 Doc.Approve(_ArchivedDocumentRepo);
@@ -288,8 +279,6 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-
-
         [HttpPost]
         [Authorize(Roles = "Finalizer ,Revisor")]
         [ValidateAntiForgeryToken]
@@ -297,8 +286,6 @@ namespace DoucmentManagmentSys.Controllers
         {
             return PartialView("_ReasonPopup", _DocsRepo.Find([id, Filename]));
         }
-
-
 
         [HttpPost]
         [Authorize(Roles = "Revisor ,Finalizer")]
@@ -309,9 +296,6 @@ namespace DoucmentManagmentSys.Controllers
             PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
             if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
             {
-                //displayRejectPopup
-
-
                 Doc.Reject(reason);
                 _DocsRepo.SaveChanges();
                 result.Status = true;
@@ -321,13 +305,6 @@ namespace DoucmentManagmentSys.Controllers
             }
 
             return RedirectToAction("index", "Home", new { Message = result.Status });
-        }
-
-
-
-        public IActionResult Docs()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -27,60 +27,8 @@
         </section>
     </div>
 
-    <script>
-
-                <!--Search and select the elements-- >
-        const screenWidth = window.innerWidth;
-                const right = document.querySelector(".right");
-        const left = document.querySelector(".left");
-        const container = document.querySelector(".container");
-
-        left.addEventListener("mouseenter", () => {
-            container.classList.add("hover-left");
-            changeSize();
-        })
-
-        left.addEventListener("mouseleave", () => {
-            container.classList.remove("hover-left");
-            changeSize();
-        })
-
-        right.addEventListener("mouseenter", () => {
-            container.classList.add("hover-right");
-            changeSize();
-        })
-
-        right.addEventListener("mouseleave", () => {
-            container.classList.remove("hover-right");
-            changeSize();
-        })
-
-                    function changeSize() {
-                        document.documentElement.style.setProperty('--screenWidth', `${screenWidth}px`);
-
-                        if (container.classList.contains("hover-left")) {
-                            var bigger = screenWidth * 0.75;
-                            var smaller = screenWidth * 0.25;
-                            left.style.width = `${bigger}px`;
-                            right.style.width = `${smaller}px`;
-
-                        }
-
-                        else if (container.classList.contains("hover-right")) {
-                            var bigger = screenWidth * 0.75;
-                            var smaller = screenWidth * 0.25;
-                            right.style.width = `${bigger}px`;
-                            left.style.width = `${smaller}px`;
-
-                        }
-                        else {
-                            left.style.width = `${screenWidth * 0.5}px`;
-                            right.style.width = `${screenWidth * 0.5}px`;
-                        }
-                    }
-            
-
-    </script>
+    
 
 </body>
+<script type="module" src="~/js/_PlatformDecide.js"> </script>
 </html>
