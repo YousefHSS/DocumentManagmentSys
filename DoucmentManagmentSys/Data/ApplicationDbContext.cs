@@ -1,4 +1,7 @@
 ﻿using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +24,10 @@ namespace DoucmentManagmentSys.Data
         DbSet<ArchivedDocument> archivedDocuments { get; set; }
 
         DbSet<ArchivedVersion> archivedVersions  { get; set; }
+
+        DbSet<DocumentTemplate> DocumentTemplates { get; set; }
+
+        DbSet<TemplateElement> TemplateElements { get; set; }
 
 
     }

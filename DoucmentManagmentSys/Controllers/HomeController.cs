@@ -1,4 +1,3 @@
-using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using DoucmentManagmentSys.Repo;
@@ -8,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNet.Identity;
 using System.Reflection;
 using DoucmentManagmentSys.Helpers;
+using DoucmentManagmentSys.Helpers.Word;
+using DoucmentManagmentSys.Models;
+
 
 
 

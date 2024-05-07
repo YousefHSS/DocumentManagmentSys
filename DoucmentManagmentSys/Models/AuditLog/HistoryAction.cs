@@ -20,7 +20,7 @@ namespace DoucmentManagmentSys.Models
         public HistoryAction()
         {
             CreatedAt = DateTime.Now;
-        } 
+        }
         public HistoryAction(string action, string userName)
         {
             Action = action;

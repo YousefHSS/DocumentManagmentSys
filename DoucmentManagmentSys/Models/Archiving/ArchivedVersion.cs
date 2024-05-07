@@ -8,6 +8,6 @@
         public byte[]? Content { get; set; }
         public string? Version { get; set; }
 
-    public ArchivedDocument? Document { get; set; }
+        public ArchivedDocument? Document { get; set; }
     }
 }

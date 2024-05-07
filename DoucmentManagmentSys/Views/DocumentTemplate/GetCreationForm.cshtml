@@ -1,0 +1,37 @@
+﻿@model DocumentTemplate
+
+<form method="post" asp-action="SaveDocument">
+    @foreach (var item in Model.FixedElements)
+    {
+        <label>@item.FixedTitle</label>
+        <br />
+        //check if the xml elemnt is a table or text
+        @if (item.Element is DocumentFormat.OpenXml.Wordprocessing.Table)
+        {
+
+            <table class="table">
+                @foreach (var row in (item.Element as DocumentFormat.OpenXml.Wordprocessing.Table).Descendants<DocumentFormat.OpenXml.Wordprocessing.TableRow>())
+                {
+                    <tr>
+                        @foreach (var cell in row.Descendants<DocumentFormat.OpenXml.Wordprocessing.TableCell>())
+                        {
+                           <td>
+                            <input class="" type="text" name="@item.FixedTitle @row @cell" value="@cell.InnerText" />
+                           </td>
+                        }
+
+                    </tr>
+                }
+            </table>
+
+        }
+        else
+        {
+
+            <textarea class="m-2" name="@item.FixedTitle" cols="50" rows="10">@item.Element.InnerText</textarea>
+            <br/>
+        }
+
+
+    }
+</form>

@@ -1,5 +1,4 @@
-﻿
-using DoucmentManagmentSys.Models;
+﻿using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

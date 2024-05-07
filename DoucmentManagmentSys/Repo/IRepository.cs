@@ -1,5 +1,4 @@
-﻿using DoucmentManagmentSys.Models;
-using System.Reflection.Metadata;
+﻿using System.Reflection.Metadata;
 using Document = DoucmentManagmentSys.Models.PrimacyDocument;
 
 namespace DoucmentManagmentSys.Repo

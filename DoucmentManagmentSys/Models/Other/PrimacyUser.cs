@@ -11,18 +11,18 @@ namespace DoucmentManagmentSys.Models
         public string Surname { get; set; }
         public string FullName => $"{Name} {Surname}";
 
-    public static async Task<string> GetCurrentUserName(SignInManager<PrimacyUser> userManager, string email)
-    {
-        
+        public static async Task<string> GetCurrentUserName(SignInManager<PrimacyUser> userManager, string? email)
+        {
 
+            
             var user = await userManager.UserManager.FindByEmailAsync(email);
             if (user != null)
             {
                 return user.FullName;
             }
-        
-        return "User not found";
+
+            return "User not found";
+        }
     }
-    }
-   
+
 }

@@ -1,7 +1,6 @@
 ﻿
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using System.Diagnostics;
@@ -15,8 +14,10 @@ using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
 using Path = System.IO.Path;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using ParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
 
-namespace DoucmentManagmentSys.Helpers
+namespace DoucmentManagmentSys.Helpers.Word
 {
     public class WordDocumentHelper
     {
@@ -89,9 +90,9 @@ namespace DoucmentManagmentSys.Helpers
 
                                     //null safety on para
 
-                                            Run run =  para.AppendChild(new Run());
-                                            run.AppendChild(new Text("Digitally Signed") { Space = SpaceProcessingModeValues.Preserve });
-                                            footerPart.Footer.Append(para);
+                                    Run run = para.AppendChild(new Run());
+                                    run.AppendChild(new Text("Digitally Signed") { Space = SpaceProcessingModeValues.Preserve });
+                                    footerPart.Footer.Append(para);
 
                                 }
                             }

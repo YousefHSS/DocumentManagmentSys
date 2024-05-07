@@ -1,9 +1,9 @@
 ﻿using CC.Web.Helpers;
-
-using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using DoucmentManagmentSys.RoleManagment;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
 
 namespace DoucmentManagmentSys.Controllers
 {

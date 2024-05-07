@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
-using DoucmentManagmentSys.Helpers;
+using DoucmentManagmentSys.Helpers.Word;
+using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -42,16 +43,16 @@ namespace DoucmentManagmentSys.Models
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
             //version is now a 3 digit number
-            Version =  "000";
+            Version = "000";
             status = Status.Under_Revison;
         }
 
         // Methods
-        public void UpdateContent(byte[] newContent, Status? newStatus=null)
+        public void UpdateContent(byte[] newContent, Status? newStatus = null)
         {
             Content = newContent;
             UpdatedAt = DateTime.Now;
-            status = newStatus?? this.status;
+            status = newStatus ?? status;
         }
 
         public enum Status
@@ -78,7 +79,7 @@ namespace DoucmentManagmentSys.Models
 
                 }
                 Version = (int.Parse(Version) + 1).ToString("000");
-                
+
             }
         }
 
@@ -88,24 +89,24 @@ namespace DoucmentManagmentSys.Models
             status = Status.Approved;
 
             WordDocumentHelper.ConvertToPdfAndUpdate(this);
-            ArchivedDocument? AD = _ArchivedDocsRepo.GetWhere(x => x.FileName == this.FileName).FirstOrDefault();
+            ArchivedDocument? AD = _ArchivedDocsRepo.GetWhere(x => x.FileName == FileName).FirstOrDefault();
             //check if there is an archived document with same Document Id
             if (AD == null)
             {
                 ICollection<ArchivedVersion> versions = new Collection<ArchivedVersion>();
 
-                versions.Add(new ArchivedVersion() { Document = AD, Version = this.Version, Content = this.Content });
+                versions.Add(new ArchivedVersion() { Document = AD, Version = Version, Content = Content });
                 //add to the archive a new version
                 _ArchivedDocsRepo.Add(new ArchivedDocument()
                 {
-                    FileName = this.FileName,
-                    Extension = this.FileExtensiton,
+                    FileName = FileName,
+                    Extension = FileExtensiton,
                     Versions = versions
                 });
             }
             else
             {
-                AD.Versions.Add(new ArchivedVersion() { Document = AD, Version = this.Version, Content = this.Content });
+                AD.Versions.Add(new ArchivedVersion() { Document = AD, Version = Version, Content = Content });
                 _ArchivedDocsRepo.Update(AD);
             }
             UpdateVersion();

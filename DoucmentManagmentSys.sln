@@ -5,7 +5,12 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DoucmentManagmentSys", "DoucmentManagmentSys\DoucmentManagmentSys.csproj", "{FF7ECBEC-BCF1-4982-A871-5F658F28108B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentManagmentSystem_Demo", "DocumentManagmentSystem_Demo\DocumentManagmentSystem_Demo.csproj", "{75741332-DFE1-4A7C-80C1-8A23CC0AA520}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentManagmentSystem_Demo", "DocumentManagmentSystem_Demo\DocumentManagmentSystem_Demo.csproj", "{75741332-DFE1-4A7C-80C1-8A23CC0AA520}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9A19BD51-9E2D-40BF-99E3-F22421B3DA41}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,5 +1,4 @@
-﻿using static DoucmentManagmentSys.Models.PrimacyDocument;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,7 +14,7 @@ namespace DoucmentManagmentSys.Models
 
         //filename
         //[unique]
-        
+
         public string FileName { get; set; }
 
         //extension

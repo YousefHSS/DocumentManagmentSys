@@ -1,0 +1,42 @@
+﻿@model IEnumerable<string>
+@* a dropdown that on chnages displays a new form*@
+@{
+    ViewData["Title"] = "Create Document";
+}
+
+<select  id="Title">
+    @foreach (var item in Model)
+    {
+        <option value="@item">@item</option>
+    }
+</select>
+<div class="container" id="FromPlace">
+    <img  src="~/images/Loading.gif" />
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        //ajax call to action
+        $.ajax(
+            {
+                type: "POST",
+                url: "./GetCreationForm",
+                data: { Title: $("#Title").val() },
+                success: function (data) {
+                    $("#FromPlace").html(data);
+                },
+                error: function (data) {
+                    $("#FromPlace").html("Error: " + data.responseText);
+                },
+               //on load of ajax display loading text
+
+
+
+
+            }
+
+        )
+    });
+</script>
+
