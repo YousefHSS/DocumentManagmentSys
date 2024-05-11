@@ -1,37 +1,31 @@
-﻿@model DocumentTemplate
+﻿@model List<TemplateElement>
 
-<form method="post" asp-action="SaveDocument">
-    @foreach (var item in Model.FixedElements)
-    {
-        <label>@item.FixedTitle</label>
-        <br />
-        //check if the xml elemnt is a table or text
-        @if (item.Element is DocumentFormat.OpenXml.Wordprocessing.Table)
+
+<form method="post" asp-action="SaveDocument" id="documentForm">
+    <!-- The container where the paginated content will be loaded -->
+    <div id="paginationContent">
+        @foreach (TemplateElement TE in Model)
         {
-
-            <table class="table">
-                @foreach (var row in (item.Element as DocumentFormat.OpenXml.Wordprocessing.Table).Descendants<DocumentFormat.OpenXml.Wordprocessing.TableRow>())
-                {
-                    <tr>
-                        @foreach (var cell in row.Descendants<DocumentFormat.OpenXml.Wordprocessing.TableCell>())
-                        {
-                           <td>
-                            <input class="" type="text" name="@item.FixedTitle @row @cell" value="@cell.InnerText" />
-                           </td>
-                        }
-
-                    </tr>
-                }
-            </table>
-
+            @Html.Raw(TE.FixedTitle)
+            @Html.Raw(TE.Element.InnerText)
         }
-        else
-        {
+    </div>
 
-            <textarea class="m-2" name="@item.FixedTitle" cols="50" rows="10">@item.Element.InnerText</textarea>
-            <br/>
-        }
-
-
-    }
+    <input type="submit" value="Save" />
 </form>
+
+<!-- Pagination Controls -->
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item"><a class="page-link" href="?Title=@ViewBag.Title&page=@i" data-page="@i">@i</a></li>
+        }
+    </ul>
+</nav>
+
+<script>
+    
+
+    
+</script>

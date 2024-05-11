@@ -11,7 +11,7 @@ namespace DoucmentManagmentSys.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public required ICollection<TemplateElement> FixedElements { get; set; }
+        public required ICollection<TemplateElement> TemplateElements { get; set; }
 
     }
 }

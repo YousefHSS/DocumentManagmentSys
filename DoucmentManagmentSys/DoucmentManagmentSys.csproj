@@ -25,6 +25,8 @@
 		<PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
 		<PackageReference Include="DocX" Version="3.0.0" />
 		<PackageReference Include="FreeSpire.Doc" Version="12.2.0" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+		<PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3373" />
 		<PackageReference Include="itext7" Version="8.0.3" />
 		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.3" />
 		<PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
@@ -54,6 +56,9 @@
 	<ItemGroup>
 	  <None Include="wwwroot\js\BackgroundFloatAnimation.js" />
 	  <None Include="wwwroot\js\GetArchivedVersions.js" />
+	  <None Include="wwwroot\Templates\Assay Method Validation Protocol.xml" />
+	  <None Include="wwwroot\Templates\AssayMethodValidationProtocol.docx" />
+	  <None Include="wwwroot\Templates\Validation Protocol of Assay Highlited2.xml" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml;
+﻿using System.Collections.ObjectModel;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DoucmentManagmentSys.Models;
@@ -56,11 +57,11 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
         }
 
-        public static DocumentTemplate? CreateDocumentTemplate(string Title)
+        public static DocumentTemplate CreateDocumentTemplate(string Title)
         {
             //search in server folder Templates for template with same name
             //get file name from server without their path
-            var templateFiles = Directory.GetFiles("Templates").Select(x => Path.GetFileName(x));
+            var templateFiles = Directory.GetFiles("wwwroot/Templates").Select(x => Path.GetFileName(x));
             if (templateFiles.Contains(Title + ".docx"))
             {
                 //if found then fetch the highlighted OpenXmlElements
@@ -70,12 +71,17 @@ namespace DoucmentManagmentSys.Helpers.Word
                 return new DocumentTemplate()
                 {
                     Title = Title,
-                    FixedElements = highlightedElements
+                    TemplateElements = highlightedElements
                 };
 
             }
-            return null;
             
+            return new DocumentTemplate()
+            {
+                Title = "Document Template Not Found",
+                TemplateElements = new Collection<TemplateElement>()
+            };
+
 
 
         }
@@ -86,13 +92,13 @@ namespace DoucmentManagmentSys.Helpers.Word
         {
 
             List<TemplateElement> highlightedRuns = new List<TemplateElement>();
-            using (WordprocessingDocument Document = WordprocessingDocument.Open("Templates/" + Title+".docx", true))
+            using (WordprocessingDocument Document = WordprocessingDocument.Open("wwwroot/Templates/" + Title+".docx", true))
             {
                 // Retrieve all Run elements with a Highlight child element
                 IEnumerable<Run> runs = Document.MainDocumentPart.Document.Body.Descendants<Run>().Where(r=> r.Descendants<Highlight>().Any());
                 //get direct child elements of body that have runs from the retrieved runs
-               var Parents = Document.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y)));
-                foreach (var Parent in Parents)
+               var TopLevelParagraphs = Document.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y)));
+                foreach (var Parent in TopLevelParagraphs)
                 {
                     if (Parent.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Yellow))
                     {
@@ -105,6 +111,27 @@ namespace DoucmentManagmentSys.Helpers.Word
                             Element = Parent
                         });
                     }
+                    if (Parent.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Black))
+                    {
+                        //Black For the Substance
+                        highlightedRuns.Add(new TemplateElement
+                        {
+                            FixedTitle = "Substance",
+                            Element = Parent
+                        });
+
+                    }
+                    if (Parent.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Cyan))
+                    {
+                        //Cyan For the Strength
+                        highlightedRuns.Add(new TemplateElement
+                        {
+                            FixedTitle = "Strength",
+                            Element = Parent
+                        });
+
+                    }
+
                 }
                 Document.Save();
                 return highlightedRuns;
