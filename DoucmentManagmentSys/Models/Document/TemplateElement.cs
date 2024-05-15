@@ -2,6 +2,8 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using iText.StyledXmlParser.Jsoup.Nodes;
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml;
@@ -25,58 +27,69 @@ namespace DoucmentManagmentSys.Models
         public byte[] DefaultData { get; set; }
 
         [NotMapped]
-        public OpenXmlElement Element
+        public ICollection<OpenXmlElement> Elements
         {
             get => DeserializeFromBinary(DefaultData);
             set => DefaultData = SerializeToBinary(value);
         }
 
 
-        public byte[] SerializeToBinary(OpenXmlElement element)
+        public byte[] SerializeToBinary(ICollection<OpenXmlElement> elements)
         {
-
             using (var memoryStream = new MemoryStream())
             {
-                //make a document of the element
                 using (var document = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document))
                 {
+                    // Create a new body with the elements
+                    var body = new Body();
+                    foreach (var element in elements)
+                    {
+                        body.AppendChild(element.CloneNode(true));
+                    }
 
-                    //add element to doc mainpart
-                    document.AddMainDocumentPart().Document = new Document(new Body(element.CloneNode(true)));
+                    // Add the body to the main document part
+                    document.AddMainDocumentPart().Document = new Document(body);
 
-
-                    //save the document
+                    // Save the document
                     document.Save();
-                    //save to byte array
-
-
-                   
                 }
-
                 return memoryStream.ToArray();
-
             }
         }
 
 
-        public OpenXmlElement DeserializeFromBinary(byte[] xmlData)
+        public ICollection<OpenXmlElement> DeserializeFromBinary(byte[] xmlData)
         {
-            OpenXmlElement element ;
-            //create file form incoming binary data
+            var elements = new List<OpenXmlElement>();
             using (var memoryStream = new MemoryStream())
             {
                 memoryStream.Write(xmlData, 0, xmlData.Length);
                 using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
                 {
-                    //return the element inside the body of MainDocumentPart
-                    element= doc.MainDocumentPart.Document.Body.ChildElements.First();
+                    // Get all elements inside the body of MainDocumentPart
+                    foreach (var element in doc.MainDocumentPart.Document.Body.ChildElements)
+                    {
+                        elements.Add(element.CloneNode(true));
+                    }
                 }
                 memoryStream.Close();
             }
-            return element;
+            return elements;
         }
 
-       
+        public void AddToElements(OpenXmlElement NewElement)
+        {
+            //make a new list from the current list
+            var NewElements = Elements;
+            //add the new element
+            NewElements.Add(NewElement);
+            //set the new list
+            Elements = NewElements;
+        }
+
+
 
     }
+
+   
 }

@@ -1,31 +1,137 @@
 ﻿@model List<TemplateElement>
+@using DocumentFormat.OpenXml.Wordprocessing;
+@using Microsoft.AspNetCore.Html
+@using DocumentFormat.OpenXml
+@{
+    ViewData["Title"] = "Create Document";
+}
+@{
+    Func<OpenXmlElement, IHtmlContent> TextInputElement =
+    @<div class="row">
+                    <div class="col">
+                        <div class="form-group m-1 p-1">
+                            <input type="text" class="form-control" id="Title" name="Title" value="@item.InnerText" />
+                        </div>
+                    </div>
+                 </div>
+    ;
+
+    Func<string, IHtmlContent> FixedTitle =
+    @<div class="row">
+                        <div class="col">
+                            <div class="form-group m-1">
+                                <label for="Title">@item</label>
+                            </div>
+                        </div>
+                    </div>;
+
+    Func<Table, IHtmlContent> TableInputElement =
+    @<table class="table-bordered border-3 table">
+                    @foreach (var row in @item.Elements<TableRow>())
+        {
+                        <tr>
+                            @foreach (var cell in row.Elements<TableCell>())
+                {
+                                <td>
+                                    @if (cell == row.Elements<TableCell>().First())
+                        {
+                            // This is the header cell (left column)
+                                        @cell.InnerText
+                        }
+                        else
+                        {
+                            //if the inner Text is big or multiline, it will be displayed as a text area
+                            if (cell.InnerText.Contains(Environment.NewLine) || cell.InnerText.Length > 70)
+                            {
+                                            <textarea class="form-control" rows="3">@cell.InnerText</textarea>
+                            }
+                            else
+                            {
+                                            <input type="text" class="form-control" value="@cell.InnerText" />
+                            }
+                        
+                        }
+                                </td>
+                }
+                        </tr>
+        }
+                </table>;
 
 
+}
 <form method="post" asp-action="SaveDocument" id="documentForm">
-    <!-- The container where the paginated content will be loaded -->
-    <div id="paginationContent">
+    
+    <div id="paginationContent" class="d-flex justify-content-center">
+        <div class="col">
+        @{ string lastTitle="";}
         @foreach (TemplateElement TE in Model)
         {
-            @Html.Raw(TE.FixedTitle)
-            @Html.Raw(TE.Element.InnerText)
+                if (TE.Elements.First() is Table || TE.Elements.First().Descendants<Table>().Any())
+                {
+                    
+                    @FixedTitle(TE.FixedTitle);
+                    Table table = TE.Elements.First() is Table ? TE.Elements.First() as Table : TE.Elements.First().Descendants<Table>().First();
+                    @TableInputElement(table);
+                }
+                else
+                {
+                    @foreach (var element in TE.Elements)
+                    {
+
+                        if (TE.FixedTitle != lastTitle)
+                        {
+                           
+                            @FixedTitle(TE.FixedTitle);
+                            
+                            @TextInputElement(element);
+                        }
+                        else
+                        {
+                            //without the title
+                            @TextInputElement(element);
+                        }
+                        lastTitle = TE.FixedTitle;
+                    }
+                    if (TE.FixedTitle == "Strength")
+                    {
+                        <div id="strengths" class="row">
+
+                        </div>
+                            @* Display add strengh button *@
+                            <input type="button" class="btn btn-primary" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
+                    }
+                  
+                }
+            
+             
+
         }
+        </div>
     </div>
 
-    <input type="submit" value="Save" />
+    
 </form>
 
 <!-- Pagination Controls -->
-<nav aria-label="Page navigation">
+<nav aria-label="Page navigation" class="d-flex justify-content-center">
     <ul class="pagination">
         @for (int i = 1; i <= ViewBag.TotalPages; i++)
         {
-            <li class="page-item"><a class="page-link" href="?Title=@ViewBag.Title&page=@i" data-page="@i">@i</a></li>
+            <li class="page-item"><a class="page-link" href="?TemplateTitle=@ViewBag.TemplateTitle&page=@i" data-page="@i">@i</a></li>
         }
     </ul>
 </nav>
 
 <script>
     
+    //
+    function AddStrengthInput() {
+        //add to id strengths and a new input
+        var strength = document.getElementById("strengths");
+        var newInput = `@TextInputElement(new Run(new Text("")))`;
+        strength.innerHTML += newInput;
 
+
+    }
     
 </script>

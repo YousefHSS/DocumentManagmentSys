@@ -34,30 +34,32 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpGet]
 
-        public ActionResult GetCreationForm(string Title, int? page)
+        public ActionResult GetCreationForm(string TemplateTitle, int? page)
         {
             page ??= 1;
             //get from db the DocumentForm
-            var DocumentTemplate = _DocumentTemplateRepo.GetWhere(x => x.Title == Title).FirstOrDefault();
+            var DocumentTemplate = _DocumentTemplateRepo.GetWhere(x => x.Title == TemplateTitle).FirstOrDefault();
             if (DocumentTemplate == null)
             {
-                DocumentTemplate = WordTemplateHelper.CreateDocumentTemplate(Title);
+                DocumentTemplate = WordTemplateHelper.CreateDocumentTemplate(TemplateTitle);
             }
             var TemplateElements = DocumentTemplate.TemplateElements;
             List<TemplateElement> ListedElements;
             //get Template Elements List
-            if(page == 1)
+            page = page - 1;
+            if (page == 0)
             {
                 //get the ones with fixed title substance and strength
                 ListedElements=TemplateElements.Where(TE=>TE.FixedTitle == "Substance" || TE.FixedTitle == "Strength").ToList();
             }
             else
             {
-                //get according to the page and make sure to count the element from the if condition as it is the first page
-                ListedElements = TemplateElements.Skip((page.Value-1)*10).Take(10).ToList();
+                //remove the ones with fixed title substance and strength then get the rest as in pages from 2 onwards
+                var TemplateElements2 = TemplateElements.Where(TE => TE.FixedTitle != "Substance" && TE.FixedTitle != "Strength").ToList();
+                ListedElements = TemplateElements2.Skip((page.Value)-1).Take(1).ToList();
             }
-            ViewBag.TotalPages = TemplateElements.Count;
-            ViewBag.Title = Title;
+            ViewBag.TotalPages = TemplateElements.Count-1;
+            ViewBag.TemplateTitle = TemplateTitle;
             return View("GetCreationForm", ListedElements);
         }
 
