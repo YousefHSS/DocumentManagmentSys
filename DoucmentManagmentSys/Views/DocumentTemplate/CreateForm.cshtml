@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Create Document";
 }
-<form method="get" asp-action="GetCreationForm">
+<form method="post" asp-action="GetCreationForm">
     <select name="TemplateTitle" id="TemplateTitle">
     @foreach (var item in Model)
     {

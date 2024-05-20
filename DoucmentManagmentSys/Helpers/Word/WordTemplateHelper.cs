@@ -58,26 +58,27 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
         }
 
-        public static DocumentTemplate CreateDocumentTemplate(string Title)
+        public static AssayMethodValidationProtocolTemplate CreateDocumentTemplate(string Title)
         {
             //search in server folder Templates for template with same name
             //get file name from server without their path
             var templateFiles = Directory.GetFiles("wwwroot/Templates").Select(x => Path.GetFileName(x));
             if (templateFiles.Contains(Title + ".docx"))
             {
-                //if found then fetch the highlighted OpenXmlElements
-                List<TemplateElement> highlightedElements = GetHighlitedElements(Title);
+
                 //make a document template with highlighted elements
 
-                return new DocumentTemplate()
+                var DT = new AssayMethodValidationProtocolTemplate()
                 {
                     Title = Title,
-                    TemplateElements = highlightedElements
+                    TemplateElements = new Collection<TemplateElement>()
                 };
+                DT.ExtractTemplateElements();
+                return DT;
 
             }
 
-            return new DocumentTemplate()
+            return new AssayMethodValidationProtocolTemplate()
             {
                 Title = "Document Template Not Found",
                 TemplateElements = new Collection<TemplateElement>()
@@ -89,126 +90,7 @@ namespace DoucmentManagmentSys.Helpers.Word
 
 
 
-        private static List<TemplateElement> GetHighlitedElements(string Title)
-        {
 
-            List<TemplateElement> highlightedRuns = new List<TemplateElement>();
-            using (WordprocessingDocument Document = WordprocessingDocument.Open("wwwroot/Templates/" + Title + ".docx", true))
-            {
-                // Retrieve all Run elements with a Highlight child element
-                IEnumerable<Run> runs = Document.MainDocumentPart.Document.Body.Descendants<Run>().Where(r => r.Descendants<Highlight>().Any());
-                //get direct child elements of body that have runs from the retrieved runs
-                IEnumerable<OpenXmlElement> TopLevelParagraphs = Document.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y)));
-
-
-                highlightedRuns = PackHiglightedElements(TopLevelParagraphs);
-
-                Document.Save();
-                return highlightedRuns;
-            }
-
-
-
-
-
-
-
-
-
-
-        }
-
-        private static List<TemplateElement> PackHiglightedElements(IEnumerable<OpenXmlElement> TopLevelParagraphs)
-        {
-            List<TemplateElement> highlightedRuns = new List<TemplateElement>();
-            OpenXmlElement? BeforePrevSibling = null;
-            foreach (var TopLevelParagraph in TopLevelParagraphs)
-            {
-
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Yellow))
-                {
-                    //get pervious sibling if it has a decendant that has a green highlight
-                    var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
-
-
-                    if (BeforePrevSibling != null && BeforePrevSibling == PrevSibling)
-                    {
-                        //add the current element to the last element in the list
-                        highlightedRuns.Last().AddToElements(TopLevelParagraph);
-                        
-                    }
-                    else
-                    {
-                        //if the runs inside the yellow hulight are bullet points then add each bullet point to the list separately
-                        if (HasBulletPointDescendants(TopLevelParagraph))
-                        {
-                            //get each run inside an element and addd them to the same Template Element
-                            var runsToAdd = TopLevelParagraph.Descendants<Paragraph>().ToList();
-                            //runsToAdd.Prepend(TopLevelParagraph);
-                            highlightedRuns.Add(new TemplateElement
-                            {
-                                FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                                Elements = runsToAdd.Cast<OpenXmlElement>().ToList()
-                            });
-                            continue;
-                        }
-                        
-                        highlightedRuns.Add(new TemplateElement
-                        {
-                            FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                            Elements = [TopLevelParagraph]
-                        });
-                    }
-
-                    BeforePrevSibling = PrevSibling;
-                }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Black))
-                {
-                    //GET rUNS THAT HAVE A BLACK HIGHLIGHT
-                    var runsbLACK = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Black));
-                    foreach (var item in runsbLACK)
-                    {
-                        highlightedRuns.Add(new TemplateElement
-                        {
-                            FixedTitle = "Substance",
-                            Elements = [item]
-                        });
-
-                    }
-
-                }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Cyan))
-                {
-                    //GET rUNS THAT HAVE A BLACK HIGHLIGHT
-                    var runsCyan = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Cyan));
-                    var ElementsToBeAdded = new List<OpenXmlElement>();
-                    foreach (var item in runsCyan)
-                    {
-                        ElementsToBeAdded.Add(item);
-
-                    }
-                    highlightedRuns.Add(new TemplateElement
-                    {
-                        FixedTitle = "Strength",
-                        Elements = ElementsToBeAdded
-                    });
-
-                }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
-                {
-                    //get pervious sibling if it has a decendant that has a green highlight
-                    var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
-                    // This run has a highlight that isn't "None", so it's considered highlighted
-                    highlightedRuns.Add(new TemplateElement
-                    {
-                        FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                        Elements = [TopLevelParagraph]
-                    });
-
-                }
-            }
-            return highlightedRuns;
-        }
 
         public static bool HasBulletPointDescendants(OpenXmlElement element)
         {
@@ -216,7 +98,7 @@ namespace DoucmentManagmentSys.Helpers.Word
             var paragraph = element as Paragraph;
 
             // If the element is not a Paragraph, look for Paragraph descendants
-            var paragraphs = paragraph == null ? element.Descendants<Paragraph>() : new List<Paragraph> {  };
+            var paragraphs = paragraph == null ? element.Descendants<Paragraph>() : new List<Paragraph> { };
 
             foreach (var para in paragraphs)
             {

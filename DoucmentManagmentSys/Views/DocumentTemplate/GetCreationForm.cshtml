@@ -7,20 +7,34 @@
 }
 @{
     Func<OpenXmlElement, IHtmlContent> TextInputElement =
+
     @<div class="row">
                     <div class="col">
                         <div class="form-group m-1 p-1">
-                            <input type="text" class="form-control" id="Title" name="Title" value="@item.InnerText" />
+                            <input type="text" class="form-control" id="TextInput" name="TextInput" value="@item.InnerText" />
                         </div>
                     </div>
                  </div>
+
+    ;
+
+        Func<OpenXmlElement, IHtmlContent> TextAreaElement =
+
+    @<div class="row">
+                    <div class="col">
+                        <div class="form-group m-1 p-1">
+                            <textarea type="text" class="form-control" id="TextArea" name="TextArea" >@item.InnerText</textarea>
+                        </div>
+                    </div>
+                 </div>
+
     ;
 
     Func<string, IHtmlContent> FixedTitle =
     @<div class="row">
                         <div class="col">
                             <div class="form-group m-1">
-                                <label for="Title">@item</label>
+                                <label for="FixedTitle">@item</label>
                             </div>
                         </div>
                     </div>;
@@ -33,7 +47,7 @@
                             @foreach (var cell in row.Elements<TableCell>())
                 {
                                 <td>
-                                    @if (cell == row.Elements<TableCell>().First())
+                                    @if (cell.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
                         {
                             // This is the header cell (left column)
                                         @cell.InnerText
@@ -59,9 +73,12 @@
 
 
 }
-<form method="post" asp-action="SaveDocument" id="documentForm">
-    
+<form method="Post" asp-action="GetCreationForm" id="documentForm">
     <div id="paginationContent" class="d-flex justify-content-center">
+        <input type="hidden" id="TemplateTitle" name="TemplateTitle" value="@ViewBag.TemplateTitle" />
+        <input type="hidden" id="page" name="page" value="" />
+        <input type="hidden" id="lastPage" name="lastPage" value="@ViewBag.CurrentPage" />
+
         <div class="col">
         @{ string lastTitle="";}
         @foreach (TemplateElement TE in Model)
@@ -81,9 +98,18 @@
                         if (TE.FixedTitle != lastTitle)
                         {
                            
-                            @FixedTitle(TE.FixedTitle);
-                            
-                            @TextInputElement(element);
+                            @FixedTitle(TE.FixedTitle)
+                            ;
+
+                            if (element.InnerText.Contains(Environment.NewLine) || element.InnerText.Length > 70)
+                            {
+                                @TextAreaElement(element)
+                                ;
+                            }
+                            else
+                            {
+                                @TextInputElement(element)
+                            }
                         }
                         else
                         {
@@ -110,18 +136,34 @@
     </div>
 
     
-</form>
+
 
 <!-- Pagination Controls -->
 <nav aria-label="Page navigation" class="d-flex justify-content-center">
     <ul class="pagination">
         @for (int i = 1; i <= ViewBag.TotalPages; i++)
         {
-            <li class="page-item"><a class="page-link" href="?TemplateTitle=@ViewBag.TemplateTitle&page=@i" data-page="@i">@i</a></li>
+                @if (ViewBag.CurrentPage == i)
+                {
+                    <li class="page-item active"><a class="page-link" onclick="SetPage(@i)" data-page="@i">@i</a></li>
+                }else{
+                      <li class="page-item"><a class="page-link" onclick="SetPage(@i)" data-page="@i">@i</a></li>
+                }
+              
         }
     </ul>
 </nav>
-
+</form>
+@* //on last page add save button *@
+@if (ViewBag.CurrentPage == ViewBag.TotalPages)
+{
+    <form method="post" asp-action="SaveDocument" id="SaveDocument">
+        <input type="hidden" id="TemplateTitle" name="TemplateTitle" value="@ViewBag.TemplateTitle" />
+    <div class="d-flex justify-content-center">
+        <input type="submit" class="btn btn-primary" value="Save" />
+    </div>
+    </form>
+}
 <script>
     
     //
@@ -132,6 +174,12 @@
         strength.innerHTML += newInput;
 
 
+    }
+    function SetPage(page) {
+        //submit form
+        var form = document.getElementById("documentForm");
+        form["page"].value = page;
+        form.submit();
     }
     
 </script>

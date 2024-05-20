@@ -17,11 +17,11 @@ namespace DoucmentManagmentSys.Controllers
 {
     public class DocumentTemplateController : Controller
     {
-        private readonly MainRepo<DocumentTemplate> _DocumentTemplateRepo;
+        private readonly MainRepo<AssayMethodValidationProtocolTemplate> _DocumentTemplateRepo;
 
         private readonly SignInManager<PrimacyUser> _signInManager;
 
-        public DocumentTemplateController(MainRepo<DocumentTemplate> DocumentFormRepo, SignInManager<PrimacyUser> signInManager)
+        public DocumentTemplateController(MainRepo<AssayMethodValidationProtocolTemplate> DocumentFormRepo, SignInManager<PrimacyUser> signInManager)
         {
             _signInManager = signInManager;
             _DocumentTemplateRepo = DocumentFormRepo;
@@ -32,9 +32,9 @@ namespace DoucmentManagmentSys.Controllers
             return View(strings);
         }
 
-        [HttpGet]
+        [HttpPost]
 
-        public ActionResult GetCreationForm(string TemplateTitle, int? page)
+        public ActionResult GetCreationForm(string TemplateTitle, int? page,List<TemplateElement>? newTemplateElements)
         {
             page ??= 1;
             //get from db the DocumentForm
@@ -54,12 +54,14 @@ namespace DoucmentManagmentSys.Controllers
             }
             else
             {
+                DocumentTemplate.PreProcessTemplateElements();
                 //remove the ones with fixed title substance and strength then get the rest as in pages from 2 onwards
                 var TemplateElements2 = TemplateElements.Where(TE => TE.FixedTitle != "Substance" && TE.FixedTitle != "Strength").ToList();
                 ListedElements = TemplateElements2.Skip((page.Value)-1).Take(1).ToList();
             }
             ViewBag.TotalPages = TemplateElements.Count-1;
             ViewBag.TemplateTitle = TemplateTitle;
+            ViewBag.CurrentPage = page.Value+ 1;
             return View("GetCreationForm", ListedElements);
         }
 

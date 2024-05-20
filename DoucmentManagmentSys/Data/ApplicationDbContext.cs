@@ -27,6 +27,8 @@ namespace DoucmentManagmentSys.Data
 
         DbSet<DocumentTemplate> DocumentTemplates { get; set; }
 
+        DbSet<AssayMethodValidationProtocolTemplate> DerivedDocumentTemplates { get; set; }
+
         DbSet<TemplateElement> TemplateElements { get; set; }
 
 
