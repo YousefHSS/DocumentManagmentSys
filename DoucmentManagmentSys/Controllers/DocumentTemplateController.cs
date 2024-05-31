@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.Json.Nodes;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -9,6 +10,7 @@ using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
 using TableStyle = DocumentFormat.OpenXml.Wordprocessing.TableStyle;
 using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
@@ -17,11 +19,11 @@ namespace DoucmentManagmentSys.Controllers
 {
     public class DocumentTemplateController : Controller
     {
-        private readonly MainRepo<AssayMethodValidationProtocolTemplate> _DocumentTemplateRepo;
+        private readonly MainRepo<DocumentTemplate> _DocumentTemplateRepo;
 
         private readonly SignInManager<PrimacyUser> _signInManager;
 
-        public DocumentTemplateController(MainRepo<AssayMethodValidationProtocolTemplate> DocumentFormRepo, SignInManager<PrimacyUser> signInManager)
+        public DocumentTemplateController(MainRepo<DocumentTemplate> DocumentFormRepo, SignInManager<PrimacyUser> signInManager)
         {
             _signInManager = signInManager;
             _DocumentTemplateRepo = DocumentFormRepo;
@@ -31,22 +33,30 @@ namespace DoucmentManagmentSys.Controllers
             string[] strings = ["AssayMethodValidationProtocol"];
             return View(strings);
         }
-
         [HttpPost]
-
-        public ActionResult GetCreationForm(string TemplateTitle, int? page,List<TemplateElement>? newTemplateElements)
+        
+        public ActionResult GetCreationForm(string TemplateTitle, int? page,List<TemplateElement>? newTemplateElements,int? lastPage , string? ToBeJson)
         {
-            page ??= 1;
-            //get from db the DocumentForm
-            var DocumentTemplate = _DocumentTemplateRepo.GetWhere(x => x.Title == TemplateTitle).FirstOrDefault();
-            if (DocumentTemplate == null)
+
+            //get from db the DocumentForm along with its TemplateElements
+            var DocumentTemplate = _DocumentTemplateRepo.GetDbSet() // Get the DbSet directly
+                             .Include(dt => dt.TemplateElements)
+                             .FirstOrDefault(x => x.Title == TemplateTitle);
+            if (DocumentTemplate == null || DocumentTemplate.TemplateElements == null)
             {
                 DocumentTemplate = WordTemplateHelper.CreateDocumentTemplate(TemplateTitle);
+                _DocumentTemplateRepo.Add(DocumentTemplate);
+                _DocumentTemplateRepo.SaveChanges();
+            }
+            if(ToBeJson != null && lastPage != null)
+            {
+                DocumentTemplate = WordTemplateHelper.UpdateDocumentTemplate(DocumentTemplate, ToBeJson, lastPage-1);
+                _DocumentTemplateRepo.SaveChanges();
             }
             var TemplateElements = DocumentTemplate.TemplateElements;
             List<TemplateElement> ListedElements;
             //get Template Elements List
-            page = page - 1;
+            page = page == null ? 0 : page - 1;
             if (page == 0)
             {
                 //get the ones with fixed title substance and strength

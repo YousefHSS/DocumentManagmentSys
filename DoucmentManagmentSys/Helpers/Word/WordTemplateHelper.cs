@@ -58,7 +58,7 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
         }
 
-        public static AssayMethodValidationProtocolTemplate CreateDocumentTemplate(string Title)
+        public static DocumentTemplate CreateDocumentTemplate(string Title)
         {
             //search in server folder Templates for template with same name
             //get file name from server without their path
@@ -89,7 +89,25 @@ namespace DoucmentManagmentSys.Helpers.Word
         }
 
 
+        public static DocumentTemplate UpdateDocumentTemplate(DocumentTemplate template,string Values,int? Page)
+        {
+            string[] TrueValues = Values.Split(',');
+            int Iteration = 0;
+            
+            if (Page == 0)
+            {
+                //get the ones with fixed title substance and strength
+                    var TemplateElements = template.TemplateElements.Where(x => x.FixedTitle == "Substance").First();
 
+                TemplateElements.Elements = [new Paragraph(new Run(new Text(TrueValues[Iteration])))];
+                   
+
+                
+            }
+            
+
+            return template;
+        }
 
 
         public static bool HasBulletPointDescendants(OpenXmlElement element)

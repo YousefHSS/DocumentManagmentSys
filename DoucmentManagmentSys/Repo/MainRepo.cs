@@ -1,4 +1,5 @@
-﻿using DoucmentManagmentSys.Data;
+﻿using DocumentFormat.OpenXml.InkML;
+using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -13,6 +14,11 @@ namespace DoucmentManagmentSys.Repo
         public MainRepo(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public DbSet<T> GetDbSet()
+        {
+            return _context.Set<T>();
         }
 
         public void Add(T entity)

@@ -11,7 +11,7 @@
     @<div class="row">
                     <div class="col">
                         <div class="form-group m-1 p-1">
-                            <input type="text" class="form-control" id="TextInput" name="TextInput" value="@item.InnerText" />
+                            <input type="text" class="form-control ToBeJson" id="TextInput" name="TextInput" value="@item.InnerText" />
                         </div>
                     </div>
                  </div>
@@ -23,7 +23,7 @@
     @<div class="row">
                     <div class="col">
                         <div class="form-group m-1 p-1">
-                            <textarea type="text" class="form-control" id="TextArea" name="TextArea" >@item.InnerText</textarea>
+                            <textarea type="text" class="form-control ToBeJson" id="TextArea" name="TextArea" >@item.InnerText</textarea>
                         </div>
                     </div>
                  </div>
@@ -57,11 +57,11 @@
                             //if the inner Text is big or multiline, it will be displayed as a text area
                             if (cell.InnerText.Contains(Environment.NewLine) || cell.InnerText.Length > 70)
                             {
-                                            <textarea class="form-control" rows="3">@cell.InnerText</textarea>
+                                            <textarea class="form-control ToBeJson" rows="3">@cell.InnerText</textarea>
                             }
                             else
                             {
-                                            <input type="text" class="form-control" value="@cell.InnerText" />
+                                            <input type="text" class="form-control ToBeJson" value="@cell.InnerText" />
                             }
                         
                         }
@@ -124,7 +124,7 @@
 
                         </div>
                             @* Display add strengh button *@
-                            <input type="button" class="btn btn-primary" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
+                            <input type="button" class="btn btn-primary ToBeJson" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
                     }
                   
                 }
@@ -164,22 +164,4 @@
     </div>
     </form>
 }
-<script>
-    
-    //
-    function AddStrengthInput() {
-        //add to id strengths and a new input
-        var strength = document.getElementById("strengths");
-        var newInput = `@TextInputElement(new Run(new Text("")))`;
-        strength.innerHTML += newInput;
-
-
-    }
-    function SetPage(page) {
-        //submit form
-        var form = document.getElementById("documentForm");
-        form["page"].value = page;
-        form.submit();
-    }
-    
-</script>
+<script src="~/js/GetCreationForm.js" />

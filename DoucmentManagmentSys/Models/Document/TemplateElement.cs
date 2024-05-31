@@ -44,7 +44,15 @@ namespace DoucmentManagmentSys.Models
                     var body = new Body();
                     foreach (var element in elements)
                     {
-                        body.AppendChild(element.CloneNode(true));
+                        if (!(element is Paragraph)) {
+                            //add a paragraph to the body if the element is not a paragraph
+                            body.AppendChild(new Paragraph(element.CloneNode(true)));
+                        }
+                        else
+                        {
+                            body.AppendChild(element.CloneNode(true));
+                        }
+                        
                     }
 
                     // Add the body to the main document part
@@ -53,6 +61,8 @@ namespace DoucmentManagmentSys.Models
                     // Save the document
                     document.Save();
                 }
+              
+
                 return memoryStream.ToArray();
             }
         }
