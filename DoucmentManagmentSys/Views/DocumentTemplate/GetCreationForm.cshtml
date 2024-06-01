@@ -98,17 +98,15 @@
                         if (TE.FixedTitle != lastTitle)
                         {
                            
-                            @FixedTitle(TE.FixedTitle)
-                            ;
+                            @FixedTitle(TE.FixedTitle);
 
                             if (element.InnerText.Contains(Environment.NewLine) || element.InnerText.Length > 70)
                             {
-                                @TextAreaElement(element)
-                                ;
+                                @TextAreaElement(element);
                             }
                             else
                             {
-                                @TextInputElement(element)
+                                @TextInputElement(element);
                             }
                         }
                         else

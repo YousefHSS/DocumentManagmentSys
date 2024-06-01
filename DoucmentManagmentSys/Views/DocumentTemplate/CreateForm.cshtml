@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Create Document";
 }
+@* Title Choose DDocument Type *@
+<h1>Choose Document Type</h1>
 <form method="post" asp-action="GetCreationForm">
     <select name="TemplateTitle" id="TemplateTitle">
     @foreach (var item in Model)
@@ -10,7 +12,8 @@
         <option value="@item">@item</option>
     }
 </select>
-<input type="submit" value="Submit">
+    
+    <button type="submit" class="btn-primary btn">Proceed</button>
 </form>
 
 
