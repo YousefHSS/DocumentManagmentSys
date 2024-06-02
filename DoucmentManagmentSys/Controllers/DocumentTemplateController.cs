@@ -30,7 +30,7 @@ namespace DoucmentManagmentSys.Controllers
         }
         public IActionResult CreateForm()
         {
-            string[] strings = ["AssayMethodValidationProtocol"];
+            string[] strings = ["Assay Method Validation Protocol"];
             return View(strings);
         }
         [HttpPost]

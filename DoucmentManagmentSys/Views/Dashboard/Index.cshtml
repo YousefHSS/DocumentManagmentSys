@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using DoucmentManagmentSys.Models
-using DoucmentManagmentSys.Models;
 @model IEnumerable<PrimacyUser>
 @inject UserManager<PrimacyUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
@@ -11,7 +10,7 @@ using DoucmentManagmentSys.Models;
 
 
     <div class="container">
-        <h1>Welcome to the Admin Dashboard</h1>
+        <h1>Admin Dashboard</h1>
 
 
     <table class="table-striped table-hover table-bordered table">
@@ -62,7 +61,7 @@ using DoucmentManagmentSys.Models;
                     
                 }
                     <td>
-                        <select id="newRole_@user.Id">
+                        <select class="NewDropdown" id="newRole_@user.Id">
                         @foreach (var role in _RoleManager.Roles )
                         {
                             @* Exclude admin role *@
@@ -76,7 +75,7 @@ using DoucmentManagmentSys.Models;
                         </select>
                     </td>
                     <td>
-                        <button class="btn-outline-primary rounded-1 fw-bold" onclick="changeRole('@user.Id')">Change Role</button>
+                        <button class="btn-primary rounded-1 fw-bold" onclick="changeRole('@user.Id')">Change Role</button>
                     </td>
                 </tr>
             }

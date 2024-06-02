@@ -11,7 +11,7 @@ namespace DoucmentManagmentSys.Models
     {
         public AssayMethodValidationProtocolTemplate()
         {
-            TemplateFileName= "AssayMethodValidationProtocol";
+            TemplateFileName= "Assay Method Validation Protocol";
         }
         public override List<TemplateElement> ExtractingAlgorithm(IEnumerable<OpenXmlElement> TopLevelParagraphs)
         {

@@ -44,7 +44,11 @@ namespace DoucmentManagmentSys.Models
                     var body = new Body();
                     foreach (var element in elements)
                     {
-                        if (!(element is Paragraph)) {
+                        if (element is Table)
+                        {
+                            body.AppendChild(element.CloneNode(true));
+                        }
+                        if ((!(element is Paragraph)) && (element is not Table)) {
                             //add a paragraph to the body if the element is not a paragraph
                             body.AppendChild(new Paragraph(element.CloneNode(true)));
                         }

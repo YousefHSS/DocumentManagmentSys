@@ -60,7 +60,7 @@
 	  <None Include="wwwroot\js\GetArchivedVersions.js" />
 	  <None Include="wwwroot\js\GetCreationForm.js" />
 	  <None Include="wwwroot\Templates\Assay Method Validation Protocol.xml" />
-	  <None Include="wwwroot\Templates\AssayMethodValidationProtocol.docx" />
+	  <None Include="wwwroot\Templates\Assay Method Validation Protocol.docx" />
 	  <None Include="wwwroot\Templates\Validation Protocol of Assay Highlited2.xml" />
 	</ItemGroup>
 

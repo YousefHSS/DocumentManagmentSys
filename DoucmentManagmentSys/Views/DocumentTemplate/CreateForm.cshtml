@@ -6,7 +6,7 @@
 @* Title Choose DDocument Type *@
 <h1>Choose Document Type</h1>
 <form method="post" asp-action="GetCreationForm">
-    <select name="TemplateTitle" id="TemplateTitle">
+    <select class="NewDropdown" name="TemplateTitle" id="TemplateTitle">
     @foreach (var item in Model)
     {
         <option value="@item">@item</option>
