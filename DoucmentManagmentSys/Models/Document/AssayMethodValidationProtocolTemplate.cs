@@ -130,6 +130,27 @@ namespace DoucmentManagmentSys.Models
             throw new NotImplementedException();
         }
 
+        public static void ImportTemplateElements(ICollection<TemplateElement> TemplateElements)
+        {
+            //turn collection to list
+
+            using (WordprocessingDocument Document = WordprocessingDocument.Open("wwwroot/Templates/" + "Assay Method Validation Protocol" + ".docx", true))
+            {
+                // Retrieve all Run elements with a Highlight child element
+                IEnumerable<Run> runs = Document.MainDocumentPart.Document.Body.Descendants<Run>().Where(r => r.Descendants<Highlight>().Any());
+                //get direct child elements of body that have runs from the retrieved runs
+                IEnumerable<OpenXmlElement> TopLevelParagraphs = Document.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y)));
+
+
+                ImportingAlgorithm(TopLevelParagraphs, TemplateElements);
+
+                Document.Save();
+
+                
+
+            }
+        }
+
         public override void PreProcessTemplateElements()
         {
             //main Difference is that this function callled after the first page argument in the view is edited
@@ -159,5 +180,43 @@ namespace DoucmentManagmentSys.Models
         {
             throw new NotImplementedException();
         }
+        public static void ReplaceTopLevel(OpenXmlElement TopLevelParagraph, TemplateElement TemplateElements)
+        {
+            // Replace TopLevelParagraph contents with those from matchingTemplateElement
+            TopLevelParagraph.RemoveAllChildren();
+            foreach (var elem in TemplateElements.Elements)
+            {
+                TopLevelParagraph.Append(elem.CloneNode(true));
+            }
+        }
+        private static void ImportingAlgorithm(IEnumerable<OpenXmlElement> topLevelParagraphs, List<TemplateElement> templateElements)
+        {
+            // Convert the enumerable to a list to access elements by index
+            var paragraphsList = topLevelParagraphs.ToList();
+
+            foreach (var templateElement in templateElements)
+            {
+                // Find the index of the TopLevelParagraph that contains the FixedTitle
+                int index = paragraphsList.FindIndex(p => p.InnerText.Contains(templateElement.FixedTitle));
+
+                if (index != -1 && index + 1 < paragraphsList.Count)
+                {
+                    // Get the next TopLevelParagraph
+
+                    foreach (var elem in templateElement.Elements)
+                    {
+                        var nextParagraph = paragraphsList[index + 1];
+
+                        // Replace the contents of the next TopLevelParagraph with the Element from TemplateElement
+                        nextParagraph.RemoveAllChildren();
+                        nextParagraph.AppendChild(elem.CloneNode(true));
+                        index++;
+                    }
+                }
+            }
+        
+
+        }
+
     }
 }

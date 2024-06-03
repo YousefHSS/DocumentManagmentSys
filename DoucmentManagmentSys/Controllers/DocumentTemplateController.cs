@@ -77,5 +77,17 @@ namespace DoucmentManagmentSys.Controllers
 
 
 
-    }
+        [HttpPost]
+        public ActionResult SaveDocument(string TemplateTitle, int lastPage, string ToBeJson)
+        {
+            var DocumentTemplate = _DocumentTemplateRepo.GetDbSet() // Get the DbSet directly
+                 .Include(dt => dt.TemplateElements)
+                 .FirstOrDefault(x => x.Title == TemplateTitle);
+            DocumentTemplate = WordTemplateHelper.UpdateDocumentTemplate(DocumentTemplate, ToBeJson, lastPage - 1);
+            _DocumentTemplateRepo.SaveChanges();
+            //create a new primacy document from the template
+            AssayMethodValidationProtocolTemplate.ImportTemplateElements(DocumentTemplate.TemplateElements);
+            return View();
+
+        }
 }

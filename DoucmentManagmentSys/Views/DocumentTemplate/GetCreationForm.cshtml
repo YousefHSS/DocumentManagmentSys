@@ -157,8 +157,9 @@
 {
     <form method="post" asp-action="SaveDocument" id="SaveDocument">
         <input type="hidden" id="TemplateTitle" name="TemplateTitle" value="@ViewBag.TemplateTitle" />
+        <input type="hidden" id="lastPage" name="lastPage" value="@ViewBag.CurrentPage" />
     <div class="d-flex justify-content-center">
-        <input type="submit" class="btn btn-primary" value="Save" />
+        <input type="button" onclick="SaveDocument()" class="btn btn-primary" value="Save" />
     </div>
     </form>
 }

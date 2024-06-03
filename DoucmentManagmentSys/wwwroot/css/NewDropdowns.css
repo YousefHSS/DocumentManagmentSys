@@ -49,6 +49,7 @@
         box-shadow: 0 6px 5px -5px rgba(0,0,0,0.3);
         overflow: hidden;
         z-index:1;
+
     }
 
     .dropdown a, .dropdown.toggle > label {
@@ -68,10 +69,21 @@
         height: 0;
         overflow: hidden;
         transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
-    }
 
+    }
+        .dropdown li:last-child a {
+            bottom: -3px;
+        }
     .dropdown.hover li {
         /*transition-delay: 300ms;*/
+    }
+    .dropdown li a {
+        /*transition-delay: 300ms;*/
+        border: 2px;
+        border-style: solid;
+        padding-right:3px;
+        padding-left:3px;
+        height: 36px;
     }
 
     .dropdown li:first-child a {
@@ -90,7 +102,7 @@
         height: 0;
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
-        border-bottom: 10px solid #FFF;
+        border-bottom: 10px solid #000;
         margin: -10px 0 0 30px;
     }
 
@@ -114,3 +126,14 @@
         .dropdown.hover:hover li:first-child, .dropdown.toggle > input:checked ~ ul li:first-child {
             padding-top: 15px;
         }
+
+    .dropdown li:last-child a::after {
+        content: ''; /* Required for the pseudo-element to work */
+        display: block; /* Make it a block to occupy the full width */
+        height: 2px; /* Height of the border */
+        background-color: black; /* Color of the border */
+        position: absolute; /* Position it at the bottom of the element */
+        left: 0; /* Align to the left side */
+        right: 0; /* Align to the right side */
+        bottom: -3px; /* Position it at the exact bottom taking padding into account */
+    }

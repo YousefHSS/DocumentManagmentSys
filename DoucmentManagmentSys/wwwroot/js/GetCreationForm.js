@@ -12,6 +12,18 @@ function SetPage(page) {
     //submit form
     var form = document.getElementById("documentForm");
     form["page"].value = page;
+
+    PrepareDataForSubmit(form);
+    form.submit();
+}
+
+function SaveDocument() {
+    var form = document.getElementById("SaveDocument");
+    PrepareDataForSubmit(form)
+    form.submit();
+}
+
+function PrepareDataForSubmit(form) {
     //get all ToBeJson elements
     var inputs = document.getElementsByClassName("ToBeJson");
     //format the input as an array seperated by , as a string
@@ -30,6 +42,4 @@ function SetPage(page) {
     input.name = "ToBeJson";
     input.value = stringArray;
     form.appendChild(input);
-
-    form.submit();
 }
