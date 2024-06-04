@@ -15,11 +15,12 @@ namespace DoucmentManagmentSys.Models
     {
         public AssayMethodValidationProtocolTemplate()
         {
-            TemplateFileName= "Assay Method Validation Protocol";
+            TemplateFileName = "Assay Method Validation Protocol";
         }
         public override List<TemplateElement> ExtractingAlgorithm(IEnumerable<OpenXmlElement> TopLevelParagraphs)
         {
-            int Counter = 0;
+            int id = 0;
+            OpenXmlAttribute ReplaceMeAttribute = new OpenXmlAttribute("ReplaceMe", "http://DMSNamespace", id.ToString());
             List<TemplateElement> highlightedRuns = new List<TemplateElement>();
             OpenXmlElement? BeforePrevSibling = null;
             foreach (var TopLevelParagraph in TopLevelParagraphs)
@@ -44,21 +45,21 @@ namespace DoucmentManagmentSys.Models
                         {
                             //get each run inside an element and addd them to the same Template Element
                             var runsToAdd = TopLevelParagraph.Descendants<Paragraph>().ToList();
+                            runsToAdd.ForEach(x => SetMarker(ref ReplaceMeAttribute, x));
                             //runsToAdd.Prepend(TopLevelParagraph);
                             highlightedRuns.Add(new TemplateElement
                             {
                                 FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                                Elements = runsToAdd.Cast<OpenXmlElement>().ToList(),
-                                PlaceId=Counter++
+                                Elements = runsToAdd.Cast<OpenXmlElement>().ToList()
+
                             });
                             continue;
                         }
-
+                        SetMarker(ref ReplaceMeAttribute, TopLevelParagraph);
                         highlightedRuns.Add(new TemplateElement
                         {
                             FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                            Elements = [TopLevelParagraph],
-                            PlaceId = Counter++
+                            Elements = [TopLevelParagraph]
                         });
                     }
 
@@ -70,11 +71,11 @@ namespace DoucmentManagmentSys.Models
                     var runsbLACK = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Black));
                     foreach (var item in runsbLACK)
                     {
+                        SetMarker(ref ReplaceMeAttribute, item);
                         highlightedRuns.Add(new TemplateElement
                         {
                             FixedTitle = "Substance",
-                            Elements = [item],
-                            PlaceId = Counter++
+                            Elements = [item]
                         });
 
                     }
@@ -87,14 +88,14 @@ namespace DoucmentManagmentSys.Models
                     var ElementsToBeAdded = new List<OpenXmlElement>();
                     foreach (var item in runsCyan)
                     {
+                        SetMarker(ref ReplaceMeAttribute, item);
                         ElementsToBeAdded.Add(item);
 
                     }
                     highlightedRuns.Add(new TemplateElement
                     {
                         FixedTitle = "Strength",
-                        Elements = ElementsToBeAdded,
-                        PlaceId = Counter++
+                        Elements = ElementsToBeAdded
                     });
 
                 }
@@ -103,11 +104,11 @@ namespace DoucmentManagmentSys.Models
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
                     // This run has a highlight that isn't "None", so it's considered highlighted
+                    SetMarker(ref ReplaceMeAttribute, TopLevelParagraph);
                     highlightedRuns.Add(new TemplateElement
                     {
                         FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                        Elements = [TopLevelParagraph],
-                        PlaceId = Counter++
+                        Elements = [TopLevelParagraph]
                     });
 
                 }
@@ -131,7 +132,7 @@ namespace DoucmentManagmentSys.Models
                 Document.Save();
 
                 this.TemplateElements = TemplateElements;
-                
+
             }
         }
 
@@ -143,8 +144,8 @@ namespace DoucmentManagmentSys.Models
         public static void ImportTemplateElements(List<TemplateElement> TemplateElements)
         {
             //turn collection to list
-            
-            CloneDocument( "wwwroot/Templates/" + "Assay Method Validation Protocol" + ".docx" ,"wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx");
+
+            CloneDocument("wwwroot/Templates/" + "Assay Method Validation Protocol" + ".docx", "wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx");
             using (WordprocessingDocument DocClone = WordprocessingDocument.Open("wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx", true))
             {
                 IEnumerable<Run> runs = DocClone.MainDocumentPart.Document.Body.Descendants<Run>().Where(r => r.Descendants<Highlight>().Any());
@@ -156,7 +157,7 @@ namespace DoucmentManagmentSys.Models
                 DocClone.Save();
 
             }
-           
+
 
 
 
@@ -173,7 +174,7 @@ namespace DoucmentManagmentSys.Models
             {
                 // Clone the parts of the document necessary to preserve styles and formatting
                 clonedDocument.Clone(memoryStream);
-                
+
 
                 // Write the content from the memory stream to the new file
                 File.WriteAllBytes(newFilePath, memoryStream.ToArray());
@@ -194,7 +195,7 @@ namespace DoucmentManagmentSys.Models
         public override void PreProcessTemplateElements()
         {
             //main Difference is that this function callled after the first page argument in the view is edited
-            
+
             //get the element that hadFixedTitle substance
             TemplateElement substance = TemplateElements.Where(x => x.FixedTitle == "Substance").FirstOrDefault();
             //get all the grey text colored runs
@@ -204,12 +205,12 @@ namespace DoucmentManagmentSys.Models
             {
                 //Replace the Text element with the substance inner text
                 var Text = item.Descendants<Text>().FirstOrDefault();
-                if(Text != null)
+                if (Text != null)
                 {
                     Text.Text = substance.FixedTitle;
                 }
-               
-                
+
+
             }
 
 
@@ -252,7 +253,7 @@ namespace DoucmentManagmentSys.Models
                             //get each run inside an element and addd them to the same Template Element
                             var runsToAdd = TopLevelParagraph.Descendants<Paragraph>().ToList();
                             //runsToAdd.Prepend(TopLevelParagraph);
-                            runsToAdd.ForEach(x => SetMarker(ReplaceMeAttribute,x));
+                            runsToAdd.ForEach(x => SetMarker(ref ReplaceMeAttribute, x));
                             //add attribute then increse id then set it to attribute
                             ElementsReplacedFromDoc.Add(runsToAdd.Cast<OpenXmlElement>().ToList());
                             continue;
@@ -269,8 +270,8 @@ namespace DoucmentManagmentSys.Models
                     var runsbLACK = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Black));
                     foreach (var item in runsbLACK)
                     {
-                        SetMarker(ReplaceMeAttribute, item);
-                        ElementsReplacedFromDoc.Add( [item]);
+                        SetMarker(ref ReplaceMeAttribute, item);
+                        ElementsReplacedFromDoc.Add([item]);
 
                     }
 
@@ -282,7 +283,7 @@ namespace DoucmentManagmentSys.Models
                     var ElementsToBeAdded = new List<OpenXmlElement>();
                     foreach (var item in runsCyan)
                     {
-                        SetMarker(ReplaceMeAttribute, item);
+                        SetMarker(ref ReplaceMeAttribute, item);
                         ElementsToBeAdded.Add(item);
 
                     }
@@ -295,7 +296,7 @@ namespace DoucmentManagmentSys.Models
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
                     // This run has a highlight that isn't "None", so it's considered highlighted
-                    SetMarker(ReplaceMeAttribute, TopLevelParagraph);
+                    SetMarker(ref ReplaceMeAttribute, TopLevelParagraph);
                     ElementsReplacedFromDoc.Add([TopLevelParagraph]);
 
                 }
@@ -303,83 +304,112 @@ namespace DoucmentManagmentSys.Models
             ReplaceAllTopLevel(ElementsReplacedFromDoc, UpdatedTemplates);
 
         }
-        private static void SetMarker(OpenXmlAttribute attrib , OpenXmlElement element)
+        private static void SetMarker(ref OpenXmlAttribute attrib, OpenXmlElement element)
         {
             element.SetAttribute(attrib);
-            attrib = new OpenXmlAttribute(attrib.LocalName,attrib.NamespaceUri, (int.Parse(attrib.Value))+1 .ToString());
+            IncreaseId(ref attrib);
+        }
+        private static void IncreaseId(ref OpenXmlAttribute attrib)
+        {
+            if (attrib.Value == null)
+            {
+                attrib = new OpenXmlAttribute(attrib.LocalName, attrib.NamespaceUri, "1");
+                return;
+            }
+            var val = int.Parse(attrib.Value);
+            val++;
+            attrib = new OpenXmlAttribute(attrib.LocalName, attrib.NamespaceUri, val.ToString());
         }
         private static int ReplaceAllTopLevel(List<List<OpenXmlElement>> TopLevelParagraphs, List<TemplateElement> UpdatedTemplates)
         {
+            //replace each item marked with ReplaceMe attribute from TopLevelParagraphs with it's corresponding child with replace me attribute from UpdatedTemplates 
+            // the value of the attribute must be similar to the attribute in UpdatedTemplates
+
+            int id = 0;
+            OpenXmlAttribute ReplaceMeAttribute = new OpenXmlAttribute("ReplaceMe", "http://DMSNamespace", id.ToString());
+            while (true)
+            {
+                var firstElm = FindMarkedElementInList(TopLevelParagraphs, ReplaceMeAttribute);
+                var secondElm = FindMarkedElementInList(UpdatedTemplates, ReplaceMeAttribute);
+
+                if (firstElm == null || secondElm == null)
+                {
+                    break;
+                }
+                CopyProperties(secondElm, firstElm);
+                if (firstElm.Parent == null)
+                {
+                    //replcae the children of the first element with the second element
+                    ReplaceChildren(firstElm, secondElm);
+
+                }
+                else
+                {
+                    firstElm.Parent.InsertAfter(secondElm.CloneNode(true), firstElm);
+                    firstElm.Remove();
+                }
 
 
-            //for (var i = 0; i < TopLevelParagraphs.Count; i++)
-            //{
-            //    var items = TopLevelParagraphs[i];
-            //    for (var j = 0; j < items.Count; j++)
-            //    {
-            //        var item = items[j];
-                   
+                IncreaseId(ref ReplaceMeAttribute);
 
-            //        var TemplateElement = UpdatedTemplates[i];
-            //        foreach (var element in TemplateElement.Elements)
-            //        {
-            //            if (TemplateElement.FixedTitle=="Substance"|| TemplateElement.FixedTitle == "Strength")
-            //            {
-                            
-            //            }
-            //            //children of elment must be cloned 1 by 1
-            //            foreach (var child in element.ChildElements)
-            //            {
-            //                //find the first element inside item that have the replaceMe attrib
-            //                var subitem=item.Descendants().Where(x=> x.HasAttributes).FirstOrDefault(x => x.HasAttributes && x.GetAttributes().Any(y => y.LocalName.ToString() == "ReplaceMe"));
-            //                if (subitem ==null)
-            //                {
-            //                    //check if item has the attribute
-            //                    if (item.GetAttributes().Any(y => y.LocalName.ToString() == "ReplaceMe"))
-            //                    {
-            //                        if (item.GetType() == child.GetType())
-            //                        {
-            //                            //copy the properties from item to child
-            //                            CopyProperties(item, child);
-            //                            item.Parent.InsertAfter(child.CloneNode(true), item);
-            //                            child.Remove();
-            //                            //remove attribute from the item 
-            //                            item.RemoveAttribute("ReplaceMe", "http://DMSNamespace");
+            }
 
-            //                            item.Remove();
-            //                        }
-            //                        else if(child.Parent!=null)
-            //                        {
-            //                            //copy the properties from item to child
-            //                            CopyProperties(item, child.Parent);
-            //                            item.Parent.InsertAfter(child.Parent.CloneNode(true), item);
-                                        
-            //                            //remove attribute from the item 
-            //                            item.RemoveAttribute("ReplaceMe", "http://DMSNamespace");
-
-            //                            item.Remove();
-            //                            continue;
-            //                        }
-
-
-
-            //                    }
-                               
-
-            //                }
-            //                else
-            //                {
-            //                    //replce item itsself with the child
-            //                    subitem.Parent.InsertAfter(child.CloneNode(true), subitem);
-            //                    subitem.Remove();
-            //                }
-
-
-            //            }
-            //        }
-            //    }
-            //}
             return 0;
+        }
+
+        public static void ReplaceChildren(OpenXmlElement firstElm, OpenXmlElement secondElm)
+        {
+            //replce the children of the first element with the second element
+            firstElm.RemoveAllChildren();
+            foreach (var child in secondElm.ChildElements)
+            {
+                firstElm.Append(child.CloneNode(true));
+            }
+
+        }
+
+        private static OpenXmlElement? FindMarkedElementInList(List<List<OpenXmlElement>> openXmlElements, OpenXmlAttribute replaceMeAttribute)
+        {
+            //this function should keep traversing inside the list until it finds the first element that has the replaceMe attribute
+
+            for (var i = 0; i < openXmlElements.Count; i++)
+            {
+                var items = openXmlElements[i];
+                for (var j = 0; j < items.Count; j++)
+                {
+                    var item = items[j];
+                    if (item.GetAttributes().Any(y => y == replaceMeAttribute))
+                    {
+                        return item;
+                    }
+                }
+            }
+            return null;
+
+        }
+        private static OpenXmlElement? FindMarkedElementInList(List<TemplateElement> templateElements, OpenXmlAttribute replaceMeAttribute)
+        {
+            //this function should keep traversing inside the list until it finds the first element that has the replaceMe attribute
+
+            for (var i = 0; i < templateElements.Count; i++)
+            {
+                var items = templateElements[i].Elements.ToList();
+                for (var j = 0; j < items.Count; j++)
+                {
+                    var item = items[j];
+                    if (item.GetAttributes().Any(y => y.LocalName == replaceMeAttribute.LocalName && y.Value == replaceMeAttribute.Value))
+                    {
+                        return item;
+                    }
+                    if (item.Descendants().Any(x => x.GetAttributes().Any(y => y.LocalName == replaceMeAttribute.LocalName && y.Value == replaceMeAttribute.Value)))
+                    {
+                        return item.Descendants().FirstOrDefault(x => x.GetAttributes().Any(y => y.LocalName == replaceMeAttribute.LocalName && y.Value == replaceMeAttribute.Value));
+                    }
+                }
+            }
+            return null;
+
+
         }
 
         private static void CopyProperties(OpenXmlElement from, OpenXmlElement to)

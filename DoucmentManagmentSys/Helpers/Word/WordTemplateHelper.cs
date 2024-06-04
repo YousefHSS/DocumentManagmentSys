@@ -6,6 +6,7 @@ using DoucmentManagmentSys.Models;
 using Google.Apis.Drive.v3.Data;
 using iText.StyledXmlParser.Jsoup.Select;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DoucmentManagmentSys.Helpers.Word
 {
@@ -90,42 +91,110 @@ namespace DoucmentManagmentSys.Helpers.Word
         }
 
 
-        public static DocumentTemplate UpdateDocumentTemplate(DocumentTemplate template,string Values,int? Page)
+        public static DocumentTemplate UpdateDocumentTemplate(DocumentTemplate template, string Values, int? Page)
         {
-            string[] TrueValues = Values.Split(',');
+            string[] TrueValues = Values.Split("__SEP__");
             int Iteration = 0;
-            
+            var ListedElements = template.TemplateElements;
             if (Page == 0)
             {
                 //get the ones with fixed title substance and strength
-                    var TemplateElements = template.TemplateElements.Where(x => x.FixedTitle == "Substance" || x.FixedTitle == "Strength").ToList();
+                ListedElements = template.TemplateElements.Where(x => x.FixedTitle == "Substance" || x.FixedTitle == "Strength").ToList();
 
-                //loop for all template elements
-                foreach (var TemplateElement in TemplateElements)
+            }
+            else
+            {
+                //remove the ones with fixed title substance and strength then get the rest as in pages from 2 onwards
+                var TemplateElements2 = template.TemplateElements.Where(TE => TE.FixedTitle != "Substance" && TE.FixedTitle != "Strength").ToList();
+                ListedElements = TemplateElements2.Skip((Page.Value) - 1).Take(1).ToList();
+
+            }
+
+            //loop for all template elements
+            foreach (var TemplateElement in ListedElements)
+            {
+                var newElements = new List<OpenXmlElement>();
+                int i =0;
+                foreach (var item in TemplateElement.Elements)
                 {
-                    var newElements = new List<OpenXmlElement>();
-                    foreach (var item in TemplateElement.Elements)
+                    if (item is Table)
+                    {
+                        //travese throught the table cells and change only the ones without magenta highlight
+                        foreach (var row in @item.Elements<TableRow>())
+                        {
+                            i += row.Elements<TableCell>().Count();
+                            foreach (var cell in row.Elements<TableCell>())
+                            {
+                                var Decen = cell.Descendants<Highlight>();
+                                if (Decen.IsNullOrEmpty() || Decen.Any(h => h.Val != HighlightColorValues.Magenta))
+                                {
+                                    
+
+                                    
+                                  
+                                    ReplaceInnerText(cell, TrueValues[Iteration]);
+                                    
+                                    Iteration++;
+                                    
+                                }
+                            }
+                        }
+                        newElements.Add(item);
+                    }
+                    else
                     {
                         ///Change the text inside the item
-                        var textElement = item.Descendants().Where(x => x.LocalName == "t").First();
-                        textElement.Parent.InsertAfter( new Text(TrueValues[Iteration]), textElement);
-                        textElement.Remove();
+                        var runElement = item.Descendants<Run>().First();
+                        if (runElement == null)
+                        {
+                            continue;
+                        }
+                        ReplaceInnerText(runElement, TrueValues[Iteration]);
                         Iteration++;
                         newElements.Add(item);
                     }
 
-                    TemplateElement.Elements = newElements;
+                   
+
+
                 }
-                
 
-
-
+                TemplateElement.Elements = newElements;
             }
-            
+
+
 
             return template;
         }
 
+        private static void ReplaceInnerText(OpenXmlElement Element, string v)
+        {
+            if(Element is TableCell)
+            {
+                //remove all the runs in the cell
+                Element.Descendants<Run>().ToList().ForEach(x => x.Remove());
+                //add the new Run text
+                
+                Element.Append(new Run(new Text(v)));
+            }
+            else if(Element is Run)
+            {
+                //remove all the text in the run
+                Element.Descendants<Text>().ToList().ForEach(x => x.Remove());
+                //add the new text
+                //keep the commas and spaces
+                Element.Append(new Text(v));
+            }
+            else
+            {
+                //remove all the text in the run
+                Element.Parent.Descendants<Run>().ToList().ForEach(x => x.Remove());
+                //add the new text
+                //keep the commas and spaces
+                Element.Append(new Run(new Text(v)));
+            }
+          
+        }
 
         public static bool HasBulletPointDescendants(OpenXmlElement element)
         {
@@ -165,7 +234,7 @@ namespace DoucmentManagmentSys.Helpers.Word
             return false;
         }
 
-        
+
 
     }
 

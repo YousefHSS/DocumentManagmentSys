@@ -44,7 +44,7 @@ namespace DoucmentManagmentSys.Controllers
             _HistoryLogRepo = HistoryLogRepo;
             _ArchivedDocumentRepo = ArchivedDocumentRepo;
 
-            
+
         }
 
         public IActionResult Index(string Message, string Messages, string? SortBY)
@@ -55,7 +55,7 @@ namespace DoucmentManagmentSys.Controllers
 
             return View(SortBY != null ? OrderByProperty<PrimacyDocument>(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
         }
-        
+
         [HttpPost]
         [Authorize(Roles = "Uploader,Revisor")]
         public async Task<IActionResult> UploadFile(IFormFile oFile)
@@ -148,13 +148,13 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public  IActionResult Update(IFormFile oFile, int id)
+        public IActionResult Update(IFormFile oFile, int id)
         {
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
 
             if (result.Status)
             {
-                result =  UpdateToDB(id, oFile.FileName);
+                result = UpdateToDB(id, oFile.FileName);
             }
             ViewBag.Messages = result.Message;
 
@@ -195,20 +195,20 @@ namespace DoucmentManagmentSys.Controllers
         [HttpGet]
         [Authorize]
         //DN = Document Name, VR = Version, CA = Created At, UA = Updated At, SS = Status, UP = Updated By, DD = Downloaded BY
-        public IActionResult GSearch(string search,string? DN,string? VR, string? CA,string? UA, string? SS,string? UP, string? DD)
+        public IActionResult GSearch(string search, string? DN, string? VR, string? CA, string? UA, string? SS, string? UP, string? DD)
         {
             string[]? SSArray = SS?.Split(',');
             var DocumentInDb = _DocsRepo.Search(search, DN, VR, CA, UA, SSArray);
             var documentIds = DocumentInDb.Select(doc => doc.Id).ToList();
-            var currentUserName = PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name?? "").Result;
+            var currentUserName = PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name ?? "").Result;
 
             //UP show updated by me only from the history actions
             if (UP != null && UP == "on")
             {
-                var HistoryActions = _HistoryActionRepo.GetWhere(x=> (x.Action == HistoryAction.Updated && x.UserName == currentUserName),x=>x.historyLog).ToList();
+                var HistoryActions = _HistoryActionRepo.GetWhere(x => (x.Action == HistoryAction.Updated && x.UserName == currentUserName), x => x.historyLog).ToList();
                 var HistoryLogs2 = HistoryActions.Select(x => x.historyLog).ToList() ?? new List<HistoryLog>();
                 var documentIds2 = HistoryLogs2.Select(log => log.Document_id.Id).ToList() ?? new List<int>();
-                DocumentInDb = DocumentInDb.Where(doc=> documentIds2.Contains(doc.Id)).ToList();
+                DocumentInDb = DocumentInDb.Where(doc => documentIds2.Contains(doc.Id)).ToList();
             }
             //DD show downloaded by me only from the history actions
             if (DD != null && DD == "on")
@@ -240,12 +240,12 @@ namespace DoucmentManagmentSys.Controllers
 
 
                 //before approving and converting to pdf
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name??"").Result);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name ?? "").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
 
-                    wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
-                
-                
+                wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
+
+
 
                 Doc.Approve(_ArchivedDocumentRepo);
                 _DocsRepo.SaveChanges();
@@ -332,12 +332,12 @@ namespace DoucmentManagmentSys.Controllers
         {
             if (Destination != "Register")
             {
-                Destination="Login";
+                Destination = "Login";
             }
             return PartialView("_PlatformDecide", Destination);
         }
 
     }
 
-  
+
 }

@@ -23,17 +23,17 @@ namespace DoucmentManagmentSys.Controllers
 
 
 
-        public ArchivedDocumentsController( MainRepo<ArchivedDocument> archivedDocumentRepo)
+        public ArchivedDocumentsController(MainRepo<ArchivedDocument> archivedDocumentRepo)
         {
             _ArchivedDocumentRepo = archivedDocumentRepo;
         }
-       
+
 
         // GET: ArchivedDocuments
-        public  IActionResult Index()
+        public IActionResult Index()
         {
             // Ensure the Document is included
-            
+
             return View(_ArchivedDocumentRepo.GetAll());
         }
 
@@ -45,7 +45,7 @@ namespace DoucmentManagmentSys.Controllers
                 return NotFound();
             }
 
-            var archivedDocument =  _ArchivedDocumentRepo.Find(id);
+            var archivedDocument = _ArchivedDocumentRepo.Find(id);
             if (archivedDocument == null)
             {
                 return NotFound();
@@ -84,7 +84,7 @@ namespace DoucmentManagmentSys.Controllers
                 return NotFound();
             }
 
-            var archivedDocument =  _ArchivedDocumentRepo.Find(id);
+            var archivedDocument = _ArchivedDocumentRepo.Find(id);
             if (archivedDocument == null)
             {
                 return NotFound();
@@ -109,7 +109,7 @@ namespace DoucmentManagmentSys.Controllers
                 try
                 {
                     _ArchivedDocumentRepo.Update(archivedDocument);
-                     _ArchivedDocumentRepo.SaveChanges();
+                    _ArchivedDocumentRepo.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -150,13 +150,13 @@ namespace DoucmentManagmentSys.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var archivedDocument =  _ArchivedDocumentRepo.Find(id);
+            var archivedDocument = _ArchivedDocumentRepo.Find(id);
             if (archivedDocument != null)
             {
                 _ArchivedDocumentRepo.Delete(archivedDocument);
             }
 
-             _ArchivedDocumentRepo.SaveChanges();
+            _ArchivedDocumentRepo.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
 
@@ -197,10 +197,10 @@ namespace DoucmentManagmentSys.Controllers
 
                 if (version == "Latest")
                 {
-                  //get the latest version
+                    //get the latest version
                     version = document.Versions.OrderByDescending(v => v.Version).FirstOrDefault().Version;
                 }
-                return File( document.Versions.Where(v => v.Version == version).FirstOrDefault().Content , FileTypes.GetContentType(document.FileName + document.Extension), document.FileName + document.Extension);
+                return File(document.Versions.Where(v => v.Version == version).FirstOrDefault().Content, FileTypes.GetContentType(document.FileName + document.Extension), document.FileName + document.Extension);
             }
         }
 

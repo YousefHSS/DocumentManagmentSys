@@ -23,9 +23,6 @@ namespace DoucmentManagmentSys.Models
 
         public string FixedTitle { get; set; }
 
-        [NotMapped]
-        public int PlaceId { get; set; }
-
 
         public byte[] DefaultData { get; set; }
 
@@ -51,7 +48,8 @@ namespace DoucmentManagmentSys.Models
                         {
                             body.AppendChild(element.CloneNode(true));
                         }
-                        if ((!(element is Paragraph)) && (element is not Table)) {
+                        else if ((!(element is Paragraph)) && (element is not Table))
+                        {
                             //add a paragraph to the body if the element is not a paragraph
                             body.AppendChild(new Paragraph(element.CloneNode(true)));
                         }
@@ -59,7 +57,7 @@ namespace DoucmentManagmentSys.Models
                         {
                             body.AppendChild(element.CloneNode(true));
                         }
-                        
+
                     }
 
                     // Add the body to the main document part
@@ -68,7 +66,7 @@ namespace DoucmentManagmentSys.Models
                     // Save the document
                     document.Save();
                 }
-              
+
 
                 return memoryStream.ToArray();
             }
@@ -108,5 +106,5 @@ namespace DoucmentManagmentSys.Models
 
     }
 
-   
+
 }

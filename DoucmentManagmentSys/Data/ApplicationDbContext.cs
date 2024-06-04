@@ -23,7 +23,7 @@ namespace DoucmentManagmentSys.Data
 
         DbSet<ArchivedDocument> archivedDocuments { get; set; }
 
-        DbSet<ArchivedVersion> archivedVersions  { get; set; }
+        DbSet<ArchivedVersion> archivedVersions { get; set; }
 
         DbSet<DocumentTemplate> DocumentTemplates { get; set; }
 

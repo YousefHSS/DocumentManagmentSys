@@ -14,7 +14,7 @@ namespace DoucmentManagmentSys.Models
         public static async Task<string> GetCurrentUserName(SignInManager<PrimacyUser> userManager, string? email)
         {
 
-            
+
             var user = await userManager.UserManager.FindByEmailAsync(email);
             if (user != null)
             {

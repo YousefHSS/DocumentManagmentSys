@@ -30,7 +30,7 @@ namespace DoucmentManagmentSys.Repo
         {
             _context.Set<T>().AddRange(entities);
         }
-        
+
 
         public void Delete(T entity)
         {

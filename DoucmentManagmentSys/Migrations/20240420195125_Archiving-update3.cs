@@ -11,7 +11,7 @@ namespace DoucmentManagmentSys.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-           
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -86,7 +86,7 @@ namespace DoucmentManagmentSys.Migrations
                {
                    table.PrimaryKey("PK_archivedDocuments", x => x.Id);
                    //FK for filename and extension
-                   table.UniqueConstraint("UQ_archivedDocuments", x => new { x.FileName});
+                   table.UniqueConstraint("UQ_archivedDocuments", x => new { x.FileName });
 
                });
 

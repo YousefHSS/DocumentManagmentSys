@@ -26,12 +26,12 @@ function SaveDocument() {
 function PrepareDataForSubmit(form) {
     //get all ToBeJson elements
     var inputs = document.getElementsByClassName("ToBeJson");
-    //format the input as an array seperated by , as a string
+    //format the input as an array seperated by __SEP__ as a string
 
     var stringArray = "";
     for (var i = 0; i < inputs.length; i++) {
         if (i != 0) {
-            stringArray += ",";
+            stringArray += "__SEP__";
         }
         stringArray += inputs[i].value;
     }

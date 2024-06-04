@@ -131,7 +131,7 @@ namespace DoucmentManagmentSys.Areas.Identity.Pages.Account
                 //set First and Last name
                 user.Name = Input.FirstName;
                 user.Surname = Input.LastName;
-                 var result = await _userManager.CreateAsync(user, Input.Password);
+                var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {

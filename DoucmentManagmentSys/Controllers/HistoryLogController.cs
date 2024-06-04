@@ -26,14 +26,14 @@ namespace DoucmentManagmentSys.Controllers
         [Authorize]
         public IActionResult Index(string doc_name)
         {
-                        //get document by name
+            //get document by name
             var Document = _DocumentRepo.GetWhere(x => x.FileName == doc_name).FirstOrDefault();
 
             //get history log of document
             var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == Document).FirstOrDefault();
             //return view with history log
             //get all history actions with that log id
-            List<HistoryAction>? HistoryActions =null;
+            List<HistoryAction>? HistoryActions = null;
             if (historyLog != null)
             {
                 HistoryActions = _HistoryActionRepo.GetWhere(x => x.historyLog == historyLog).ToList();
@@ -43,7 +43,7 @@ namespace DoucmentManagmentSys.Controllers
             //return partial view
             return View(model: HistoryActions);
         }
-       
+
 
 
 

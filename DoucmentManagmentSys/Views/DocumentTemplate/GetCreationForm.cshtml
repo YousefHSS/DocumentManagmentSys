@@ -87,7 +87,7 @@
                 {
                     
                     @FixedTitle(TE.FixedTitle);
-                    Table table = TE.Elements.First() is Table ? TE.Elements.First() as Table : TE.Elements.First().Descendants<Table>().First();
+                    Table? table = TE.Elements.First() is Table ? TE.Elements.First() as Table : TE.Elements.First().Descendants<Table>().First();
                     @TableInputElement(table);
                 }
                 else
@@ -122,7 +122,7 @@
 
                         </div>
                             @* Display add strengh button *@
-                            <input type="button" class="btn btn-primary " onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
+                            <input type="button" class="btn btn-primary" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
                     }
                   
                 }

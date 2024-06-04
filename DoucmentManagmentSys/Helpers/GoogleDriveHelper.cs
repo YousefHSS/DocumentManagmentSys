@@ -11,14 +11,14 @@ namespace DoucmentManagmentSys.Helpers
         public GoogleDriveHelper()
         {
 
-          
+
         }
-        public  string UploadFileAndGetFileId(string FileName)
+        public string UploadFileAndGetFileId(string FileName)
         {
             GoogleCredential credential;
             using (var stream = new System.IO.FileStream("bin/Debug/primacypharmadms-152905541119.json", FileMode.Open, FileAccess.Read))
             {
-                credential= GoogleCredential.FromStream(stream).CreateScoped(DriveService.Scope.Drive);
+                credential = GoogleCredential.FromStream(stream).CreateScoped(DriveService.Scope.Drive);
 
                 // Create the service.
                 this.service = new DriveService(new BaseClientService.Initializer()
@@ -34,7 +34,7 @@ namespace DoucmentManagmentSys.Helpers
                 };
 
                 FilesResource.CreateMediaUpload request;
-                using (var stream2 = new System.IO.FileStream("wwwroot/Templates/"+FileName+".docx",
+                using (var stream2 = new System.IO.FileStream("wwwroot/Templates/" + FileName + ".docx",
                                         System.IO.FileMode.Open))
                 {
                     request = service.Files.Create(fileMetadata, stream2, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
