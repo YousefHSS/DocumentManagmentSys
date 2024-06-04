@@ -23,6 +23,9 @@ namespace DoucmentManagmentSys.Models
 
         public string FixedTitle { get; set; }
 
+        [NotMapped]
+        public int PlaceId { get; set; }
+
 
         public byte[] DefaultData { get; set; }
 

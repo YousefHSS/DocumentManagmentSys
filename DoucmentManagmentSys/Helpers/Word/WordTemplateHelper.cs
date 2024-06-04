@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DoucmentManagmentSys.Models;
+using Google.Apis.Drive.v3.Data;
 using iText.StyledXmlParser.Jsoup.Select;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -97,12 +98,28 @@ namespace DoucmentManagmentSys.Helpers.Word
             if (Page == 0)
             {
                 //get the ones with fixed title substance and strength
-                    var TemplateElements = template.TemplateElements.Where(x => x.FixedTitle == "Substance").First();
+                    var TemplateElements = template.TemplateElements.Where(x => x.FixedTitle == "Substance" || x.FixedTitle == "Strength").ToList();
 
-                TemplateElements.Elements = [new Paragraph(new Run(new Text(TrueValues[Iteration])))];
-                   
+                //loop for all template elements
+                foreach (var TemplateElement in TemplateElements)
+                {
+                    var newElements = new List<OpenXmlElement>();
+                    foreach (var item in TemplateElement.Elements)
+                    {
+                        ///Change the text inside the item
+                        var textElement = item.Descendants().Where(x => x.LocalName == "t").First();
+                        textElement.Parent.InsertAfter( new Text(TrueValues[Iteration]), textElement);
+                        textElement.Remove();
+                        Iteration++;
+                        newElements.Add(item);
+                    }
 
+                    TemplateElement.Elements = newElements;
+                }
                 
+
+
+
             }
             
 

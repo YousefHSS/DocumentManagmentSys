@@ -34,8 +34,8 @@ namespace DoucmentManagmentSys.Controllers
             return View(strings);
         }
         [HttpPost]
-        
-        public ActionResult GetCreationForm(string TemplateTitle, int? page,List<TemplateElement>? newTemplateElements,int? lastPage , string? ToBeJson)
+
+        public ActionResult GetCreationForm(string TemplateTitle, int? page, List<TemplateElement>? newTemplateElements, int? lastPage, string? ToBeJson)
         {
 
             //get from db the DocumentForm along with its TemplateElements
@@ -48,9 +48,9 @@ namespace DoucmentManagmentSys.Controllers
                 _DocumentTemplateRepo.Add(DocumentTemplate);
                 _DocumentTemplateRepo.SaveChanges();
             }
-            if(ToBeJson != null && lastPage != null)
+            if (ToBeJson != null && lastPage != null)
             {
-                DocumentTemplate = WordTemplateHelper.UpdateDocumentTemplate(DocumentTemplate, ToBeJson, lastPage-1);
+                DocumentTemplate = WordTemplateHelper.UpdateDocumentTemplate(DocumentTemplate, ToBeJson, lastPage - 1);
                 _DocumentTemplateRepo.SaveChanges();
             }
             var TemplateElements = DocumentTemplate.TemplateElements;
@@ -60,18 +60,18 @@ namespace DoucmentManagmentSys.Controllers
             if (page == 0)
             {
                 //get the ones with fixed title substance and strength
-                ListedElements=TemplateElements.Where(TE=>TE.FixedTitle == "Substance" || TE.FixedTitle == "Strength").ToList();
+                ListedElements = TemplateElements.Where(TE => TE.FixedTitle == "Substance" || TE.FixedTitle == "Strength").ToList();
             }
             else
             {
                 DocumentTemplate.PreProcessTemplateElements();
                 //remove the ones with fixed title substance and strength then get the rest as in pages from 2 onwards
                 var TemplateElements2 = TemplateElements.Where(TE => TE.FixedTitle != "Substance" && TE.FixedTitle != "Strength").ToList();
-                ListedElements = TemplateElements2.Skip((page.Value)-1).Take(1).ToList();
+                ListedElements = TemplateElements2.Skip((page.Value) - 1).Take(1).ToList();
             }
-            ViewBag.TotalPages = TemplateElements.Count-1;
+            ViewBag.TotalPages = TemplateElements.Count - 1;
             ViewBag.TemplateTitle = TemplateTitle;
-            ViewBag.CurrentPage = page.Value+ 1;
+            ViewBag.CurrentPage = page.Value + 1;
             return View("GetCreationForm", ListedElements);
         }
 
@@ -86,8 +86,10 @@ namespace DoucmentManagmentSys.Controllers
             DocumentTemplate = WordTemplateHelper.UpdateDocumentTemplate(DocumentTemplate, ToBeJson, lastPage - 1);
             _DocumentTemplateRepo.SaveChanges();
             //create a new primacy document from the template
-            AssayMethodValidationProtocolTemplate.ImportTemplateElements(DocumentTemplate.TemplateElements);
-            return View();
+            AssayMethodValidationProtocolTemplate.ImportTemplateElements(DocumentTemplate.TemplateElements.ToList());
+            //go to a new controller 
+            return RedirectToAction("Index", "Home");
 
         }
+    }
 }
