@@ -4,9 +4,11 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DoucmentManagmentSys.Models;
 using Google.Apis.Drive.v3.Data;
+using iText.StyledXmlParser.Jsoup.Nodes;
 using iText.StyledXmlParser.Jsoup.Select;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.IdentityModel.Tokens;
+using NPOI.POIFS.Properties;
 
 namespace DoucmentManagmentSys.Helpers.Word
 {
@@ -167,33 +169,32 @@ namespace DoucmentManagmentSys.Helpers.Word
             return template;
         }
 
-        private static void ReplaceInnerText(OpenXmlElement Element, string v)
+        private static void ReplaceInnerText(OpenXmlElement element, string newText)
         {
-            if(Element is TableCell)
+            // If the element is a TableCell, replace its inner text.
+            if (element is TableCell tableCell)
             {
-                //remove all the runs in the cell
-                Element.Descendants<Run>().ToList().ForEach(x => x.Remove());
-                //add the new Run text
-                
-                Element.Append(new Run(new Text(v)));
+                // Clear all existing paragraph elements.
+                tableCell.RemoveAllChildren<Paragraph>();
+
+                // Create a new paragraph with the new text.
+                Paragraph paragraph = new Paragraph(new Run(new Text(newText)));
+                tableCell.AppendChild(paragraph);
             }
-            else if(Element is Run)
+            // If the element is anything other than a Run, then do not process it.
+            else if (element is not Run)
             {
-                //remove all the text in the run
-                Element.Descendants<Text>().ToList().ForEach(x => x.Remove());
-                //add the new text
-                //keep the commas and spaces
-                Element.Append(new Text(v));
+                // Do nothing or log a message if needed.
             }
-            else
+            else // If the element is a Run, replace its text.
             {
-                //remove all the text in the run
-                Element.Parent.Descendants<Run>().ToList().ForEach(x => x.Remove());
-                //add the new text
-                //keep the commas and spaces
-                Element.Append(new Run(new Text(v)));
+                // Clear all existing text elements.
+                element.RemoveAllChildren<Text>();
+
+                // Add new text with the new text.
+                element.AppendChild(new Text(newText));
             }
-          
+
         }
 
         public static bool HasBulletPointDescendants(OpenXmlElement element)

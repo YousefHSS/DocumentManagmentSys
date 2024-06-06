@@ -2,16 +2,49 @@
 @using DocumentFormat.OpenXml.Wordprocessing;
 @using Microsoft.AspNetCore.Html
 @using DocumentFormat.OpenXml
+@using System.Text
+@using System.Web
 @{
     ViewData["Title"] = "Create Document";
 }
 @{
+   string ConstructHtmlFromElements(OpenXmlElement item)
+{
+    var resultHTML = new StringBuilder();
+    foreach (var element in item.Elements())
+    {
+        
+        switch (element)
+        {
+            case Paragraph paragraph:
+                
+                resultHTML.AppendLine("<li>");
+                foreach (var run in paragraph.Elements<Run>())
+                {
+                    foreach (var text in run.Elements<Text>())
+                    {
+                        resultHTML.Append(HttpUtility.HtmlEncode(text.Text));
+                    }
+                }
+                resultHTML.AppendLine("</li>");
+                break;
+            // Add cases for other types of elements you expect, like tables, images, etc.
+            // ...
+            default:
+                // Handle any elements that don't match the above cases
+                break;
+        }
+        
+    }
+    return resultHTML.ToString();
+}
+
     Func<OpenXmlElement, IHtmlContent> TextInputElement =
 
     @<div class="row">
                     <div class="col">
                         <div class="form-group m-1 p-1">
-                            <input type="text" class="form-control ToBeJson" id="TextInput" name="TextInput" value="@item.InnerText" />
+                            <input type="text" class="form-control ToBeJson TextInputElement" id="TextInput" name="TextInput" value="@item.InnerText" />
                         </div>
                     </div>
                  </div>
@@ -23,7 +56,7 @@
     @<div class="row">
                     <div class="col">
                         <div class="form-group m-1 p-1">
-                            <textarea type="text" class="form-control ToBeJson" id="TextArea" name="TextArea" >@item.InnerText</textarea>
+                            <textarea type="text" class="form-control ToBeJson TextAreaElement" id="TextArea" name="TextArea" >@item.InnerText</textarea>
                         </div>
                     </div>
                  </div>
@@ -57,11 +90,22 @@
                             //if the inner Text is big or multiline, it will be displayed as a text area
                             if (cell.InnerText.Contains(Environment.NewLine) || cell.InnerText.Length > 70)
                             {
-                                            <textarea class="form-control ToBeJson" rows="3">@cell.InnerText</textarea>
+                                //for each paragraph in the text, create a line break
+                                           
+                                          <div class="border-2" id="editor" class="editable" contenteditable="true">
+                                            <ul>
+                                              
+                                              @foreach (var paragraph in cell.Descendants<Paragraph>())
+                                              {
+                                                <li>@paragraph.InnerText</li>
+                                              }
+                                            </ul>
+                                          </div>
+                                            
                             }
                             else
                             {
-                                            <input type="text" class="form-control ToBeJson" value="@cell.InnerText" />
+                                            <input type="text" class="form-control ToBeJson TextInputElement" value="@cell.InnerText" />
                             }
                         
                         }

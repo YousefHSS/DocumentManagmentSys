@@ -1,5 +1,9 @@
 ﻿
-//
+document.addEventListener('DOMContentLoaded', function () {
+    const editor = document.getElementById('editor');
+
+});
+
 function AddStrengthInput() {
     //add to id strengths and a new input
     var strength = document.getElementById("strengths");
