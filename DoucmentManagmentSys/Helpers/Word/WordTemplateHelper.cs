@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Net;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -9,6 +10,7 @@ using iText.StyledXmlParser.Jsoup.Select;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.IdentityModel.Tokens;
 using NPOI.POIFS.Properties;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace DoucmentManagmentSys.Helpers.Word
 {
@@ -95,7 +97,11 @@ namespace DoucmentManagmentSys.Helpers.Word
 
         public static DocumentTemplate UpdateDocumentTemplate(DocumentTemplate template, string Values, int? Page)
         {
+            
+
             string[] TrueValues = Values.Split("__SEP__");
+            //remove last  element from the list
+            TrueValues = TrueValues.Take(TrueValues.Length - 1).ToArray();
             int Iteration = 0;
             var ListedElements = template.TemplateElements;
             if (Page == 0)
@@ -174,12 +180,44 @@ namespace DoucmentManagmentSys.Helpers.Word
             // If the element is a TableCell, replace its inner text.
             if (element is TableCell tableCell)
             {
-                // Clear all existing paragraph elements.
-                tableCell.RemoveAllChildren<Paragraph>();
+                if (newText.Contains("<ul>"))
+                {
+                    //create a paragraph foreach <li>
+                    //remove <ul> </ul>
+                    newText = newText.Replace("<ul>", "");
+                    newText = newText.Replace("</ul>", "");
+                    //html parser to parse each <li> </li>
+                    // Clear all existing paragraph elements.
+                    tableCell.RemoveAllChildren<Paragraph>();
+                    foreach (var item in newText.Split("<li>"))
+                    {
+                        Paragraph paragraph = new Paragraph(new Run(new Text(item.Replace("</li>", ""))));
+                        tableCell.AppendChild(paragraph);
+                    }
 
-                // Create a new paragraph with the new text.
-                Paragraph paragraph = new Paragraph(new Run(new Text(newText)));
-                tableCell.AppendChild(paragraph);
+                }
+                else if(newText.Contains("<p>"))
+                {
+                    newText = newText.Replace("<p>", "");
+                    newText = newText.Replace("</p>", "");
+                    // Clear all existing paragraph elements.
+                    tableCell.RemoveAllChildren<Paragraph>();
+
+                    // Create a new paragraph with the new text.
+                    Paragraph paragraph = new Paragraph(new Run(new Text(WebUtility.HtmlDecode(newText))));
+                    tableCell.AppendChild(paragraph);
+                }
+                else
+                {
+                    // Clear all existing paragraph elements.
+                    tableCell.RemoveAllChildren<Paragraph>();
+
+                    // Create a new paragraph with the new text.
+                    Paragraph paragraph = new Paragraph(new Run(new Text(WebUtility.HtmlDecode(newText))));
+                    tableCell.AppendChild(paragraph);
+                }
+
+
             }
             // If the element is anything other than a Run, then do not process it.
             else if (element is not Run)
@@ -188,11 +226,10 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
             else // If the element is a Run, replace its text.
             {
-                // Clear all existing text elements.
-                element.RemoveAllChildren<Text>();
-
-                // Add new text with the new text.
-                element.AppendChild(new Text(newText));
+                //rech the first paragraph parent of element
+                var paragraph = element.Ancestors<Paragraph>().FirstOrDefault();
+                paragraph.RemoveAllChildren<Run>();
+                paragraph.AppendChild(new Run(new Text(WebUtility.HtmlDecode(newText))));
             }
 
         }

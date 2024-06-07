@@ -8,6 +8,7 @@
     ViewData["Title"] = "Create Document";
 }
 @{
+   var Editorid=0;
    string ConstructHtmlFromElements(OpenXmlElement item)
 {
     var resultHTML = new StringBuilder();
@@ -74,46 +75,51 @@
 
     Func<Table, IHtmlContent> TableInputElement =
     @<table class="table-bordered border-3 table">
-                    @foreach (var row in @item.Elements<TableRow>())
+
+        @foreach (var row in @item.Elements<TableRow>())
         {
-                        <tr>
-                            @foreach (var cell in row.Elements<TableCell>())
+            
+            <tr>
+            
+                @foreach (var cell in row.Elements<TableCell>())
                 {
-                                <td>
-                                    @if (cell.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
+                    
+                    <td>
+                        @if (cell.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
                         {
                             // This is the header cell (left column)
-                                        @cell.InnerText
+                            @cell.InnerText
                         }
                         else
                         {
                             //if the inner Text is big or multiline, it will be displayed as a text area
-                            if (cell.InnerText.Contains(Environment.NewLine) || cell.InnerText.Length > 70)
-                            {
-                                //for each paragraph in the text, create a line break
-                                           
-                                          <div class="border-2" id="editor" class="editable" contenteditable="true">
-                                            <ul>
+                            <div class="border-dark editable border-2" id="@(Editorid++)"   contenteditable="true">
+                                @if (cell.Descendants<Paragraph>().Count()==1)
+                                {
+                                               
+                                    @cell.InnerText
+                                               
+                                }
+                                else
+                                {
+                                             
+                                    <ul>
                                               
-                                              @foreach (var paragraph in cell.Descendants<Paragraph>())
-                                              {
-                                                <li>@paragraph.InnerText</li>
-                                              }
-                                            </ul>
-                                          </div>
-                                            
-                            }
-                            else
-                            {
-                                            <input type="text" class="form-control ToBeJson TextInputElement" value="@cell.InnerText" />
-                            }
-                        
+                                        @foreach (var paragraph in cell.Descendants<Paragraph>())
+                                        {
+                                            <li>@paragraph.InnerText</li>
+                                        }
+                                    </ul>
+                                              
+                                }
+                            </div>
+                           
                         }
-                                </td>
+                    </td>
                 }
-                        </tr>
+            </tr>
         }
-                </table>;
+    </table>;
 
 
 }

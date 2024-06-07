@@ -27,23 +27,25 @@ function SaveDocument() {
     form.submit();
 }
 
-function PrepareDataForSubmit(form) {
-    //get all ToBeJson elements
-    var inputs = document.getElementsByClassName("ToBeJson");
-    //format the input as an array seperated by __SEP__ as a string
-
-    var stringArray = "";
-    for (var i = 0; i < inputs.length; i++) {
-        if (i != 0) {
-            stringArray += "__SEP__";
-        }
-        stringArray += inputs[i].value;
+function DecodeCKEDITORData() {
+    var stringArray ="";
+    for (var i in CKEDITOR.instances)
+    {
+        stringArray += CKEDITOR.instances[i].getData();
+        stringArray += "__SEP__";
     }
-    //ToBeJson form element injected
-    //create a new element
+    return stringArray;
+    
+    
+}
+
+function PrepareDataForSubmit(form) {
+    
+    //get all ToBeJson elements
+    
     var input = document.createElement("input");
     input.type = "hidden";
     input.name = "ToBeJson";
-    input.value = stringArray;
+    input.value = DecodeCKEDITORData();
     form.appendChild(input);
 }
