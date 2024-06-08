@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net;
+using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -101,7 +102,7 @@ namespace DoucmentManagmentSys.Helpers.Word
 
             string[] TrueValues = Values.Split("__SEP__");
             //remove last  element from the list
-            TrueValues = TrueValues.Take(TrueValues.Length - 1).ToArray();
+            TrueValues = TrueValues.Last() == "" ? TrueValues.Take(TrueValues.Length - 1).ToArray() : TrueValues;
             int Iteration = 0;
             var ListedElements = template.TemplateElements;
             if (Page == 0)
@@ -182,24 +183,33 @@ namespace DoucmentManagmentSys.Helpers.Word
             {
                 if (newText.Contains("<ul>"))
                 {
-                    //create a paragraph foreach <li>
-                    //remove <ul> </ul>
-                    newText = newText.Replace("<ul>", "");
-                    newText = newText.Replace("</ul>", "");
+                   
+                    newText = RemoveHtmlTags(newText, "ul");
                     //html parser to parse each <li> </li>
                     // Clear all existing paragraph elements.
+                    //we have to keep the extended attributes from the run before we replace it
+                    OpenXmlAttribute tempAttribute = element.Descendants<Run>().First().GetAttribute("ReplaceMe", "http://DMSNamespace");
                     tableCell.RemoveAllChildren<Paragraph>();
                     foreach (var item in newText.Split("<li>"))
                     {
-                        Paragraph paragraph = new Paragraph(new Run(new Text(item.Replace("</li>", ""))));
-                        tableCell.AppendChild(paragraph);
+                        if (item != "")
+                        {
+                            //add the attribute to the run
+                            Paragraph paragraph = new Paragraph(new Run(new Text(
+                                WebUtility.HtmlDecode(
+                                    item.Replace("</li>", "")
+                                    )
+                                )));
+                            tableCell.AppendChild(paragraph);
+                        }
+                       
                     }
 
                 }
-                else if(newText.Contains("<p>"))
+                else 
                 {
-                    newText = newText.Replace("<p>", "");
-                    newText = newText.Replace("</p>", "");
+                    
+                    newText = RemoveHtmlTags(newText);
                     // Clear all existing paragraph elements.
                     tableCell.RemoveAllChildren<Paragraph>();
 
@@ -207,29 +217,32 @@ namespace DoucmentManagmentSys.Helpers.Word
                     Paragraph paragraph = new Paragraph(new Run(new Text(WebUtility.HtmlDecode(newText))));
                     tableCell.AppendChild(paragraph);
                 }
-                else
-                {
-                    // Clear all existing paragraph elements.
-                    tableCell.RemoveAllChildren<Paragraph>();
-
-                    // Create a new paragraph with the new text.
-                    Paragraph paragraph = new Paragraph(new Run(new Text(WebUtility.HtmlDecode(newText))));
-                    tableCell.AppendChild(paragraph);
-                }
+               
 
 
-            }
-            // If the element is anything other than a Run, then do not process it.
-            else if (element is not Run)
-            {
-                // Do nothing or log a message if needed.
             }
             else // If the element is a Run, replace its text.
             {
                 //rech the first paragraph parent of element
+                newText = RemoveHtmlTags(newText);
+                //get attribute from element
+                OpenXmlAttribute tempAttribute = new OpenXmlAttribute();
+                try
+                {
+                     tempAttribute = element.GetAttribute("ReplaceMe", "http://DMSNamespace");
+                }
+                catch (Exception)
+                {
+
+                    //that means the parent paragraph has the attribute
+                     tempAttribute = element.Ancestors<Paragraph>().First().GetAttribute("ReplaceMe", "http://DMSNamespace");
+                }
+                
                 var paragraph = element.Ancestors<Paragraph>().FirstOrDefault();
                 paragraph.RemoveAllChildren<Run>();
+                //add attribute to the run
                 paragraph.AppendChild(new Run(new Text(WebUtility.HtmlDecode(newText))));
+                paragraph.Descendants<Run>().First().SetAttribute(tempAttribute);
             }
 
         }
@@ -270,6 +283,11 @@ namespace DoucmentManagmentSys.Helpers.Word
 
             // If no bullet points are found in the descendants
             return false;
+        }
+
+        public static string RemoveHtmlTags(string input , string? tag = null)
+        {
+            return Regex.Replace(input, tag==null?"<.*?>":$"<{tag}>|</{tag}>", string.Empty);
         }
 
 

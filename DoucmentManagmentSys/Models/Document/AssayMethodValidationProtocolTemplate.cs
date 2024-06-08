@@ -44,13 +44,13 @@ namespace DoucmentManagmentSys.Models
                         if (WordTemplateHelper.HasBulletPointDescendants(TopLevelParagraph))
                         {
                             //get each run inside an element and addd them to the same Template Element
-                            var runsToAdd = TopLevelParagraph.Descendants<Paragraph>().ToList();
-                            runsToAdd.ForEach(x => SetMarker(ref ReplaceMeAttribute, x));
+                            var ParagraphsToAdd = TopLevelParagraph.Descendants<Paragraph>().ToList();
+                            ParagraphsToAdd.ForEach(x => SetMarker(ref ReplaceMeAttribute, x));
                             //runsToAdd.Prepend(TopLevelParagraph);
                             highlightedRuns.Add(new TemplateElement
                             {
                                 FixedTitle = PrevSibling?.InnerText ?? "This is a test Text",
-                                Elements = runsToAdd.Cast<OpenXmlElement>().ToList()
+                                Elements = ParagraphsToAdd.Cast<OpenXmlElement>().ToList()
 
                             });
                             continue;
