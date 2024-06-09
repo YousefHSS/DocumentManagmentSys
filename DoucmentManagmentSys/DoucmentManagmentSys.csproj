@@ -29,6 +29,7 @@
 		<PackageReference Include="FreeSpire.Doc" Version="12.2.0" />
 		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
 		<PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3373" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
 		<PackageReference Include="itext7" Version="8.0.3" />
 		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.3" />
 		<PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
@@ -161,6 +162,41 @@
 	  <None Include="wwwroot\js\ckeditor\skins\moono-lisa\readme.md" />
 	  <None Include="wwwroot\js\ckeditor\styles.js" />
 	  <None Include="wwwroot\js\ckeditor\vendor\promise.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\adapters\jquery.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\build-config.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\CHANGES.md" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\ckeditor.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\config.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\lang\ar.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\lang\en.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\LICENSE.md" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\plugins\about\dialogs\about.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\plugins\clipboard\dialogs\paste.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\plugins\dialog\dialogDefinition.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\plugins\link\dialogs\anchor.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\plugins\link\dialogs\link.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\README.md" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\img\logo.svg" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\js\sample.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\js\sf.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\old\assets\posteddata.php" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\old\assets\uilanguages\languages.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\old\dialog\assets\my_dialog.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\old\sample.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\old\sample_posteddata.php" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\font\fontello.svg" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\js\abstracttoolbarmodifier.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\js\fulltoolbareditor.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\js\toolbarmodifier.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\js\toolbartextmodifier.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\lib\codemirror\codemirror.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\lib\codemirror\javascript.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\lib\codemirror\LICENSE" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\samples\toolbarconfigurator\lib\codemirror\show-hint.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\SECURITY.md" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\skins\moono-lisa\readme.md" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\styles.js" />
+	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\vendor\promise.js" />
 	  <None Include="wwwroot\js\ckeditor_4.22.1_31058c36e14d\ckeditor\adapters\jquery.js" />
 	  <None Include="wwwroot\js\ckeditor_4.22.1_31058c36e14d\ckeditor\build-config.js" />
 	  <None Include="wwwroot\js\ckeditor_4.22.1_31058c36e14d\ckeditor\CHANGES.md" />

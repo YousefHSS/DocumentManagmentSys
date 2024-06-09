@@ -1,5 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
+using HtmlAgilityPack;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -16,6 +18,11 @@ namespace DoucmentManagmentSys.Helpers.Word
             //now we have parse each tag top-down
             if (CKTopLevelElement.Contains("ul"))
             {
+                //create a numbering level
+                NumberingProperties numberingProperties = new NumberingProperties(
+                new NumberingLevelReference() { Val = 0 },
+                new NumberingId() { Val = 1 }
+                );
                 var newText = WordTemplateHelper.RemoveHtmlTags(CK, "ul");
                 //we have to parse each <li> </li>
                 foreach (var item in newText.Split("<li>"))
@@ -24,7 +31,11 @@ namespace DoucmentManagmentSys.Helpers.Word
                     {
                         var MidLevelElement = item.Replace("</li>", "");
                         //the result paragraph must be have a bullet point property
-                        var LowerLevelElement = 
+                        var LowerLevelElement = ConstructLowLevelElement(MidLevelElement);
+                        //create a new paragraph with bullet point property
+                        var paragraph = new Paragraph(LowerLevelElement);
+                        paragraph.Append(new ParagraphProperties(new NumberingProperties(NumberingLevel)));
+                        Result.Add(paragraph);
                     }
 
                 }
@@ -32,13 +43,16 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
             else if(CKTopLevelElement.Contains("p"))
             {
+                var MidLevelElement = WordTemplateHelper.RemoveHtmlTags(CKTopLevelElement, "p");
+                var LowerLevelElement = ConstructLowLevelElement(MidLevelElement); 
+                Result.Add(LowerLevelElement);
                 
             }
             else
             {
                 throw new Exception("Unconvertable CK Element:" + CKTopLevelElement);
             }
-
+            return Result;
         }
         public static string ExtractFirstTag(string HTML)
         {
@@ -60,18 +74,43 @@ namespace DoucmentManagmentSys.Helpers.Word
                 
                 HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "strong");
             }
-            if (HTML.Contains("i"))
+            if (HTML.Contains("em"))
             {
                 // Create new run properties
                 var italics = new Italic(); // Create a new italics property
 
                 runProperties.Append(italics); // Add the italics property to the run properties
                 
-                HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "i");
+                HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "em");
                 
             }
+            if (HTML.Contains("span"))
+            {
+
+                
+                string startSeq = "font-size:";
+                string endSeq = "px";
+
+                string pattern = $"{Regex.Escape(startSeq)}(.*?){Regex.Escape(endSeq)}";
+
+                Match match = Regex.Match(HTML, pattern);
+                string extractedString ="16";
+                if (match.Success)
+                {
+                    extractedString = match.Groups[1].Value;
+                    Console.WriteLine($"Extracted string: {extractedString}");
+                }
+                else
+                {
+                    Console.WriteLine("String not found between the specified sequences.");
+                }
+
+                
+                runProperties.FontSize = new FontSize() { Val = extractedString };
+                HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "span");
+            }
             run.Append(runProperties);
-            run.Append(new Text(HTML));
+            run.Append(new Text(WebUtility.HtmlDecode(HTML)));
             return run;
         }
     }

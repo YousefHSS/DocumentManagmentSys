@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
@@ -141,7 +142,7 @@ namespace DoucmentManagmentSys.Helpers.Word
 
                                     
                                   
-                                    ReplaceInnerText(cell, TrueValues[Iteration]);
+                                    ReplaceElement(cell, TrueValues[Iteration]);
                                     
                                     Iteration++;
                                     
@@ -158,7 +159,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                         {
                             continue;
                         }
-                        ReplaceInnerText(runElement, TrueValues[Iteration]);
+                        ReplaceElement(runElement, TrueValues[Iteration]);
                         Iteration++;
                         newElements.Add(item);
                     }
@@ -176,75 +177,51 @@ namespace DoucmentManagmentSys.Helpers.Word
             return template;
         }
 
-        private static void ReplaceInnerText(OpenXmlElement element, string newText)
+        private static void ReplaceElement(OpenXmlElement element, string newText)
         {
-            // If the element is a TableCell, replace its inner text.
-            if (element is TableCell tableCell)
+           
+            var NewElement = CKXMLHelper.FromCKToXML(newText);
+            //replace all the paragrahps 
+            var Parent = element.Parent;
+            var ReplaceMe = new OpenXmlAttribute();
+            //if the element is table cell 
+            //before Removing We must save their ReplaceMe Attributes in a list to set it to the new elements
+            ReplaceMe = GetReplaceMarkers(element);
+           
+            if (element is TableCell)
             {
-                if (newText.Contains("<ul>"))
-                {
-                   
-                    newText = RemoveHtmlTags(newText, "ul");
-                    //html parser to parse each <li> </li>
-                    // Clear all existing paragraph elements.
-                    //we have to keep the extended attributes from the run before we replace it
-                    OpenXmlAttribute tempAttribute = element.Descendants<Run>().First().GetAttribute("ReplaceMe", "http://DMSNamespace");
-                    tableCell.RemoveAllChildren<Paragraph>();
-                    foreach (var item in newText.Split("<li>"))
-                    {
-                        if (item != "")
-                        {
-                            //add the attribute to the run
-                            Paragraph paragraph = new Paragraph(new Run(new Text(
-                                WebUtility.HtmlDecode(
-                                    item.Replace("</li>", "")
-                                    )
-                                )));
-                            tableCell.AppendChild(paragraph);
-                        }
-                       
-                    }
-
-                }
-                else 
-                {
-                    
-                    newText = RemoveHtmlTags(newText);
-                    // Clear all existing paragraph elements.
-                    tableCell.RemoveAllChildren<Paragraph>();
-
-                    // Create a new paragraph with the new text.
-                    Paragraph paragraph = new Paragraph(new Run(new Text(WebUtility.HtmlDecode(newText))));
-                    tableCell.AppendChild(paragraph);
-                }
-               
-
-
+                Parent.RemoveAllChildren<Paragraph>();
             }
-            else // If the element is a Run, replace its text.
+            else
             {
-                //rech the first paragraph parent of element
-                newText = RemoveHtmlTags(newText);
-                //get attribute from element
-                OpenXmlAttribute tempAttribute = new OpenXmlAttribute();
-                try
+                Parent.RemoveAllChildren<Run>();
+            }
+            foreach (var item in NewElement)
+            {
+                if (ReplaceMe.LocalName != null)
                 {
-                     tempAttribute = element.GetAttribute("ReplaceMe", "http://DMSNamespace");
+                    item.SetAttribute(ReplaceMe);
                 }
-                catch (Exception)
-                {
 
-                    //that means the parent paragraph has the attribute
-                     tempAttribute = element.Ancestors<Paragraph>().First().GetAttribute("ReplaceMe", "http://DMSNamespace");
-                }
-                
-                var paragraph = element.Ancestors<Paragraph>().FirstOrDefault();
-                paragraph.RemoveAllChildren<Run>();
-                //add attribute to the run
-                paragraph.AppendChild(new Run(new Text(WebUtility.HtmlDecode(newText))));
-                paragraph.Descendants<Run>().First().SetAttribute(tempAttribute);
+                Parent.Append(item);
             }
 
+        }
+
+        public static OpenXmlAttribute GetReplaceMarkers(OpenXmlElement item)
+        {
+            OpenXmlAttribute Result = new OpenXmlAttribute();
+           
+                //iterate through Ancestors 
+            if (item.GetAttributes().Any(y => y.LocalName == "ReplaceMe"))
+            {
+                Result = item.GetAttributes().Where(x => x.LocalName == "ReplaceMe").FirstOrDefault();
+            }
+           
+           
+            return Result;
+            
+            
         }
 
         public static bool HasBulletPointDescendants(OpenXmlElement element)
@@ -287,7 +264,8 @@ namespace DoucmentManagmentSys.Helpers.Word
 
         public static string RemoveHtmlTags(string input , string? tag = null)
         {
-            return Regex.Replace(input, tag==null?"<.*?>":$"<{tag}>|</{tag}>", string.Empty);
+            string pattern = tag == null ? "<.*?>" : $"<{tag}.*?>|</{tag}>";
+            return Regex.Replace(input, pattern, string.Empty, RegexOptions.IgnoreCase);
         }
 
 
