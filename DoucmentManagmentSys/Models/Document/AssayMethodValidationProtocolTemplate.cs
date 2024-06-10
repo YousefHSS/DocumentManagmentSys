@@ -233,18 +233,8 @@ namespace DoucmentManagmentSys.Models
                     }
                     else
                     {
-                        //if the runs inside the yellow hulight are bullet points then add each bullet point to the list separately
-                        if (WordTemplateHelper.HasBulletPointDescendants(TopLevelParagraph))
-                        {
-                            //get each run inside an element and addd them to the same Template Element
-                            var runsToAdd = TopLevelParagraph.Descendants<Paragraph>().ToList();
-                            //runsToAdd.Prepend(TopLevelParagraph);
-                            runsToAdd.ForEach(x => SetMarker(ref ReplaceMeAttribute, x));
-                            //add attribute then increse id then set it to attribute
-                            ElementsReplacedFromDoc.Add(runsToAdd.Cast<OpenXmlElement>().ToList());
-                            continue;
-                        }
 
+                        SetMarker(ref ReplaceMeAttribute, TopLevelParagraph);
                         ElementsReplacedFromDoc.Add([TopLevelParagraph]);
                     }
 

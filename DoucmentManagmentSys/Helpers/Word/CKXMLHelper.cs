@@ -34,7 +34,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                         var LowerLevelElement = ConstructLowLevelElement(MidLevelElement);
                         //create a new paragraph with bullet point property
                         var paragraph = new Paragraph(LowerLevelElement);
-                        paragraph.Append(new ParagraphProperties(new NumberingProperties(NumberingLevel)));
+                        paragraph.Append(new ParagraphProperties(numberingProperties));
                         Result.Add(paragraph);
                     }
 
