@@ -268,6 +268,12 @@ namespace DoucmentManagmentSys.Helpers.Word
             return Regex.Replace(input, pattern, string.Empty, RegexOptions.IgnoreCase);
         }
 
+        public static bool ContainsHtmlTags(string input, string? tag = null)
+        {
+            string pattern = tag == null ? "<.*?>" : $"<{tag}.*?>|</{tag}>";
+            return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
+        }
+
 
 
     }

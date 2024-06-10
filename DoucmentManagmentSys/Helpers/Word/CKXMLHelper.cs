@@ -16,13 +16,9 @@ namespace DoucmentManagmentSys.Helpers.Word
             //this function should take the first CKELEMENT only
             var CKTopLevelElement = ExtractFirstTag(CK);
             //now we have parse each tag top-down
-            if (CKTopLevelElement.Contains("ul"))
+            if (WordTemplateHelper.ContainsHtmlTags(CKTopLevelElement, "ul"))
             {
-                //create a numbering level
-                NumberingProperties numberingProperties = new NumberingProperties(
-                new NumberingLevelReference() { Val = 0 },
-                new NumberingId() { Val = 1 }
-                );
+
                 var newText = WordTemplateHelper.RemoveHtmlTags(CK, "ul");
                 //we have to parse each <li> </li>
                 foreach (var item in newText.Split("<li>"))
@@ -34,6 +30,11 @@ namespace DoucmentManagmentSys.Helpers.Word
                         var LowerLevelElement = ConstructLowLevelElement(MidLevelElement);
                         //create a new paragraph with bullet point property
                         var paragraph = new Paragraph(LowerLevelElement);
+                        //create a numbering level
+                        NumberingProperties numberingProperties = new NumberingProperties(
+                        new NumberingLevelReference() { Val = 0 },
+                        new NumberingId() { Val = 1 }
+                        );
                         paragraph.Append(new ParagraphProperties(numberingProperties));
                         Result.Add(paragraph);
                     }
@@ -41,7 +42,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                 }
 
             }
-            else if(CKTopLevelElement.Contains("p"))
+            else if(WordTemplateHelper.ContainsHtmlTags(CKTopLevelElement, "p"))
             {
                 var MidLevelElement = WordTemplateHelper.RemoveHtmlTags(CKTopLevelElement, "p");
                 var LowerLevelElement = ConstructLowLevelElement(MidLevelElement); 
@@ -65,7 +66,7 @@ namespace DoucmentManagmentSys.Helpers.Word
             //if there is i tag then the Run must have an italics property
             var run = new Run();
             var runProperties = new RunProperties();
-            if (HTML.Contains("strong"))
+            if (WordTemplateHelper.ContainsHtmlTags(HTML, "strong"))
             {
                  // Create new run properties
                 var bold = new Bold(); // Create a new bold property
@@ -74,7 +75,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                 
                 HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "strong");
             }
-            if (HTML.Contains("em"))
+            if (WordTemplateHelper.ContainsHtmlTags(HTML, "em"))
             {
                 // Create new run properties
                 var italics = new Italic(); // Create a new italics property
@@ -84,7 +85,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                 HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "em");
                 
             }
-            if (HTML.Contains("span"))
+            if (WordTemplateHelper.ContainsHtmlTags(HTML, "span"))
             {
 
                 
@@ -94,10 +95,12 @@ namespace DoucmentManagmentSys.Helpers.Word
                 string pattern = $"{Regex.Escape(startSeq)}(.*?){Regex.Escape(endSeq)}";
 
                 Match match = Regex.Match(HTML, pattern);
-                string extractedString ="16";
+                string extractedString = "28";
                 if (match.Success)
                 {
                     extractedString = match.Groups[1].Value;
+                    int adjustedFontSize = int.Parse(extractedString) + 12;
+                    extractedString = adjustedFontSize.ToString();
                     Console.WriteLine($"Extracted string: {extractedString}");
                 }
                 else

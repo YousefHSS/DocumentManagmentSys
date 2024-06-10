@@ -25,8 +25,8 @@
                 {
                     innerText = new HtmlContentBuilder().AppendHtml("<em>").AppendHtml(innerText).AppendHtml("</em>");
                 }
-                
-                    innerText = new HtmlContentBuilder().AppendHtml("<span style='font-size:" + (run.RunProperties.FontSize?.Val ?? "16") + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
+                    var AdjustedFontsize = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
+                    innerText = new HtmlContentBuilder().AppendHtml("<span style='font-size:" + (AdjustedFontsize.ToString()) + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
 
                 
             }
