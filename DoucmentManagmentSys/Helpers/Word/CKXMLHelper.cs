@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HtmlAgilityPack;
+using Org.BouncyCastle.Asn1.Cms;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -15,6 +16,9 @@ namespace DoucmentManagmentSys.Helpers.Word
             var Result = new List<OpenXmlElement>();
             //this function should take the first CKELEMENT only
             var CKTopLevelElement = ExtractFirstTag(CK);
+            //id = timestamp
+            int timestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            
             //now we have parse each tag top-down
             if (WordTemplateHelper.ContainsHtmlTags(CKTopLevelElement, "ul"))
             {
@@ -33,7 +37,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                         //create a numbering level
                         NumberingProperties numberingProperties = new NumberingProperties(
                         new NumberingLevelReference() { Val = 0 },
-                        new NumberingId() { Val = 1 }
+                        new NumberingId() { Val = 23 }
                         );
                         paragraph.Append(new ParagraphProperties(numberingProperties));
                         Result.Add(paragraph);

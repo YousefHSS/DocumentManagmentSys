@@ -120,7 +120,7 @@ namespace DoucmentManagmentSys.Helpers.Word
 
             }
 
-            //loop for all template elements
+            //loop for all template elementss
             foreach (var TemplateElement in ListedElements)
             {
                 var newElements = new List<OpenXmlElement>();
@@ -188,9 +188,17 @@ namespace DoucmentManagmentSys.Helpers.Word
             //before Removing We must save their ReplaceMe Attributes in a list to set it to the new elements
             ReplaceMe = GetReplaceMarkers(element);
            
-            if (element is TableCell)
+            if (element is TableCell && NewElement.Count<=1)
             {
-                Parent.RemoveAllChildren<Paragraph>();
+
+                
+                Parent= element.Descendants<Paragraph>().FirstOrDefault();
+                Parent.RemoveAllChildren<Run>();
+            }
+            else if(element is TableCell && NewElement.Count > 1)
+            {
+                element.RemoveAllChildren<Paragraph>();
+                Parent = element;
             }
             else
             {
@@ -217,8 +225,27 @@ namespace DoucmentManagmentSys.Helpers.Word
             {
                 Result = item.GetAttributes().Where(x => x.LocalName == "ReplaceMe").FirstOrDefault();
             }
-           
-           
+            else if (item.Ancestors().Any(A=> (A is not Body) && A.GetAttributes().Any(y=> y.LocalName=="ReplaceMe")))
+            {
+                foreach (var ancestor in item.Ancestors())
+                {
+                    // Skip if the ancestor is a Body element
+                    if (ancestor is Body)
+                    {
+                        break;
+                    }
+
+                    // Check if the ancestor has the "ReplaceMe" attribute
+                    var replaceMeAttribute = ancestor.GetAttributes().FirstOrDefault(attr => attr.LocalName == "ReplaceMe");
+                    if (replaceMeAttribute != null)
+                    {
+                        Result = replaceMeAttribute;
+                        break;
+                    }
+                }
+            }
+
+
             return Result;
             
             
