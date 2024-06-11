@@ -211,7 +211,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                     item.SetAttribute(ReplaceMe);
                 }
 
-                Parent.Append(item);
+                Parent.Append(item.CloneNode(true));
             }
 
         }

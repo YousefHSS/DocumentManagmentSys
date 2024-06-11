@@ -152,11 +152,18 @@ namespace DoucmentManagmentSys.Models
                 IEnumerable<Run> runs = DocClone.MainDocumentPart.Document.Body.Descendants<Run>().Where(r => r.Descendants<Highlight>().Any());
                 //get direct child elements of body that have runs from the retrieved runs
                 List<OpenXmlElement> TopLevelParagraphs = DocClone.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y))).ToList();
+                // Create a new XML file
 
 
                 ImportingAlgorithm(TopLevelParagraphs, TemplateElements);
                 DocClone.Save();
-
+                using (StreamWriter sw = new StreamWriter("wwwroot/Templates/" + "Assay Method Validation Protocol6" + ".xml"))
+                {
+                    using (XmlWriter xw = XmlWriter.Create(sw))
+                    {
+                        DocClone.MainDocumentPart.Document.WriteTo(xw);
+                    }
+                }
             }
 
 

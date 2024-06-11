@@ -33,13 +33,21 @@ namespace DoucmentManagmentSys.Helpers.Word
                         //the result paragraph must be have a bullet point property
                         var LowerLevelElement = ConstructLowLevelElement(MidLevelElement);
                         //create a new paragraph with bullet point property
-                        var paragraph = new Paragraph(LowerLevelElement);
+                        var paragraph = new Paragraph();
                         //create a numbering level
-                        NumberingProperties numberingProperties = new NumberingProperties(
-                        new NumberingLevelReference() { Val = 0 },
-                        new NumberingId() { Val = 23 }
+                        ParagraphProperties paragraphProperties = new ParagraphProperties(
+                            new ParagraphStyleId() { Val = "ListParagraph" }
+                            ,
+                            new NumberingProperties(
+                                new NumberingLevelReference() { Val = 0 },
+                                new NumberingId() { Val = 23 }
+                            ),
+                            // Set the indentation for the paragraph (e.g., 720 twips for 0.5 inch)
+                            new Indentation() { Left = "360" }
                         );
-                        paragraph.Append(new ParagraphProperties(numberingProperties));
+                        paragraph.ParagraphProperties= paragraphProperties;
+                        
+                        paragraph.Append(LowerLevelElement);
                         Result.Add(paragraph);
                     }
 
