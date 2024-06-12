@@ -26,7 +26,7 @@ namespace DoucmentManagmentSys.Models
             foreach (var TopLevelParagraph in TopLevelParagraphs)
             {
 
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Yellow))
+                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && (h.Val == HighlightColorValues.Yellow || h.Val == HighlightColorValues.DarkMagenta)))
                 {
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));

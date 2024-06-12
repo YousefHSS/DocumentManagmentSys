@@ -1,6 +1,15 @@
 ﻿
 document.addEventListener('DOMContentLoaded', function () {
     const editor = document.getElementById('editor');
+    //get elements that have the contenteditable attribute
+    const toBeBlock = document.querySelectorAll('[contenteditable="false"]');
+    
+    for (var i = 0; i < toBeBlock.length; i++) {
+        //add background color gainsboro
+        toBeBlock[i].style.backgroundColor = "gainsboro";
+    }
+
+
 
 });
 

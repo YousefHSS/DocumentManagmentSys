@@ -31,4 +31,13 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Dialog windows are also simplified.
 	config.removeDialogTabs = 'link:advanced';
+
+	config.allowedContent = {
+		'span': {
+			attributes: 'contenteditable,!style',
+			styles: 'background-color'
+		},
+		
+	};
+
 };

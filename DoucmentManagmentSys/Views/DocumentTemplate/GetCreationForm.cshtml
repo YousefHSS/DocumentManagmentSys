@@ -25,13 +25,15 @@
                 {
                     innerText = new HtmlContentBuilder().AppendHtml("<em>").AppendHtml(innerText).AppendHtml("</em>");
                 }
-                    var AdjustedFontsize = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
-                    innerText = new HtmlContentBuilder().AppendHtml("<span style='font-size:" + (AdjustedFontsize.ToString()) + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
+                var AdjustedFontsize = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
+                innerText = new HtmlContentBuilder().AppendHtml("<span "+ ((run.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.DarkMagenta)? " contenteditable='false'   ":" contenteditable='true' " )+" style='font-size:") + (AdjustedFontsize.ToString()) + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
 
-                
+
             }
-                contentBuilder.AppendHtml(innerText);
-            }
+           
+            contentBuilder.AppendHtml(innerText);
+        }
+
             return contentBuilder;
        
     };
