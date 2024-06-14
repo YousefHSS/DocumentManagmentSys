@@ -35,7 +35,8 @@ CKEDITOR.editorConfig = function( config ) {
 	config.allowedContent = {
 		'span': {
 			attributes: 'contenteditable,!style',
-			styles: 'background-color'
+			styles: 'background-color,padding-left,padding-right,border-top-left-radius,border-top-right-radius,border-bottom-left-radius,border-bottom-right-radius',
+			classes: 'NonEditable'
 		},
 		
 	};

@@ -26,7 +26,7 @@
                     innerText = new HtmlContentBuilder().AppendHtml("<em>").AppendHtml(innerText).AppendHtml("</em>");
                 }
                 var AdjustedFontsize = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
-                innerText = new HtmlContentBuilder().AppendHtml("<span "+ ((run.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.DarkMagenta)? " contenteditable='false'   ":" contenteditable='true' " )+" style='font-size:") + (AdjustedFontsize.ToString()) + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
+                innerText = new HtmlContentBuilder().AppendHtml("<span "+ ((run.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.DarkMagenta)? " contenteditable='false' class='NonEditable'   ":" contenteditable='true' " )+" style='font-size:") + (AdjustedFontsize.ToString()) + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
 
 
             }
@@ -38,7 +38,7 @@
        
     };
     Func<OpenXmlElement, IHtmlContent> Editor =
-    @<div class="editable p-2 rounded-1 border-1 m-1 border" id="@(Editorid++)"   contenteditable="true">
+    @<div class="editable p-2-ni rounded-1 border-1 m-1 border" id="@(Editorid++)"   contenteditable="true">
         @if (item.Descendants<Paragraph>().Count()<=1)
         {   
             
@@ -100,6 +100,8 @@
 
 
 }
+@* //css file ref *@
+<link rel="stylesheet" href="~/css/CKEDITOR.css" />
 <form method="Post" asp-action="GetCreationForm" id="documentForm">
     <div id="paginationContent" class="d-flex justify-content-center">
         <input type="hidden" id="TemplateTitle" name="TemplateTitle" value="@ViewBag.TemplateTitle" />

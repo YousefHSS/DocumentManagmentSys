@@ -1,17 +1,47 @@
 ﻿
 document.addEventListener('DOMContentLoaded', function () {
     const editor = document.getElementById('editor');
-    //get elements that have the contenteditable attribute
-    const toBeBlock = document.querySelectorAll('[contenteditable="false"]');
-    
-    for (var i = 0; i < toBeBlock.length; i++) {
-        //add background color gainsboro
-        toBeBlock[i].style.backgroundColor = "gainsboro";
-    }
+
+
+    style_CK_block();
 
 
 
 });
+
+
+function style_CK_block() {
+    /*get the editor instance that you want to interact with.*/
+    //get all editor instances
+    const editors = document.querySelectorAll('.editable');
+    for (var i = 0; i < editors.length; i++) {
+        //in each editor get each span element
+        const spans = editors[i].querySelectorAll('span');
+        for (var j = 0; j < spans.length; j++) {
+            //if the first span has contenteditable="false" change padding left to 0 important and set important
+            if (j==0&&spans[j].getAttribute('contenteditable') == "false") {
+                editors[i].style.paddingLeft = "0";
+                //style the span with border radius top left .2rem and bottom left .2rem
+                spans[j].style.borderTopLeftRadius = "0.2rem";
+                spans[j].style.borderBottomLeftRadius = "0.2rem";
+                span[j].style.paddingLeft = "0.2rem";
+            }
+            //if the last span has contenteditable="false" change padding right to 0 important and set important
+            if (j == spans.length - 1 && spans[j].getAttribute('contenteditable') == "false") {
+                editors[i].style.paddingRight = "0";
+                //style the span with border radius top right .2rem and bottom right .2rem
+                spans[j].style.borderTopRightRadius = "0.2rem";
+                spans[j].style.borderBottomRightRadius = "0.2rem";
+            }
+        }
+    }
+    //get elements that have the contenteditable attribute
+    const toBeBlock = document.querySelectorAll('[contenteditable="false"]');
+    for (var i = 0; i < toBeBlock.length; i++) {
+        //add background color gainsboro
+        toBeBlock[i].style.backgroundColor = "gainsboro";
+    }
+}
 
 function AddStrengthInput() {
     // Assuming getNumberOfInstances() returns the current count of instances
