@@ -112,45 +112,33 @@
         @{ string lastTitle="";}
         @foreach (TemplateElement TE in Model)
         {
-                if (TE.Elements.First() is Table || TE.Elements.First().Descendants<Table>().Any())
-                {
-                    
+                if (TE.FixedTitle != lastTitle)
+                {               
                     @FixedTitle(TE.FixedTitle);
-                    Table? table = TE.Elements.First() is Table ? TE.Elements.First() as Table : TE.Elements.First().Descendants<Table>().First();
-                    @TableInputElement(table);
                 }
-                else
+                @foreach (var TopLevelElement in TE.Elements)
                 {
-                    @foreach (var element in TE.Elements)
+
+                    if (TopLevelElement is Table || TopLevelElement.Descendants<Table>().Any())
                     {
-
-                        if (TE.FixedTitle != lastTitle)
-                        {
-                           
-                            @FixedTitle(TE.FixedTitle);
-
-                           
-                            @Editor(element);
-                            
-                        }
-                        else
-                        {
-                            //without the title
-                            @Editor(element);
-                        }
-                        lastTitle = TE.FixedTitle;
+                        Table? table = TopLevelElement is Table ? TopLevelElement as Table : TopLevelElement.Descendants<Table>().First();
+                        @TableInputElement(table);
                     }
-                    if (TE.FixedTitle == "Strength")
+                    else
                     {
-                        <div id="strengths">
-
-                        </div>
-                            @* Display add strengh button *@
-                            <input type="button" class="btn btn-primary" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
+                            @Editor(TopLevelElement);
                     }
-                  
+                    
                 }
-            
+                lastTitle = TE.FixedTitle;
+                if (TE.FixedTitle == "Strength")
+                {
+                    <div id="strengths">
+
+                    </div>
+                        @* Display add strengh button *@
+                        <input type="button" class="btn btn-primary" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
+                }
              
 
         }

@@ -57,9 +57,9 @@ namespace DoucmentManagmentSys.Helpers.Word
             else if(WordTemplateHelper.ContainsHtmlTags(CKTopLevelElement, "p"))
             {
                 var MidLevelElement = WordTemplateHelper.RemoveHtmlTags(CKTopLevelElement, "p");
-                var LowerLevelElement = ConstructLowLevelElement(MidLevelElement); 
-                Result.Add(LowerLevelElement);
-                
+                var LowerLevelElement = ConstructLowLevelElement(MidLevelElement);
+                Result.AddRange(LowerLevelElement);
+
             }
             else
             {
@@ -72,33 +72,48 @@ namespace DoucmentManagmentSys.Helpers.Word
             var match = Regex.Match(HTML, @"<(.*?)>(.*?)<\/\1>", RegexOptions.Singleline);
             return match.Success ? match.Value : string.Empty;
         }
-        public static OpenXmlElement ConstructLowLevelElement(string HTML)
+        public static List<Run> ConstructLowLevelElement(string HTMLs)
         {
             //we have to check if there is a strong tag then the Run must have a bold property
             //if there is i tag then the Run must have an italics property
-            var run = new Run();
-            var runProperties = new RunProperties();
-            if (WordTemplateHelper.ContainsHtmlTags(HTML, "strong"))
+            var RunsResults = new List<Run>();
+            foreach (var span in WordTemplateHelper.SplitByTag(HTMLs,"span"))
             {
-                 // Create new run properties
-                var bold = new Bold(); // Create a new bold property
+                if (span=="")
+                {
+                    continue;
+                }
 
-                runProperties.Append(bold); // Add the bold property to the run properties
-                
-                HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "strong");
-            }
-            if (WordTemplateHelper.ContainsHtmlTags(HTML, "em"))
-            {
-                // Create new run properties
-                var italics = new Italic(); // Create a new italics property
+                var HTML = span;
 
-                runProperties.Append(italics); // Add the italics property to the run properties
+
+                var run = new Run();
+                var runProperties = new RunProperties();
+                if (WordTemplateHelper.HasAttributeWithValue(HTML, "contenteditable", "false"))
+                {
+                    //add darkMagenta HighLight
+                    runProperties.Append(new Highlight() { Val = HighlightColorValues.DarkMagenta });
+                }
+                if (WordTemplateHelper.ContainsHtmlTags(HTML, "strong"))
+                {
+                     // Create new run properties
+                    var bold = new Bold(); // Create a new bold property
+
+                    runProperties.Append(bold); // Add the bold property to the run properties
                 
-                HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "em");
+                    HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "strong");
+                }
+                if (WordTemplateHelper.ContainsHtmlTags(HTML, "em"))
+                {
+                    // Create new run properties
+                    var italics = new Italic(); // Create a new italics property
+
+                    runProperties.Append(italics); // Add the italics property to the run properties
                 
-            }
-            if (WordTemplateHelper.ContainsHtmlTags(HTML, "span"))
-            {
+                    HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "em");
+                
+                }
+              
 
                 
                 string startSeq = "font-size:";
@@ -113,20 +128,20 @@ namespace DoucmentManagmentSys.Helpers.Word
                     extractedString = match.Groups[1].Value;
                     int adjustedFontSize = int.Parse(extractedString) + 12;
                     extractedString = adjustedFontSize.ToString();
-                    Console.WriteLine($"Extracted string: {extractedString}");
+                        
                 }
-                else
-                {
-                    Console.WriteLine("String not found between the specified sequences.");
-                }
+
 
                 
                 runProperties.FontSize = new FontSize() { Val = extractedString };
                 HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "span");
+                run.Append(runProperties);
+                run.Append(new Text(WebUtility.HtmlDecode(HTML)));
+                RunsResults.Add(run);
             }
-            run.Append(runProperties);
-            run.Append(new Text(WebUtility.HtmlDecode(HTML)));
-            return run;
+
+            
+            return RunsResults;
         }
     }
 }

@@ -14,25 +14,34 @@ function style_CK_block() {
     /*get the editor instance that you want to interact with.*/
     //get all editor instances
     const editors = document.querySelectorAll('.editable');
+    var NoNonEditable = true;
     for (var i = 0; i < editors.length; i++) {
+        editors[i].style.backgroundColor = "gainsboro";
         //in each editor get each span element
         const spans = editors[i].querySelectorAll('span');
         for (var j = 0; j < spans.length; j++) {
             //if the first span has contenteditable="false" change padding left to 0 important and set important
-            if (j==0&&spans[j].getAttribute('contenteditable') == "false") {
-                editors[i].style.paddingLeft = "0";
-                //style the span with border radius top left .2rem and bottom left .2rem
-                spans[j].style.borderTopLeftRadius = "0.2rem";
-                spans[j].style.borderBottomLeftRadius = "0.2rem";
-                span[j].style.paddingLeft = "0.2rem";
+            if (spans[j].getAttribute('contenteditable') == "true") {
+                spans[j].classList.add("SpanEditable");
+                //check next span and prev span to remove padding only on the current span
+                if (j + 1 < spans.length && spans[j + 1].getAttribute('contenteditable') == "true") {
+                    spans[j].style.paddingRight="0";
+                }
+                if(j-1 >= 0 && spans[j-1].getAttribute('contenteditable') == "true"){
+                    spans[j].style.paddingLeft="0";
+                }
+               
             }
-            //if the last span has contenteditable="false" change padding right to 0 important and set important
-            if (j == spans.length - 1 && spans[j].getAttribute('contenteditable') == "false") {
-                editors[i].style.paddingRight = "0";
-                //style the span with border radius top right .2rem and bottom right .2rem
-                spans[j].style.borderTopRightRadius = "0.2rem";
-                spans[j].style.borderBottomRightRadius = "0.2rem";
+            else {
+               
+                NoNonEditable = false;
             }
+            
+          
+        }
+
+        if (NoNonEditable) {
+            editors[i].style.backgroundColor = "white";
         }
     }
     //get elements that have the contenteditable attribute

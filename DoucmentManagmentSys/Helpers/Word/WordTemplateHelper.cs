@@ -204,13 +204,20 @@ namespace DoucmentManagmentSys.Helpers.Word
             {
                 Parent.RemoveAllChildren<Run>();
             }
-            foreach (var item in NewElement)
+            foreach (var NE in NewElement)
             {
+                var item = NE;
                 if (ReplaceMe.LocalName != null)
                 {
                     item.SetAttribute(ReplaceMe);
                 }
-
+                if (item is Run && Parent is not Paragraph)
+                {
+                    var paragraph = new Paragraph();
+                    Parent.Append(paragraph);
+                    Parent = paragraph;
+                }
+                
                 Parent.Append(item.CloneNode(true));
             }
 
@@ -294,10 +301,31 @@ namespace DoucmentManagmentSys.Helpers.Word
             string pattern = tag == null ? "<.*?>" : $"<{tag}.*?>|</{tag}>";
             return Regex.Replace(input, pattern, string.Empty, RegexOptions.IgnoreCase);
         }
+        //separet string by tag
+
+        public static string[] SplitByTag(string input, string tag)
+        {
+            // Pattern to match the tag and its content, assuming no nested tags of the same type
+            string pattern = $@"<{tag}[^>]*>(.*?)<\/{tag}>";
+
+            // Use Regex.Matches to find all matches
+            MatchCollection matches = Regex.Matches(input, pattern, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            // Convert matches to an array of strings
+            var result = matches.Cast<Match>().Select(m => m.Value).ToArray();
+
+            return result;
+        }
 
         public static bool ContainsHtmlTags(string input, string? tag = null)
         {
             string pattern = tag == null ? "<.*?>" : $"<{tag}.*?>|</{tag}>";
+            return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
+        }
+
+        public static bool HasAttributeWithValue(string input, string? AttributeName = null, string? AttributeValue = null)
+        {      
+            string pattern = AttributeName == null ? "" : $@"{AttributeName}=""{AttributeValue}""";
             return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
         }
 

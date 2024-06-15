@@ -1,6 +1,8 @@
 ﻿.NonEditable {
-    background-color: gainsboro;
-    padding-top: .6rem;
-    padding-bottom: .6rem;
+
+}
+.SpanEditable{
+    background-color:white;
+    padding:3px;
 }
 
