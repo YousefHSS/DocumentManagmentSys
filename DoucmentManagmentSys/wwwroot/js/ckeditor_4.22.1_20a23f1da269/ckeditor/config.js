@@ -5,49 +5,68 @@
 CKEDITOR.plugins.add('noneditableprotection', {
 	init: function (editor) {
 		editor.on('key', function (keyEvent) {
-			let editableSpans = editor.document.find('.SpanEditable');
-			// Use a timeout to allow the key event to process before checking the content.
-			
-			for (let i = 0; i < editableSpans.count(); i++) {
-				let span = editableSpans.getItem(i);
-				if (!span || span.getText() === '') {
-					// If a SpanEditable is empty or has been deleted, we need to undo.
-					undoNeeded = true;
-                    ControlSpan = span;
-					break; // No need to check further
-				}
+
+			var nameIsId = editor.name;
+			//get spans under the id using jquery
+			if (checkSelectedElement(editor)) {
+				keyEvent.cancel();
+				return;
 			}
+			let editableSpans = editor.document.find('#\\3'+nameIsId+' > p > span');
 
-            if (undoNeeded) {
-				ControlSpan.setText('');
+			editableSpans.toArray().forEach((span) => {
+				if (span.getText().length == 1 && span.getAttribute('contenteditable') == 'true') {
+					keyEvent.cancel();
+					span.setText('\u00A0\u00A0');
+                    return;
+                }
+			});
+		});
 
-            }
 
-			
+
 	}
 });
-function ensureNonEmptySpanAtBeginning(editor) {
-	let editableSpans = editor.document.find('.SpanEditable');
-	let firstSpan = editableSpans.getItem(0);
-	let undoNeeded = false;
 
-	if (!firstSpan || firstSpan.getText().trim() === '') {
-		// If the first SpanEditable is missing or empty, insert a non-breaking space
-		if (firstSpan) {
-			firstSpan.setText('\u00A0'); // Unicode for non-breaking space
-		} else {
-			// Insert a new SpanEditable at the beginning with a non-breaking space
-			let newSpan = editor.document.createElement('span');
-			newSpan.addClass('SpanEditable');
-			newSpan.setText('\u00A0');
-			editor.document.getBody().prepend(newSpan);
+function triggerClickOnParagraph(editor, paragraphElement) {
+	// Dispatch a click event to the paragraph element
+	if (paragraphElement) {
+		var clickEvent = document.createEvent('MouseEvents');
+		clickEvent.initEvent('click', true, true);
+		paragraphElement.$.dispatchEvent(clickEvent);
+	}
+}
+function checkSelectedElement(editor) {
+	let selection = editor.getSelection();
+	let ranges = selection.getRanges(); // Get all ranges from the selection
+	console.log(selection.getStartElement());
+	for (let i = 0; i < ranges.length; i++) {
+		let range = ranges[i];
+		let startNode = range.startContainer;
+		let endNode = range.endContainer;
+
+		// Check start container if it's a paragraph
+		if (startNode.type == CKEDITOR.NODE_ELEMENT && (startNode.is('p')|| startNode.is('div'))) {
+			return true;
 		}
-		undoNeeded = true;
+
+		// Iterate through nodes between start and end containers
+		let node = startNode;
+		while (node && !node.equals(endNode)) {
+			node = node.getNext();
+			if (node && node.type == CKEDITOR.NODE_ELEMENT && (node.is('p') || node.is('div'))) {
+				return true;
+			}
+		}
+
+		// Check end container if it's a paragraph
+		if (endNode.type == CKEDITOR.NODE_ELEMENT && (endNode.is('p') || endNode.is('div'))) {
+			return true;
+		}
 	}
 
-	return undoNeeded;
+	return false;
 }
-
 CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here.
 	// For complete reference see:
@@ -75,16 +94,17 @@ CKEDITOR.editorConfig = function( config ) {
 	config.removeButtons = 'Cut,Copy,Paste,Anchor,Underline,Strike,Subscript,Superscript';
 	// Dialog windows are also simplified.
 	config.removeDialogTabs = 'link:advanced';
+	
 	config.extraPlugins = 'noneditableprotection';
-
 	config.allowedContent = {
 		'span': {
+			allowedContent: '*',
 			attributes: 'contenteditable,!style',
 			styles: 'background-color,padding-left,padding-right,border-top-left-radius,border-top-right-radius,border-bottom-left-radius,border-bottom-right-radius',
 			classes: 'NonEditable,SpanEditable'
 		},
         'p': {
-            attributes: 'contenteditable,!style',
+            attributes: 'contenteditable',
             styles: 'background-color,padding-left,padding-right,border-top-left-radius,border-top-right-radius,border-bottom-left-radius,border-bottom-right-radius',
             classes: 'NonEditable,SpanEditable'
 		},
@@ -98,3 +118,5 @@ CKEDITOR.editorConfig = function( config ) {
 	};
 
 };
+
+

@@ -43,12 +43,16 @@ function style_CK_block() {
         if (NoNonEditable) {
             editors[i].style.backgroundColor = "white";
         }
+
     }
     //get elements that have the contenteditable attribute
     const toBeBlock = document.querySelectorAll('[contenteditable="false"]');
     for (var i = 0; i < toBeBlock.length; i++) {
         //add background color gainsboro
-        toBeBlock[i].style.backgroundColor = "gainsboro";
+        //if it is not p or li
+        if (toBeBlock[i].tagName != "P" && toBeBlock[i].tagName != "LI") {
+            toBeBlock[i].style.backgroundColor = "gainsboro";
+        }
     }
 }
 

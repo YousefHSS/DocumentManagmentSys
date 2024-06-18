@@ -70,7 +70,7 @@ namespace DoucmentManagmentSys.Helpers.Word
         public static string ExtractFirstTag(string HTML)
         {
             var match = Regex.Match(HTML, @"<(.*?)>(.*?)<\/\1>", RegexOptions.Singleline);
-            return match.Success ? match.Value : string.Empty;
+            return match.Success ? match.Value : HTML;
         }
         public static List<Run> ConstructLowLevelElement(string HTMLs)
         {
