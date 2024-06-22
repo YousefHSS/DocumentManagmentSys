@@ -1,4 +1,6 @@
 ﻿@model List<TemplateElement>
+@using Subscript =DocumentFormat.OpenXml.Math.Subscript;
+@using Superscript =DocumentFormat.OpenXml.Math.Superscript;
 @using DocumentFormat.OpenXml.Wordprocessing;
 @using Microsoft.AspNetCore.Html
 @using DocumentFormat.OpenXml
@@ -16,10 +18,11 @@
         {
             var styleAttributes = new List<string>();
             var OtherAttributes = new List<string>();
+            var TagsToAdd = new List<string>();
 
             if (run.RunProperties != null)
             {
-                var fontSizeAdjustment = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
+                var fontSizeAdjustment = int.Parse((run.RunProperties.FontSize?.Val ?? "24")!);
                 styleAttributes.Add($"font-size:{fontSizeAdjustment}px");
 
                 if (run.RunProperties.Bold != null)
@@ -34,6 +37,16 @@
                 {
                     styleAttributes.Add("text-decoration:underline");
                 }
+                var verticalAlignment = run.RunProperties.Descendants<VerticalTextAlignment>().FirstOrDefault()?.Val?.Value ?? VerticalPositionValues.Baseline;
+                if (verticalAlignment == VerticalPositionValues.Subscript)
+                {
+                    TagsToAdd.Add("sub");
+                }
+                else if (verticalAlignment==VerticalPositionValues.Superscript)
+                {
+                    TagsToAdd.Add("sup");
+                }
+
                 if (run.RunProperties.Highlight != null && run.RunProperties.Highlight.Val == HighlightColorValues.DarkMagenta)
                 {
                     string toADD = $"contenteditable=\"false\"";
@@ -64,8 +77,16 @@
             // Construct the style attribute string
             var styleAttribute = styleAttributes.Any() ? $"style=\"{string.Join("; ", styleAttributes)}\"" : string.Empty;
 
-            // Construct the span element with the style attributes
-            var spanHtml = $"<span {string.Join(" ", OtherAttributes)} {styleAttribute}>{run.InnerText}</span>";
+           var innerTextWithTags = run.InnerText;
+
+            // Wrap innerText with each tag in TagsToAdd
+            foreach(var tag in TagsToAdd)
+            {
+                innerTextWithTags = $"<{tag}>{innerTextWithTags}</{tag}>";
+            }
+
+            // Construct the span element with the style attributes and wrapped innerText
+            var spanHtml = $"<span {string.Join(" ", OtherAttributes)} {styleAttribute}>{innerTextWithTags}</span>";
 
             contentBuilder.AppendHtml(spanHtml);
         }

@@ -1,8 +1,6 @@
 ﻿using DocumentFormat.OpenXml;
+
 using DocumentFormat.OpenXml.Wordprocessing;
-using HtmlAgilityPack;
-using Org.BouncyCastle.Asn1.Cms;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -79,10 +77,6 @@ namespace DoucmentManagmentSys.Helpers.Word
             var RunsResults = new List<Run>();
             foreach (var span in WordTemplateHelper.SplitByTag(HTMLs,"span"))
             {
-                if (span=="")
-                {
-                    continue;
-                }
 
                 var HTML = span;
 
@@ -92,7 +86,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                 if (WordTemplateHelper.HasAttributeWithValue(HTML, "contenteditable", "false"))
                 {
                     //add darkMagenta HighLight
-                    runProperties.Append(new Highlight() { Val = HighlightColorValues.DarkMagenta });
+                    runProperties.Highlight= new Highlight() { Val = HighlightColorValues.DarkMagenta };
                 }
                 if (WordTemplateHelper.HasAttributeWithValue(HTML, "variable"))
                 {
@@ -102,37 +96,54 @@ namespace DoucmentManagmentSys.Helpers.Word
                 }
                 if (WordTemplateHelper.TagStyleContainsAttribute(HTML, "font-weight", "bold"))
                 {
-                     // Create new run properties
-                    var bold = new Bold(); // Create a new bold property
+                    
 
-                    runProperties.Append(bold); // Add the bold property to the run properties
+                    runProperties.Bold=new Bold();
                 
                     
                 }
                 if (WordTemplateHelper.TagStyleContainsAttribute(HTML, "font-style", "italic"))
                 {
-                    // Create new run properties
-                    var italics = new Italic(); // Create a new italics property
+                   
 
-                    runProperties.Append(italics); // Add the italics property to the run properties
+                    runProperties.Italic = new Italic(); 
                 
                     
                 
                 }
-              
+                if(WordTemplateHelper.TagStyleContainsAttribute(HTML, "text-decoration", "underline"))
+                {
+                   
 
-                
+                    runProperties.Underline = new Underline() { Val = UnderlineValues.Single };
+                }
+                if (WordTemplateHelper.ContainsHtmlTags(HTML, "sub"))
+                {
+                    runProperties.VerticalTextAlignment = new VerticalTextAlignment() { Val = VerticalPositionValues.Subscript };
+
+                    HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "sub");
+                }
+                if (WordTemplateHelper.ContainsHtmlTags(HTML, "sup"))
+                {
+                  
+                    runProperties.VerticalTextAlignment = new VerticalTextAlignment() { Val = VerticalPositionValues.Superscript };
+                    HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "sup");
+                }
+
+                runProperties.RunFonts= new RunFonts() { Ascii = "Times New Roman" };
+
+
                 string startSeq = "font-size:";
                 string endSeq = "px";
 
                 string pattern = $"{Regex.Escape(startSeq)}(.*?){Regex.Escape(endSeq)}";
 
                 Match match = Regex.Match(HTML, pattern);
-                string extractedString = "28";
+                string extractedString = "24";
                 if (match.Success)
                 {
                     extractedString = match.Groups[1].Value;
-                    int adjustedFontSize = int.Parse(extractedString) + 12;
+                    int adjustedFontSize = int.Parse(extractedString);
                     extractedString = adjustedFontSize.ToString();
                         
                 }
@@ -142,7 +153,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                 runProperties.FontSize = new FontSize() { Val = extractedString };
                 HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "span");
                 run.Append(runProperties);
-                run.Append(new Text(WebUtility.HtmlDecode(HTML)));
+                run.Append(new Text(WebUtility.HtmlDecode(HTML)) { Space = SpaceProcessingModeValues.Preserve });
                 RunsResults.Add(run);
             }
 

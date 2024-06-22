@@ -32,8 +32,10 @@ namespace DoucmentManagmentSys.Models
             OpenXmlElement? BeforePrevSibling = null;
             foreach (var TopLevelParagraph in TopLevelParagraphs)
             {
+                var TopLevelHighlights = TopLevelParagraph.Descendants<Highlight>().ToList();
+                
 
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && (h.Val == HighlightColorValues.Yellow || h.Val == HighlightColorValues.DarkMagenta)))
+                if (TopLevelHighlights.Any(h => h.Val != null && (h.Val == HighlightColorValues.Yellow || h.Val == HighlightColorValues.DarkMagenta)) && TopLevelHighlights.All(h=>(h.Val?? HighlightColorValues.Yellow) !=HighlightColorValues.Magenta))
                 {
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
@@ -73,7 +75,7 @@ namespace DoucmentManagmentSys.Models
 
                     BeforePrevSibling = PrevSibling;
                 }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Black))
+                if (TopLevelHighlights.Any(h => h.Val != null && h.Val == HighlightColorValues.Black))
                 {
                     //GET rUNS THAT HAVE A BLACK HIGHLIGHT
                     var runsbLACK = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Black));
@@ -89,7 +91,7 @@ namespace DoucmentManagmentSys.Models
                     }
 
                 }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Cyan))
+                if (TopLevelHighlights.Any(h => h.Val != null && h.Val == HighlightColorValues.Cyan))
                 {
                     //GET rUNS THAT HAVE A BLACK HIGHLIGHT
                     var runsCyan = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Cyan));
@@ -107,7 +109,7 @@ namespace DoucmentManagmentSys.Models
                     });
 
                 }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
+                if (TopLevelHighlights.Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
                 {
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
@@ -148,7 +150,7 @@ namespace DoucmentManagmentSys.Models
                 Document.Save();
 
                 this.TemplateElements = TemplateElements;
-                this.TemplateElements = ExtractingVariablesAlgorithm(TopLevelParagraphs);
+                //this.TemplateElements = ExtractingVariablesAlgorithm(TopLevelParagraphs);
 
                 Document.Save();
 
@@ -253,9 +255,9 @@ namespace DoucmentManagmentSys.Models
                 List<OpenXmlElement> TopLevelParagraphs = DocClone.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y))).ToList();
                 // Create a new XML file
 
-                ReplaceVariablesAlgorithm(TopLevelParagraphs, TemplateElements);
+                //ReplaceVariablesAlgorithm(TopLevelParagraphs, TemplateElements);
                 ImportingAlgorithm(TopLevelParagraphs, TemplateElements);
-                RemoveAllHighlights(DocClone);
+                //RemoveAllHighlights(DocClone);
                 DocClone.Save();
                 using (StreamWriter sw = new StreamWriter("wwwroot/Templates/" + "Assay Method Validation Protocol6" + ".xml"))
                 {
@@ -416,7 +418,7 @@ namespace DoucmentManagmentSys.Models
                                 {
                                     FetchedFirstElement.SetAttribute(new OpenXmlAttribute("Variable", "http://DMSNamespace", run.RunProperties.Color.Val));
                                     //update template elements
-                                    FetchedTuble.Item1.ReplaceFromElements(FetchedFirstElement, FetchedTuble.Item2);
+                                    FetchedTuble.Item1.ReplaceFromElements(FetchedTuble.Item1, FetchedTuble.Item2);
 
                                     break;
                                 
@@ -532,6 +534,11 @@ namespace DoucmentManagmentSys.Models
 
         private static void ReplaceVariablesAlgorithm(List<OpenXmlElement> topLevelParagraphs, List<TemplateElement> templateElements)
         {
+            foreach (var topLevel in topLevelParagraphs)
+            {
+                topLevel.Descendants<Run>().Where(x=>x.InnerText.Trim()=="").ToList().ForEach(x => x.RunProperties.Color = null); 
+            }
+
             foreach (var templateRun in MainColoredRuns(templateElements))
             {
 
@@ -592,27 +599,7 @@ namespace DoucmentManagmentSys.Models
         
         public override void PreProcessTemplateElements()
         {
-            //main Difference is that this function callled after the first page argument in the view is edited
-
-            //get the element that hadFixedTitle substance
-            TemplateElement substance = TemplateElements.Where(x => x.FixedTitle == "Substance").FirstOrDefault();
-            //get all the grey text colored runs
-            IEnumerable<Run> runs = substance.Elements.OfType<Run>().Where(x => x.Descendants<RunProperties>().Any(y => y.Color == new Color { Val = "7F7F7F" }));
-            //replace all the colored grey texts with the substance inner text
-            foreach (var item in runs)
-            {
-                //Replace the Text element with the substance inner text
-                var Text = item.Descendants<Text>().FirstOrDefault();
-                if (Text != null)
-                {
-                    Text.Text = substance.FixedTitle;
-                }
-
-
-            }
-
-
-
+            throw new NotImplementedException();
         }
 
         public override void ProcessTemplateElements()

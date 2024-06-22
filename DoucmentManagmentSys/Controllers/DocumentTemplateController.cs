@@ -64,7 +64,7 @@ namespace DoucmentManagmentSys.Controllers
             }
             else
             {
-                DocumentTemplate.PreProcessTemplateElements();
+                
                 //remove the ones with fixed title substance and strength then get the rest as in pages from 2 onwards
                 var TemplateElements2 = TemplateElements.Where(TE => TE.FixedTitle != "Substance" && TE.FixedTitle != "Strength").ToList();
                 ListedElements = TemplateElements2.Skip((page.Value) - 1).Take(1).ToList();
