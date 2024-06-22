@@ -14,6 +14,7 @@ namespace DoucmentManagmentSys.Models
 
         public required ICollection<TemplateElement> TemplateElements { get; set; }
 
+
         [NotMapped]
         public string? TemplateFileName { get; set; }
 

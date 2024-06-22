@@ -2,31 +2,7 @@
  * @license Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
 */
-CKEDITOR.plugins.add('noneditableprotection', {
-	init: function (editor) {
-		editor.on('key', function (keyEvent) {
 
-			var nameIsId = editor.name;
-			//get spans under the id using jquery
-			if (checkSelectedElement(editor)) {
-				keyEvent.cancel();
-				return;
-			}
-			let editableSpans = editor.document.find('#\\3'+nameIsId+' > p > span');
-
-			editableSpans.toArray().forEach((span) => {
-				if (span.getText().length == 1 && span.getAttribute('contenteditable') == 'true') {
-					keyEvent.cancel();
-					span.setText('\u00A0\u00A0');
-                    return;
-                }
-			});
-		});
-
-
-
-	}
-});
 
 function triggerClickOnParagraph(editor, paragraphElement) {
 	// Dispatch a click event to the paragraph element
@@ -95,7 +71,7 @@ CKEDITOR.editorConfig = function( config ) {
 	// Dialog windows are also simplified.
 	config.removeDialogTabs = 'link:advanced';
 	
-	config.extraPlugins = 'noneditableprotection';
+
 	config.allowedContent = true;
 
 };

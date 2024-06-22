@@ -69,7 +69,7 @@ function AddStrengthInput() {
     newDiv.className = "editable p-2 rounded-1 border-1 border m-1";
     newDiv.id = newInputId;
     newDiv.setAttribute('contenteditable', 'true');
-    newDiv.innerHTML = '<p></p>';
+    newDiv.innerHTML = '<p><span></span></p>';
 
     // Append the new div to the strengths container
     strength.appendChild(newDiv);

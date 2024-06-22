@@ -8,6 +8,12 @@ using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using RunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
 using System.Collections.Generic;
 using Humanizer;
+using iText.StyledXmlParser.Jsoup.Nodes;
+using NPOI.SS.Formula.Functions;
+using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
+using OpenXmlPowerTools;
+using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 
 namespace DoucmentManagmentSys.Models
 {
@@ -17,6 +23,7 @@ namespace DoucmentManagmentSys.Models
         {
             TemplateFileName = "Assay Method Validation Protocol";
         }
+        
         public override List<TemplateElement> ExtractingAlgorithm(IEnumerable<OpenXmlElement> TopLevelParagraphs)
         {
             int id = 0;
@@ -113,13 +120,22 @@ namespace DoucmentManagmentSys.Models
                     });
 
                 }
+                
+
+
+
+
             }
+
+
+
             return highlightedRuns;
         }
 
         public override void ExtractTemplateElements()
         {
             List<TemplateElement> TemplateElements = new List<TemplateElement>();
+            List<string> ColoredVariables = new List<string>();
             using (WordprocessingDocument Document = WordprocessingDocument.Open("wwwroot/Templates/" + TemplateFileName + ".docx", true))
             {
                 // Retrieve all Run elements with a Highlight child element
@@ -127,107 +143,18 @@ namespace DoucmentManagmentSys.Models
                 //get direct child elements of body that have runs from the retrieved runs
                 IEnumerable<OpenXmlElement> TopLevelParagraphs = Document.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y)));
 
-
+                
                 TemplateElements = ExtractingAlgorithm(TopLevelParagraphs);
-
                 Document.Save();
 
                 this.TemplateElements = TemplateElements;
+                this.TemplateElements = ExtractingVariablesAlgorithm(TopLevelParagraphs);
+
+                Document.Save();
+
+                
 
             }
-        }
-
-        public override PrimacyDocument GetPrimacyDocument()
-        {
-            throw new NotImplementedException();
-        }
-
-        public static void ImportTemplateElements(List<TemplateElement> TemplateElements)
-        {
-            //turn collection to list
-
-            CloneDocument("wwwroot/Templates/" + "Assay Method Validation Protocol" + ".docx", "wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx");
-            using (WordprocessingDocument DocClone = WordprocessingDocument.Open("wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx", true))
-            {
-                IEnumerable<Run> runs = DocClone.MainDocumentPart.Document.Body.Descendants<Run>().Where(r => r.Descendants<Highlight>().Any());
-                //get direct child elements of body that have runs from the retrieved runs
-                List<OpenXmlElement> TopLevelParagraphs = DocClone.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y))).ToList();
-                // Create a new XML file
-
-
-                ImportingAlgorithm(TopLevelParagraphs, TemplateElements);
-                DocClone.Save();
-                using (StreamWriter sw = new StreamWriter("wwwroot/Templates/" + "Assay Method Validation Protocol6" + ".xml"))
-                {
-                    using (XmlWriter xw = XmlWriter.Create(sw))
-                    {
-                        DocClone.MainDocumentPart.Document.WriteTo(xw);
-                    }
-                }
-            }
-
-
-
-
-
-
-
-
-
-        }
-        public static void SaveClonedDocument(WordprocessingDocument clonedDocument, string newFilePath)
-        {
-            // Save the cloned WordprocessingDocument to a new file
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                // Clone the parts of the document necessary to preserve styles and formatting
-                clonedDocument.Clone(memoryStream);
-
-
-                // Write the content from the memory stream to the new file
-                File.WriteAllBytes(newFilePath, memoryStream.ToArray());
-            }
-        }
-
-        public static void CloneDocument(string sourceFilePath, string newFilePath)
-        {
-            using (WordprocessingDocument originalDoc = WordprocessingDocument.Open(sourceFilePath, true))
-            {
-                // The using statement ensures that the cloned document is disposed of properly
-                using (WordprocessingDocument clonedDoc = (WordprocessingDocument)originalDoc.Clone())
-                {
-                    SaveClonedDocument(clonedDoc, newFilePath);
-                }
-            }
-        }
-        public override void PreProcessTemplateElements()
-        {
-            //main Difference is that this function callled after the first page argument in the view is edited
-
-            //get the element that hadFixedTitle substance
-            TemplateElement substance = TemplateElements.Where(x => x.FixedTitle == "Substance").FirstOrDefault();
-            //get all the grey text colored runs
-            IEnumerable<Run> runs = substance.Elements.OfType<Run>().Where(x => x.Descendants<RunProperties>().Any(y => y.Color == new Color { Val = "7F7F7F" }));
-            //replace all the colored grey texts with the substance inner text
-            foreach (var item in runs)
-            {
-                //Replace the Text element with the substance inner text
-                var Text = item.Descendants<Text>().FirstOrDefault();
-                if (Text != null)
-                {
-                    Text.Text = substance.FixedTitle;
-                }
-
-
-            }
-
-
-
-        }
-
-        public override void ProcessTemplateElements()
-        {
-            throw new NotImplementedException();
         }
 
         private static void ImportingAlgorithm(List<OpenXmlElement> TopLevelParagraphs, List<TemplateElement> UpdatedTemplates)
@@ -313,11 +240,394 @@ namespace DoucmentManagmentSys.Models
             ReplaceAllTopLevel(ElementsReplacedFromDoc, UpdatedTemplates);
 
         }
+
+        public static void ImportTemplateElements(List<TemplateElement> TemplateElements)
+        {
+            //turn collection to list
+
+            CloneDocument("wwwroot/Templates/" + "Assay Method Validation Protocol" + ".docx", "wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx");
+            using (WordprocessingDocument DocClone = WordprocessingDocument.Open("wwwroot/Templates/" + "Assay Method Validation Protocol3" + ".docx", true))
+            {
+                IEnumerable<Run> runs = DocClone.MainDocumentPart.Document.Body.Descendants<Run>().Where(r => r.Descendants<Highlight>().Any());
+                //get direct child elements of body that have runs from the retrieved runs
+                List<OpenXmlElement> TopLevelParagraphs = DocClone.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y))).ToList();
+                // Create a new XML file
+
+                ReplaceVariablesAlgorithm(TopLevelParagraphs, TemplateElements);
+                ImportingAlgorithm(TopLevelParagraphs, TemplateElements);
+                RemoveAllHighlights(DocClone);
+                DocClone.Save();
+                using (StreamWriter sw = new StreamWriter("wwwroot/Templates/" + "Assay Method Validation Protocol6" + ".xml"))
+                {
+                    using (XmlWriter xw = XmlWriter.Create(sw))
+                    {
+                        DocClone.MainDocumentPart.Document.WriteTo(xw);
+                    }
+                }
+            }
+
+
+
+
+
+
+
+
+
+        }
+
+        public static void RemoveAllHighlights(WordprocessingDocument document)
+        {
+            // Remove highlights from the main document part
+            RemoveHighlightsFromElement(document.MainDocumentPart.Document);
+
+            // Remove highlights from headers
+            foreach (var headerPart in document.MainDocumentPart.HeaderParts)
+            {
+                RemoveHighlightsFromElement(headerPart.Header);
+            }
+
+            // Remove highlights from footers
+            foreach (var footerPart in document.MainDocumentPart.FooterParts)
+            {
+                RemoveHighlightsFromElement(footerPart.Footer);
+            }
+
+            // Remove highlights from text boxes in the main document part
+            foreach (var textBox in document.MainDocumentPart.Document.Body.Descendants<TextBoxContent>())
+            {
+                RemoveHighlightsFromElement(textBox);
+            }
+
+            // If there are any other document parts where text can exist, handle them similarly
+            if (document.MainDocumentPart.NumberingDefinitionsPart != null)
+            {
+                var numberingPart = document.MainDocumentPart.NumberingDefinitionsPart;
+                var abstractNums = numberingPart.Numbering.Elements<AbstractNum>();
+
+                foreach (var abstractNum in abstractNums)
+                {
+                    foreach (var lvl in abstractNum.Elements<Level>())
+                    {
+                        var lvlRunProperties = lvl.GetFirstChild<RunProperties>();
+                        if (lvlRunProperties != null)
+                        {
+                            var highlight = lvlRunProperties.Highlight;
+                            if (highlight != null)
+                            {
+                                highlight.Remove();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Save changes to the numbering definitions part
+            document.MainDocumentPart.NumberingDefinitionsPart.Numbering.Save();
+        }
+
+        private static void RemoveHighlightsFromElement(OpenXmlElement element)
+        {
+            // Find all RunProperties elements that contain Highlight children
+            var runPropertiesWithHighlights = element
+                .Descendants<RunProperties>()
+                .Where(rp => rp.Highlight != null)
+                .ToList();
+
+            var paragraphPropertiesWithHighlights = element
+                .Descendants<ParagraphProperties>()
+                .Where(rp => rp.Descendants().Any(d=> d.LocalName=="rPr") && rp.Descendants().All(d => d is not Run))
+                .ToList();
+
+            // Remove the Highlight element from those RunProperties
+            foreach (var runProperties in runPropertiesWithHighlights)
+            {
+                var highlight = runProperties.Highlight;
+                if (highlight != null)
+                {
+                    highlight.Val = null;
+                    // Remove the Highlight element
+                    highlight.Remove();
+                }
+            }
+
+            foreach (var paragraphProperties in paragraphPropertiesWithHighlights)
+            {
+                var highlight = paragraphProperties.Descendants<Highlight>().FirstOrDefault();
+                if (highlight != null)
+                {
+                    highlight.Val = null;
+                    // Remove the Highlight element
+                    highlight.Remove();
+                }
+            }
+
+
+        }
+
+        //private static void RemoveHilights(List<OpenXmlElement> topLevelParagraphs)
+        //{
+        //    //remove all highlights form all runs
+
+        //    foreach (var TopLevel in topLevelParagraphs)
+        //    {
+        //        if (TopLevel.Descendants<RunProperties>().Any(p => p.Highlight != null))
+        //        {
+        //            var RunsProperties = TopLevel.Descendants<RunProperties>().Where(p => p.Highlight != null);
+        //            foreach (var RunProperty in RunsProperties)
+        //            {
+        //                if (RunProperty != null  && RunProperty.Highlight != null)
+        //                {
+        //                    RunProperty.Highlight.Remove();
+        //                }
+        //            }
+        //        }
+        //    }
+
+
+        //}
+
+        private ICollection<TemplateElement> ExtractingVariablesAlgorithm(IEnumerable<OpenXmlElement> topLevelParagraphs)
+        {
+            var TECopy = TemplateElements;
+
+            foreach (var TopLevel in topLevelParagraphs)
+            {
+                if (TopLevel.Descendants<RunProperties>().Any(p => p.Color != null && p.Color.Val != "000000"))
+                {
+
+                    var Runs = TopLevel.Descendants<RunProperties>().Where(p => p.Color != null && p.Color.Val != "000000").Select(x => x.Parent as Run);
+                    
+
+                    foreach (var run in Runs)
+                    {
+                        if(run!=null && run.RunProperties!=null && run.RunProperties.Color != null && run.RunProperties.Color.Val != "000000")
+                        {
+                            var FetchedTuble = GetFirstElement<Run>(TECopy, x => x.InnerText!="" && x.RunProperties != null && x.RunProperties.Color != null && x.RunProperties.Color.Val != "000000" && x.RunProperties.Color.Val == run.RunProperties.Color.Val);
+                            var FetchedFirstElement = FetchedTuble?.Item3;
+                            if (FetchedFirstElement != null)
+                            {
+                                //check if it has the attribute
+                                if(HasAttribute("Variable", "http://DMSNamespace", FetchedFirstElement))
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    FetchedFirstElement.SetAttribute(new OpenXmlAttribute("Variable", "http://DMSNamespace", run.RunProperties.Color.Val));
+                                    //update template elements
+                                    FetchedTuble.Item1.ReplaceFromElements(FetchedFirstElement, FetchedTuble.Item2);
+
+                                    break;
+                                
+                                }
+
+
+                            }
+                            else
+                            {
+                                OpenXmlAttribute openXmlAttribute = new OpenXmlAttribute("Variable", "http://DMSNamespace", run.RunProperties.Color.Val);
+                                //check if run exits in template elements
+                                var clonedRun = run.CloneNode(true);
+                                clonedRun.SetAttribute(openXmlAttribute);
+                                TECopy.Add(
+                                new TemplateElement()
+                                {
+                                    FixedTitle = "Colored Variable",
+                                    Elements = new List<OpenXmlElement>() { clonedRun }
+                                });
+                            }
+                          
+                        }
+                       
+                        
+                    }
+                }
+
+
+            }
+
+            return TECopy;
+           
+        }
+
+        public static bool HasAttribute(OpenXmlAttribute attribute, OpenXmlElement element)
+        {
+            try
+            {
+                element.GetAttribute(attribute.LocalName, attribute.NamespaceUri);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static bool HasAttribute(string LocalName, string NamespaceUri, OpenXmlElement element)
+        {
+            try
+            {
+                element.GetAttribute(LocalName, NamespaceUri);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static Tuple<TemplateElement,int, TSource> GetFirstElement<TSource>(IEnumerable<TemplateElement> elements, Func<TSource, bool> predicate) where TSource : OpenXmlElement
+        {
+            foreach (var templateElement in elements)
+            {
+                int i = 0;
+                foreach (var elementList in templateElement.Elements)
+                {
+                    foreach (TSource element in elementList.Descendants<TSource>())
+                    {
+                        
+                        if (predicate(element))
+                        {
+                            return  new Tuple<TemplateElement, int, TSource>(templateElement, i, element); // Returning a reference to the matching element
+                        }
+                        
+                    }
+                    i++;
+                }
+            }
+
+            throw new Exception("Element not found" + predicate.Target);
+        }
+
+        private static IEnumerable<Run>  MainColoredRuns(ICollection<TemplateElement> templateElements)
+        {
+            //extract all runs that have a color
+            var Runs= new List<Run>();
+            foreach (var run in templateElements.SelectMany(x => x.Elements).SelectMany(x => x.Descendants<Run>()).Where(x => x.RunProperties != null))
+            {
+                OpenXmlAttribute openXmlAttribute = new OpenXmlAttribute("Variable", "http://DMSNamespace", "000000");
+                try
+                {
+                    if (run.InnerText != " " && run.GetAttribute(openXmlAttribute.LocalName, openXmlAttribute.NamespaceUri) != null)
+                    {
+                        Runs.Add(run);
+                    }
+                }
+                catch(KeyNotFoundException ex)
+                {
+                    continue;
+                }
+            }
+
+            return Runs;
+        }
+            
+        public override PrimacyDocument GetPrimacyDocument()
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
+        private static void ReplaceVariablesAlgorithm(List<OpenXmlElement> topLevelParagraphs, List<TemplateElement> templateElements)
+        {
+            foreach (var templateRun in MainColoredRuns(templateElements))
+            {
+
+                string replacementText = templateRun.InnerText;
+
+                // Iterate through each Run in topLevelParagraphs and replace text if colors match
+                foreach (var topLevel in topLevelParagraphs)
+                {
+                    foreach (var run in topLevel.Descendants<Run>())
+                    {
+                            var ComparisonAttribute = templateRun.GetAttribute("Variable", "http://DMSNamespace");
+
+                        if (
+                            run.InnerText !="" &&
+                            run.RunProperties != null &&
+                            run.RunProperties.Color != null &&
+                            run.RunProperties.Color.Val.Value.Equals(ComparisonAttribute.Value,StringComparison.OrdinalIgnoreCase)
+                           )   
+                        {
+                            // Replace the run text with the text from the matching template run
+                            var text = run.Descendants<Text>().FirstOrDefault();
+                            if (text != null)
+                            {
+                                text.Text = replacementText;
+                                run.RunProperties.Color = null;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void SaveClonedDocument(WordprocessingDocument clonedDocument, string newFilePath)
+        {
+            // Save the cloned WordprocessingDocument to a new file
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                // Clone the parts of the document necessary to preserve styles and formatting
+                clonedDocument.Clone(memoryStream);
+
+
+                // Write the content from the memory stream to the new file
+                File.WriteAllBytes(newFilePath, memoryStream.ToArray());
+            }
+        }
+
+        public static void CloneDocument(string sourceFilePath, string newFilePath)
+        {
+            using (WordprocessingDocument originalDoc = WordprocessingDocument.Open(sourceFilePath, true))
+            {
+                // The using statement ensures that the cloned document is disposed of properly
+                using (WordprocessingDocument clonedDoc = (WordprocessingDocument)originalDoc.Clone())
+                {
+                    SaveClonedDocument(clonedDoc, newFilePath);
+                }
+            }
+        }
+        
+        public override void PreProcessTemplateElements()
+        {
+            //main Difference is that this function callled after the first page argument in the view is edited
+
+            //get the element that hadFixedTitle substance
+            TemplateElement substance = TemplateElements.Where(x => x.FixedTitle == "Substance").FirstOrDefault();
+            //get all the grey text colored runs
+            IEnumerable<Run> runs = substance.Elements.OfType<Run>().Where(x => x.Descendants<RunProperties>().Any(y => y.Color == new Color { Val = "7F7F7F" }));
+            //replace all the colored grey texts with the substance inner text
+            foreach (var item in runs)
+            {
+                //Replace the Text element with the substance inner text
+                var Text = item.Descendants<Text>().FirstOrDefault();
+                if (Text != null)
+                {
+                    Text.Text = substance.FixedTitle;
+                }
+
+
+            }
+
+
+
+        }
+
+        public override void ProcessTemplateElements()
+        {
+            throw new NotImplementedException();
+        }
+
+ 
+        
         private static void SetMarker(ref OpenXmlAttribute attrib, OpenXmlElement element)
         {
             element.SetAttribute(attrib);
             IncreaseId(ref attrib);
         }
+        
         private static void IncreaseId(ref OpenXmlAttribute attrib)
         {
             if (attrib.Value == null)
@@ -329,6 +639,7 @@ namespace DoucmentManagmentSys.Models
             val++;
             attrib = new OpenXmlAttribute(attrib.LocalName, attrib.NamespaceUri, val.ToString());
         }
+        
         private static int ReplaceAllTopLevel(List<List<OpenXmlElement>> TopLevelParagraphs, List<TemplateElement> UpdatedTemplates)
         {
             //replace each item marked with ReplaceMe attribute from TopLevelParagraphs with it's corresponding child with replace me attribute from UpdatedTemplates 
@@ -396,6 +707,7 @@ namespace DoucmentManagmentSys.Models
             return null;
 
         }
+        
         private static OpenXmlElement? FindMarkedElementInList(List<TemplateElement> templateElements, OpenXmlAttribute replaceMeAttribute)
         {
             //this function should keep traversing inside the list until it finds the first element that has the replaceMe attribute

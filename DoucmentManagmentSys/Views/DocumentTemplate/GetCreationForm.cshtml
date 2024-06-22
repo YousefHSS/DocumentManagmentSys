@@ -14,24 +14,60 @@
         var contentBuilder = new HtmlContentBuilder();
         foreach (var run in items)
         {
-            var innerText = new HtmlContentBuilder().Append(run.InnerText);
+            var styleAttributes = new List<string>();
+            var OtherAttributes = new List<string>();
+
             if (run.RunProperties != null)
             {
+                var fontSizeAdjustment = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
+                styleAttributes.Add($"font-size:{fontSizeAdjustment}px");
+
                 if (run.RunProperties.Bold != null)
                 {
-                    innerText = new HtmlContentBuilder().AppendHtml("<strong>").AppendHtml(innerText).AppendHtml("</strong>");
+                    styleAttributes.Add("font-weight:bold");
                 }
                 if (run.RunProperties.Italic != null)
                 {
-                    innerText = new HtmlContentBuilder().AppendHtml("<em>").AppendHtml(innerText).AppendHtml("</em>");
+                    styleAttributes.Add("font-style:italic");
                 }
-                var AdjustedFontsize = int.Parse((run.RunProperties.FontSize?.Val ?? "28")!) - 12;
-                innerText = new HtmlContentBuilder().AppendHtml("<span "+ ((run.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.DarkMagenta)? " contenteditable='false' class='NonEditable'   ":" contenteditable='true' " )+" style='font-size:") + (AdjustedFontsize.ToString()) + "px;'>").AppendHtml(innerText).AppendHtml("</span>");
-
+                if (run.RunProperties.Underline != null)
+                {
+                    styleAttributes.Add("text-decoration:underline");
+                }
+                if (run.RunProperties.Highlight != null && run.RunProperties.Highlight.Val == HighlightColorValues.DarkMagenta)
+                {
+                    string toADD = $"contenteditable=\"false\"";
+                    OtherAttributes.Add(toADD);
+                }
+                else
+                {
+                    string toADD = $"contenteditable=\"true\"";
+                    OtherAttributes.Add(toADD);
+                }
+                try
+                {
+                      if(run.GetAttribute("Variable", "http://DMSNamespace").Value != null)
+                      {
+                            string toADD = $"Variable=\"{run.GetAttribute("Variable", "http://DMSNamespace").Value}\"";
+                            OtherAttributes.Add(toADD);
+                      }
+                }catch
+                {
+                    
+                }
+      
 
             }
-           
-            contentBuilder.AppendHtml(innerText);
+
+            
+
+            // Construct the style attribute string
+            var styleAttribute = styleAttributes.Any() ? $"style=\"{string.Join("; ", styleAttributes)}\"" : string.Empty;
+
+            // Construct the span element with the style attributes
+            var spanHtml = $"<span {string.Join(" ", OtherAttributes)} {styleAttribute}>{run.InnerText}</span>";
+
+            contentBuilder.AppendHtml(spanHtml);
         }
 
             return contentBuilder;

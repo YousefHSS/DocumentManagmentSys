@@ -44,6 +44,9 @@ namespace DoucmentManagmentSys.Models
                     var body = new Body();
                     foreach (var element in elements)
                     {
+                       
+
+
                         if (element is Table)
                         {
                             body.AppendChild(element.CloneNode(true));
@@ -98,6 +101,22 @@ namespace DoucmentManagmentSys.Models
             var NewElements = Elements;
             //add the new element
             NewElements.Add(NewElement);
+            //set the new list
+            Elements = NewElements;
+        }
+        public void ReplaceFromElements(OpenXmlElement NewElement, int index)
+        {
+            //make a new list from the current list
+            var NewElements = new List<OpenXmlElement>(Elements);
+            //add the new element
+            if (index < NewElements.Count)
+            {
+                NewElements[index] = NewElement;
+            }
+            else
+            {
+               throw new IndexOutOfRangeException(index.ToString());
+            }
             //set the new list
             Elements = NewElements;
         }

@@ -325,9 +325,24 @@ namespace DoucmentManagmentSys.Helpers.Word
 
         public static bool HasAttributeWithValue(string input, string? AttributeName = null, string? AttributeValue = null)
         {      
-            string pattern = AttributeName == null ? "" : $@"{AttributeName}=""{AttributeValue}""";
+            string pattern = AttributeName == null ? "" : $@"{AttributeName}=""{AttributeValue??".*?"}""";
             return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
         }
+        public static string GetAttributeValue(string input, string? AttributeName = null)
+        {
+            string pattern = AttributeName == null ? "" : $@"{AttributeName}=""([^""]*?)""";
+            return Regex.Match(input, pattern, RegexOptions.IgnoreCase).Groups[1].Value;
+        }
+
+        public static bool TagStyleContainsAttribute(string input, string attr, string value)
+        {
+            // This pattern checks for the attribute and its value within the style attribute
+            string pattern = $@"style\s*=\s*""[^""]*{attr}\s*:\s*{value};?";
+
+            return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
+        }
+       
+
 
 
 

@@ -94,23 +94,29 @@ namespace DoucmentManagmentSys.Helpers.Word
                     //add darkMagenta HighLight
                     runProperties.Append(new Highlight() { Val = HighlightColorValues.DarkMagenta });
                 }
-                if (WordTemplateHelper.ContainsHtmlTags(HTML, "strong"))
+                if (WordTemplateHelper.HasAttributeWithValue(HTML, "variable"))
+                {
+                    //add darkMagenta HighLight
+                    OpenXmlAttribute openXmlAttribute = new OpenXmlAttribute("Variable", "http://DMSNamespace", WordTemplateHelper.GetAttributeValue(HTML, "Variable"));
+                    run.SetAttribute(openXmlAttribute);
+                }
+                if (WordTemplateHelper.TagStyleContainsAttribute(HTML, "font-weight", "bold"))
                 {
                      // Create new run properties
                     var bold = new Bold(); // Create a new bold property
 
                     runProperties.Append(bold); // Add the bold property to the run properties
                 
-                    HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "strong");
+                    
                 }
-                if (WordTemplateHelper.ContainsHtmlTags(HTML, "em"))
+                if (WordTemplateHelper.TagStyleContainsAttribute(HTML, "font-style", "italic"))
                 {
                     // Create new run properties
                     var italics = new Italic(); // Create a new italics property
 
                     runProperties.Append(italics); // Add the italics property to the run properties
                 
-                    HTML = WordTemplateHelper.RemoveHtmlTags(HTML, "em");
+                    
                 
                 }
               
