@@ -104,14 +104,14 @@ namespace DoucmentManagmentSys.Models
             //set the new list
             Elements = NewElements;
         }
-        public void ReplaceFromElements(TemplateElement From, int index)
+        public void ReplaceFromElements(OpenXmlElement From, int index)
         {
             //make a new list from the current list
             var NewElements = new List<OpenXmlElement>(Elements);
             //add the new element
             if (index < NewElements.Count)
             {
-                NewElements[index] = From.Elements.ToList()[index];
+                NewElements[index] = From;
             }
             else
             {

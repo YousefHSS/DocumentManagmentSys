@@ -24,7 +24,10 @@
             {
                 var fontSizeAdjustment = int.Parse((run.RunProperties.FontSize?.Val ?? "24")!);
                 styleAttributes.Add($"font-size:{fontSizeAdjustment}px");
-
+                if(run.RunProperties.Color != null&& run.RunProperties.Color.Val!.Value!="" && run.RunProperties.Color.Val!.Value !="000000")
+                {
+                    styleAttributes.Add($" color:#{run.RunProperties.Color.Val!.Value}");
+                }
                 if (run.RunProperties.Bold != null)
                 {
                     styleAttributes.Add("font-weight:bold");

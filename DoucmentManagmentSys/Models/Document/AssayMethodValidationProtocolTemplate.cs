@@ -35,7 +35,7 @@ namespace DoucmentManagmentSys.Models
                 var TopLevelHighlights = TopLevelParagraph.Descendants<Highlight>().ToList();
                 
 
-                if (TopLevelHighlights.Any(h => h.Val != null && (h.Val == HighlightColorValues.Yellow || h.Val == HighlightColorValues.DarkMagenta)) && TopLevelHighlights.All(h=>(h.Val?? HighlightColorValues.Yellow) !=HighlightColorValues.Magenta))
+                if (TopLevelHighlights.Any(h => h.Val != null && (h.Val == HighlightColorValues.Yellow || h.Val == HighlightColorValues.DarkMagenta)) && TopLevelHighlights.All(h=>(h.Val?? HighlightColorValues.DarkYellow) !=HighlightColorValues.Magenta))
                 {
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
@@ -123,10 +123,6 @@ namespace DoucmentManagmentSys.Models
 
                 }
                 
-
-
-
-
             }
 
 
@@ -150,7 +146,7 @@ namespace DoucmentManagmentSys.Models
                 Document.Save();
 
                 this.TemplateElements = TemplateElements;
-                //this.TemplateElements = ExtractingVariablesAlgorithm(TopLevelParagraphs);
+                this.TemplateElements = ExtractingVariablesAlgorithm(TopLevelParagraphs);
 
                 Document.Save();
 
@@ -169,8 +165,11 @@ namespace DoucmentManagmentSys.Models
             foreach (var TopLevelParagraph in TopLevelParagraphs)
             {
 
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Yellow))
-                {
+                var TopLevelHighlights = TopLevelParagraph.Descendants<Highlight>().ToList();
+                
+
+                if (TopLevelHighlights.Any(h => h.Val != null && (h.Val == HighlightColorValues.Yellow)))
+                { 
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
 
@@ -202,7 +201,7 @@ namespace DoucmentManagmentSys.Models
 
                     BeforePrevSibling = PrevSibling;
                 }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Black))
+                if (TopLevelHighlights.Any(h => h.Val != null && h.Val == HighlightColorValues.Black))
                 {
                     //GET rUNS THAT HAVE A BLACK HIGHLIGHT
                     var runsbLACK = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Black));
@@ -214,7 +213,7 @@ namespace DoucmentManagmentSys.Models
                     }
 
                 }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Cyan))
+                if (TopLevelHighlights.Any(h => h.Val != null && h.Val == HighlightColorValues.Cyan))
                 {
                     //GET rUNS THAT HAVE A BLACK HIGHLIGHT
                     var runsCyan = TopLevelParagraph.Descendants<Run>().Where(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Cyan));
@@ -229,7 +228,7 @@ namespace DoucmentManagmentSys.Models
                     ElementsReplacedFromDoc.Add(ElementsToBeAdded);
 
                 }
-                if (TopLevelParagraph.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
+                if (TopLevelHighlights.Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
                 {
                     //get pervious sibling if it has a decendant that has a green highlight
                     var PrevSibling = TopLevelParagraph.ElementsBefore().LastOrDefault(x => x.Descendants<Highlight>().Any(y => y.Val == HighlightColorValues.Green));
@@ -255,9 +254,11 @@ namespace DoucmentManagmentSys.Models
                 List<OpenXmlElement> TopLevelParagraphs = DocClone.MainDocumentPart.Document.Body.ChildElements.Where(x => x.ChildElements.Count > 0 && x.Descendants<Run>().Any(y => runs.Contains(y))).ToList();
                 // Create a new XML file
 
-                //ReplaceVariablesAlgorithm(TopLevelParagraphs, TemplateElements);
+                
                 ImportingAlgorithm(TopLevelParagraphs, TemplateElements);
-                //RemoveAllHighlights(DocClone);
+                ReplaceVariablesAlgorithm(TopLevelParagraphs, TemplateElements);
+                
+                RemoveAllHighlights(DocClone);
                 DocClone.Save();
                 using (StreamWriter sw = new StreamWriter("wwwroot/Templates/" + "Assay Method Validation Protocol6" + ".xml"))
                 {
@@ -367,28 +368,6 @@ namespace DoucmentManagmentSys.Models
 
         }
 
-        //private static void RemoveHilights(List<OpenXmlElement> topLevelParagraphs)
-        //{
-        //    //remove all highlights form all runs
-
-        //    foreach (var TopLevel in topLevelParagraphs)
-        //    {
-        //        if (TopLevel.Descendants<RunProperties>().Any(p => p.Highlight != null))
-        //        {
-        //            var RunsProperties = TopLevel.Descendants<RunProperties>().Where(p => p.Highlight != null);
-        //            foreach (var RunProperty in RunsProperties)
-        //            {
-        //                if (RunProperty != null  && RunProperty.Highlight != null)
-        //                {
-        //                    RunProperty.Highlight.Remove();
-        //                }
-        //            }
-        //        }
-        //    }
-
-
-        //}
-
         private ICollection<TemplateElement> ExtractingVariablesAlgorithm(IEnumerable<OpenXmlElement> topLevelParagraphs)
         {
             var TECopy = TemplateElements;
@@ -403,9 +382,9 @@ namespace DoucmentManagmentSys.Models
 
                     foreach (var run in Runs)
                     {
-                        if(run!=null && run.RunProperties!=null && run.RunProperties.Color != null && run.RunProperties.Color.Val != "000000")
+                        if(run!=null && run.InnerText.Trim() != "" && run.RunProperties!=null && run.RunProperties.Color != null && run.RunProperties.Color.Val != "000000")
                         {
-                            var FetchedTuble = GetFirstElement<Run>(TECopy, x => x.InnerText!="" && x.RunProperties != null && x.RunProperties.Color != null && x.RunProperties.Color.Val != "000000" && x.RunProperties.Color.Val == run.RunProperties.Color.Val);
+                            var FetchedTuble = GetFirstElement<Run>(TECopy, x => x.InnerText.Trim() !="" && x.RunProperties != null && x.RunProperties.Color != null && x.RunProperties.Color.Val != "000000" && x.RunProperties.Color.Val == run.RunProperties.Color.Val);
                             var FetchedFirstElement = FetchedTuble?.Item3;
                             if (FetchedFirstElement != null)
                             {
@@ -418,7 +397,7 @@ namespace DoucmentManagmentSys.Models
                                 {
                                     FetchedFirstElement.SetAttribute(new OpenXmlAttribute("Variable", "http://DMSNamespace", run.RunProperties.Color.Val));
                                     //update template elements
-                                    FetchedTuble.Item1.ReplaceFromElements(FetchedTuble.Item1, FetchedTuble.Item2);
+                                    FetchedTuble.Item1.ReplaceFromElements(FetchedFirstElement.Ancestors().Last(), FetchedTuble.Item2);
 
                                     break;
                                 
@@ -499,7 +478,7 @@ namespace DoucmentManagmentSys.Models
                 }
             }
 
-            throw new Exception("Element not found" + predicate.Target);
+           return null;
         }
 
         private static IEnumerable<Run>  MainColoredRuns(ICollection<TemplateElement> templateElements)
@@ -511,7 +490,7 @@ namespace DoucmentManagmentSys.Models
                 OpenXmlAttribute openXmlAttribute = new OpenXmlAttribute("Variable", "http://DMSNamespace", "000000");
                 try
                 {
-                    if (run.InnerText != " " && run.GetAttribute(openXmlAttribute.LocalName, openXmlAttribute.NamespaceUri) != null)
+                    if (run.InnerText.Trim() != "" && run.GetAttribute(openXmlAttribute.LocalName, openXmlAttribute.NamespaceUri) != null)
                     {
                         Runs.Add(run);
                     }
@@ -530,16 +509,14 @@ namespace DoucmentManagmentSys.Models
             throw new NotImplementedException();
         }
 
-        
-
         private static void ReplaceVariablesAlgorithm(List<OpenXmlElement> topLevelParagraphs, List<TemplateElement> templateElements)
         {
             foreach (var topLevel in topLevelParagraphs)
             {
                 topLevel.Descendants<Run>().Where(x=>x.InnerText.Trim()=="").ToList().ForEach(x => x.RunProperties.Color = null); 
             }
-
-            foreach (var templateRun in MainColoredRuns(templateElements))
+            var Runs = MainColoredRuns(templateElements);
+            foreach (var templateRun in Runs)
             {
 
                 string replacementText = templateRun.InnerText;
@@ -547,17 +524,17 @@ namespace DoucmentManagmentSys.Models
                 // Iterate through each Run in topLevelParagraphs and replace text if colors match
                 foreach (var topLevel in topLevelParagraphs)
                 {
-                    foreach (var run in topLevel.Descendants<Run>())
-                    {
-                            var ComparisonAttribute = templateRun.GetAttribute("Variable", "http://DMSNamespace");
-
-                        if (
-                            run.InnerText !="" &&
+                    var ComparisonAttribute = templateRun.GetAttribute("Variable", "http://DMSNamespace");
+                    foreach (var run in topLevel.Descendants<Run>().Where(
+                        run=> run.InnerText != "" &&
                             run.RunProperties != null &&
                             run.RunProperties.Color != null &&
-                            run.RunProperties.Color.Val.Value.Equals(ComparisonAttribute.Value,StringComparison.OrdinalIgnoreCase)
-                           )   
-                        {
+                            run.RunProperties.Color.Val.Value.Equals(ComparisonAttribute.Value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                            
+
+                        
+                        
                             // Replace the run text with the text from the matching template run
                             var text = run.Descendants<Text>().FirstOrDefault();
                             if (text != null)
@@ -565,7 +542,7 @@ namespace DoucmentManagmentSys.Models
                                 text.Text = replacementText;
                                 run.RunProperties.Color = null;
                             }
-                        }
+                        
                     }
                 }
             }
@@ -607,8 +584,6 @@ namespace DoucmentManagmentSys.Models
             throw new NotImplementedException();
         }
 
- 
-        
         private static void SetMarker(ref OpenXmlAttribute attrib, OpenXmlElement element)
         {
             element.SetAttribute(attrib);
@@ -638,7 +613,8 @@ namespace DoucmentManagmentSys.Models
             {
                 var firstElm = FindMarkedElementInList(TopLevelParagraphs, ReplaceMeAttribute);
                 var secondElm = FindMarkedElementInList(UpdatedTemplates, ReplaceMeAttribute);
-
+                
+               
                 if (firstElm == null || secondElm == null)
                 {
                     break;

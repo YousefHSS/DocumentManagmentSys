@@ -334,14 +334,55 @@ namespace DoucmentManagmentSys.Helpers.Word
             return Regex.Match(input, pattern, RegexOptions.IgnoreCase).Groups[1].Value;
         }
 
-        public static bool TagStyleContainsAttribute(string input, string attr, string value)
+        public static bool TagStyleContainsAttribute(string input, string attr, string? value =null)
         {
             // This pattern checks for the attribute and its value within the style attribute
-            string pattern = $@"style\s*=\s*""[^""]*{attr}\s*:\s*{value};?";
+            string pattern = $@"style\s*=\s*""[^""]*{attr}\s*:\s*{value?? ".*?"};?";
 
             return Regex.IsMatch(input, pattern, RegexOptions.IgnoreCase);
         }
-       
+        public static string ExtractStyles(string input)
+        {
+            // This pattern finds the entire style attribute and captures its value
+            string pattern = @"style\s*=\s*""(.*?)""";
+
+            // Match the pattern in the input and return the entire style string if found
+            Match match = Regex.Match(input, pattern, RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return string.Empty;
+        }
+        public static string GetStyleAttributeValue(string input, string attr)
+        {
+            // Extract the style attribute value as a whole
+            string styleString = ExtractStyles(input);
+
+            // This pattern looks for the specified attribute followed by different possible value formats, including RGB
+            string pattern = $@"\b{attr}\s*:\s*(#[0-9a-fA-F]+|rgb\(\s*\d+,\s*\d+,\s*\d+\s*\)|[^;]+)";
+
+            // Match the pattern in the style string and return the value of the attribute, if found
+            Match match = Regex.Match(styleString, pattern, RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                return match.Groups[1].Value.Trim();
+            }
+            return string.Empty;
+        }
+        public static string RgbToHex(string rgb)
+        {
+            var match = Regex.Match(rgb, @"rgb\((\d+), \s*(\d+), \s*(\d+)\)");
+            if (match.Success)
+            {
+                var r = int.Parse(match.Groups[1].Value);
+                var g = int.Parse(match.Groups[2].Value);
+                var b = int.Parse(match.Groups[3].Value);
+                return $"#{r:X2}{g:X2}{b:X2}";
+            }
+            throw new FormatException("The provided string does not match the RGB format."+ rgb);
+        }
+
 
 
 

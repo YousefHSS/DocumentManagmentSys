@@ -102,6 +102,24 @@ namespace DoucmentManagmentSys.Helpers.Word
                 
                     
                 }
+                if (WordTemplateHelper.TagStyleContainsAttribute(HTML, " color"))
+                {
+
+                    var color = WordTemplateHelper.GetStyleAttributeValue(HTML, "color");
+                    if (color.Contains("#"))
+                    {
+                        runProperties.Color = new Color() { Val = color.Replace("#", "") };
+                    }
+                    else
+                    {
+                        var Rgb = WordTemplateHelper.RgbToHex(color);
+                        runProperties.Color = new Color() { Val = Rgb.Replace("#", "") };
+                    }
+                    
+
+
+
+                }
                 if (WordTemplateHelper.TagStyleContainsAttribute(HTML, "font-style", "italic"))
                 {
                    
