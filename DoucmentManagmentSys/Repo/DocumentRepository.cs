@@ -74,6 +74,7 @@ namespace DoucmentManagmentSys.Repo
                 FileTypes.ChangeTypeTo(".docx", DocumentInDb);
                 DocumentInDb.status = PrimacyDocument.Status.Under_Revison;
                 _context.Update(DocumentInDb);
+                ServerFileManager.RemoveFileFromFolder(NewName);
             }
             else
             {

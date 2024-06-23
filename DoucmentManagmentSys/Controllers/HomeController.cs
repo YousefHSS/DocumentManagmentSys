@@ -323,6 +323,12 @@ namespace DoucmentManagmentSys.Controllers
                     else
                     {
                         MessageResult RejectioResult2= _DocsRepo.Update(id, FileWithRejectionComments.FileName);
+                        if (!RejectioResult2.Status)
+                        {
+                            result.Status = false;
+                            result.Message = RejectioResult2.Message;
+                            return RedirectToAction("Index", "Home", new { actionTaken = "Rejected", message = RejectioResult2.Message });
+                        }
                         _DocsRepo.SaveChanges();
                         result.Status = true;
                         result.Message = "File Rejected successfully, Commented File Saved.";
