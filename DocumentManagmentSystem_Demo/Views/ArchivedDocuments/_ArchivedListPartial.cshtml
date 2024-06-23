@@ -6,7 +6,7 @@
         <form asp-action="download" asp-controller="ArchivedDocuments" method="post">
         <td>
             @* a list of versions with default beign latest version when clicked fetches other version from db *@
-            <select name="version" onmouseover="GetVersions(@item.Id, this)" id="versions">
+            <select class="NewDropdown" name="version" onmouseover="GetVersions(@item.Id, this)" id="versions">
                 <option>Latest</option>
            
             </select>

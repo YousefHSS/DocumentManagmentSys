@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using DocumentManagmentSystem_Demo.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +19,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using DocumentFormat.OpenXml.Bibliography;
+using DoucmentManagmentSys.Models;
 
-namespace DocumentManagmentSystem_Demo.Areas.Identity.Pages.Account
+namespace DoucmentManagmentSys.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
@@ -131,7 +131,7 @@ namespace DocumentManagmentSystem_Demo.Areas.Identity.Pages.Account
                 //set First and Last name
                 user.Name = Input.FirstName;
                 user.Surname = Input.LastName;
-                 var result = await _userManager.CreateAsync(user, Input.Password);
+                var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {

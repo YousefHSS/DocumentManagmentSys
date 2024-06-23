@@ -1,9 +1,10 @@
-﻿using DocumentManagmentSystem_Demo.Models;
-using DocumentManagmentSystem_Demo.Repo;
+﻿using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Repo;
 using System.Collections.ObjectModel;
 
 
-namespace DocumentManagmentSystem_Demo.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class AuditLogHelper
     {

@@ -1,10 +1,11 @@
-﻿using DocumentManagmentSystem_Demo.Data;
-using DocumentManagmentSystem_Demo.Models;
+﻿using DocumentFormat.OpenXml.InkML;
+using DoucmentManagmentSys.Data;
+using DoucmentManagmentSys.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DocumentManagmentSystem_Demo.Repo
+namespace DoucmentManagmentSys.Repo
 {
     public class MainRepo<T> : IRepository<T> where T : class
     {
@@ -13,6 +14,11 @@ namespace DocumentManagmentSystem_Demo.Repo
         public MainRepo(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public DbSet<T> GetDbSet()
+        {
+            return _context.Set<T>();
         }
 
         public void Add(T entity)
@@ -24,7 +30,7 @@ namespace DocumentManagmentSystem_Demo.Repo
         {
             _context.Set<T>().AddRange(entities);
         }
-        
+
 
         public void Delete(T entity)
         {

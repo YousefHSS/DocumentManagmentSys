@@ -1,0 +1,239 @@
+﻿@model List<TemplateElement>
+@using Subscript =DocumentFormat.OpenXml.Math.Subscript;
+@using Superscript =DocumentFormat.OpenXml.Math.Superscript;
+@using DocumentFormat.OpenXml.Wordprocessing;
+@using Microsoft.AspNetCore.Html
+@using DocumentFormat.OpenXml
+@using System.Text
+@using System.Web
+@{
+    ViewData["Title"] = "Create Document";
+}
+@{
+    var Editorid=0;
+    IHtmlContent RunToCK(IEnumerable<Run> items)
+    {
+        var contentBuilder = new HtmlContentBuilder();
+        foreach (var run in items)
+        {
+            var styleAttributes = new List<string>();
+            var OtherAttributes = new List<string>();
+            var TagsToAdd = new List<string>();
+
+            if (run.RunProperties != null)
+            {
+                var fontSizeAdjustment = int.Parse((run.RunProperties.FontSize?.Val ?? "24")!);
+                styleAttributes.Add($"font-size:{fontSizeAdjustment}px");
+                if(run.RunProperties.Color != null&& run.RunProperties.Color.Val!.Value!="" && run.RunProperties.Color.Val!.Value !="000000")
+                {
+                    styleAttributes.Add($" color:#{run.RunProperties.Color.Val!.Value}");
+                }
+                if (run.RunProperties.Bold != null)
+                {
+                    styleAttributes.Add("font-weight:bold");
+                }
+                if (run.RunProperties.Italic != null)
+                {
+                    styleAttributes.Add("font-style:italic");
+                }
+                if (run.RunProperties.Underline != null)
+                {
+                    styleAttributes.Add("text-decoration:underline");
+                }
+                var verticalAlignment = run.RunProperties.Descendants<VerticalTextAlignment>().FirstOrDefault()?.Val?.Value ?? VerticalPositionValues.Baseline;
+                if (verticalAlignment == VerticalPositionValues.Subscript)
+                {
+                    TagsToAdd.Add("sub");
+                }
+                else if (verticalAlignment==VerticalPositionValues.Superscript)
+                {
+                    TagsToAdd.Add("sup");
+                }
+
+                if (run.RunProperties.Highlight != null && run.RunProperties.Highlight.Val == HighlightColorValues.DarkMagenta)
+                {
+                    string toADD = $"contenteditable=\"false\"";
+                    OtherAttributes.Add(toADD);
+                }
+                else
+                {
+                    string toADD = $"contenteditable=\"true\"";
+                    OtherAttributes.Add(toADD);
+                }
+                try
+                {
+                      if(run.GetAttribute("Variable", "http://DMSNamespace").Value != null)
+                      {
+                            string toADD = $"Variable=\"{run.GetAttribute("Variable", "http://DMSNamespace").Value}\"";
+                            OtherAttributes.Add(toADD);
+                      }
+                }catch
+                {
+                    
+                }
+      
+
+            }
+
+            
+
+            // Construct the style attribute string
+            var styleAttribute = styleAttributes.Any() ? $"style=\"{string.Join("; ", styleAttributes)}\"" : string.Empty;
+
+           var innerTextWithTags = run.InnerText;
+
+            // Wrap innerText with each tag in TagsToAdd
+            foreach(var tag in TagsToAdd)
+            {
+                innerTextWithTags = $"<{tag}>{innerTextWithTags}</{tag}>";
+            }
+
+            // Construct the span element with the style attributes and wrapped innerText
+            var spanHtml = $"<span {string.Join(" ", OtherAttributes)} {styleAttribute}>{innerTextWithTags}</span>";
+
+            contentBuilder.AppendHtml(spanHtml);
+        }
+
+            return contentBuilder;
+       
+    };
+    Func<OpenXmlElement, IHtmlContent> Editor =
+    @<div class="editable p-2-ni rounded-1 border-1 m-1 border" id="@(Editorid++)"   contenteditable="true">
+        @if (item.Descendants<Paragraph>().Count()<=1)
+        {   
+            
+            <p>
+                @RunToCK(item.Descendants<Run>())
+            </p>
+                                         
+        }
+        else
+        {                                 
+            <ul>                            
+                @foreach (var paragraph in item.Descendants<Paragraph>())
+                {
+                   
+                    <li>@RunToCK(paragraph.Descendants<Run>())</li>
+                }
+            </ul>                                 
+        }
+    </div>
+    ;
+
+
+    Func<string, IHtmlContent> FixedTitle =
+    @<div class="row">
+                        <div class="col">
+                            <div class="form-group m-1">
+                                <h3 >@item</h3>
+                            </div>
+                        </div>
+                    </div>;
+
+    Func<Table, IHtmlContent> TableInputElement =
+    @<table class="table-bordered border-3 table">
+
+        @foreach (var row in @item.Elements<TableRow>())
+        {
+            
+            <tr>
+            
+                @foreach (var cell in row.Elements<TableCell>())
+                {
+                    
+                    <td>
+                        @if (cell.Descendants<Highlight>().Any(h => h.Val != null && h.Val == HighlightColorValues.Magenta))
+                        {
+                            // This is the header cell
+                            @cell.InnerText
+                        }
+                        else
+                        {
+                            @Editor(cell)
+                           
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </table>;
+
+
+}
+@* //css file ref *@
+<link rel="stylesheet" href="~/css/CKEDITOR.css" />
+<form method="Post" asp-action="GetCreationForm" id="documentForm">
+    <div id="paginationContent" class="d-flex justify-content-center">
+        <input type="hidden" id="TemplateTitle" name="TemplateTitle" value="@ViewBag.TemplateTitle" />
+        <input type="hidden" id="page" name="page" value="" />
+        <input type="hidden" id="lastPage" name="lastPage" value="@ViewBag.CurrentPage" />
+
+        <div class="col">
+        @{ string lastTitle="";}
+        @foreach (TemplateElement TE in Model)
+        {
+                if (TE.FixedTitle != lastTitle)
+                {               
+                    @FixedTitle(TE.FixedTitle);
+                }
+                @foreach (var TopLevelElement in TE.Elements)
+                {
+
+                    if (TopLevelElement is Table || TopLevelElement.Descendants<Table>().Any())
+                    {
+                        Table? table = TopLevelElement is Table ? TopLevelElement as Table : TopLevelElement.Descendants<Table>().First();
+                        @TableInputElement(table);
+                    }
+                    else
+                    {
+                            @Editor(TopLevelElement);
+                    }
+                    
+                }
+                lastTitle = TE.FixedTitle;
+                if (TE.FixedTitle == "Strength")
+                {
+                    <div id="strengths">
+
+                    </div>
+                        @* Display add strengh button *@
+                        <input type="button" class="btn btn-primary" onclick="AddStrengthInput()" style="margin:0.5rem;" id="addStrength" value="Add Strength" />
+                }
+             
+
+        }
+        </div>
+    </div>
+
+    
+
+
+<!-- Pagination Controls -->
+<nav aria-label="Page navigation" class="d-flex justify-content-center">
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+                @if (ViewBag.CurrentPage == i)
+                {
+                    <li class="page-item active"><a class="page-link" onclick="SetPage(@i)" data-page="@i">@i</a></li>
+                }else{
+                      <li class="page-item"><a class="page-link" onclick="SetPage(@i)" data-page="@i">@i</a></li>
+                }
+              
+        }
+    </ul>
+</nav>
+</form>
+@* //on last page add save button *@
+@if (ViewBag.CurrentPage == ViewBag.TotalPages)
+{
+    <form method="post" asp-action="SaveDocument" id="SaveDocument">
+        <input type="hidden" id="TemplateTitle" name="TemplateTitle" value="@ViewBag.TemplateTitle" />
+        <input type="hidden" id="lastPage" name="lastPage" value="@ViewBag.CurrentPage" />
+    <div class="d-flex justify-content-center">
+        <input type="button" onclick="SaveDocument()" class="btn btn-primary" value="Save" />
+    </div>
+    </form>
+}
+
+<script  src="~/js/GetCreationForm.js" />

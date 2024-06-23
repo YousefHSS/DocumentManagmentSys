@@ -1,4 +1,4 @@
-﻿namespace DocumentManagmentSystem_Demo.Helpers
+﻿namespace DoucmentManagmentSys.Helpers
 {
     public class ConfigurationHelper
     {

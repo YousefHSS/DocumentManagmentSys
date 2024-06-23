@@ -1,9 +1,12 @@
-﻿using DocumentManagmentSystem_Demo.Models;
+﻿using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace DocumentManagmentSystem_Demo.Data
+namespace DoucmentManagmentSys.Data
 {
     public class ApplicationDbContext : IdentityDbContext<PrimacyUser>
     {
@@ -20,7 +23,13 @@ namespace DocumentManagmentSystem_Demo.Data
 
         DbSet<ArchivedDocument> archivedDocuments { get; set; }
 
-        DbSet<ArchivedVersion> archivedVersions  { get; set; }
+        DbSet<ArchivedVersion> archivedVersions { get; set; }
+
+        DbSet<DocumentTemplate> DocumentTemplates { get; set; }
+
+        DbSet<AssayMethodValidationProtocolTemplate> DerivedDocumentTemplates { get; set; }
+
+        DbSet<TemplateElement> TemplateElements { get; set; }
 
 
     }

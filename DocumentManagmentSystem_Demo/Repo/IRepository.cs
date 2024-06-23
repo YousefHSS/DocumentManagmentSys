@@ -1,8 +1,7 @@
-﻿using DocumentManagmentSystem_Demo.Models;
-using System.Reflection.Metadata;
-using Document = DocumentManagmentSystem_Demo.Models.PrimacyDocument;
+﻿using System.Reflection.Metadata;
+using Document = DoucmentManagmentSys.Models.PrimacyDocument;
 
-namespace DocumentManagmentSystem_Demo.Repo
+namespace DoucmentManagmentSys.Repo
 {
     public interface IRepository<T> where T : class
     {

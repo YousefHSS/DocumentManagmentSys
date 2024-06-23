@@ -74,11 +74,11 @@ function ApplyUrlParams() {
     }
 
     if (urlParams.has('UP') && urlParams.get("UP") != '') {
-        document.querySelector('input[name="Updated"]').checked = urlParams.get('UP');
+        document.querySelector('input[name="Updated"]').click();
     }
 
     if (urlParams.has('DD') && urlParams.get("DD") != '') {
-        document.querySelector('input[name="Downloaded"]').checked = urlParams.get('DD');
+        document.querySelector('input[name="Downloaded"]').click();
     }
 
   

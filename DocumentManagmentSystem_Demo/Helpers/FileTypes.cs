@@ -1,7 +1,7 @@
-﻿using DocumentManagmentSystem_Demo.Models;
+﻿using DoucmentManagmentSys.Models;
 using System.Collections;
 
-namespace DocumentManagmentSystem_Demo.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class FileTypes
     {

@@ -1,6 +1,6 @@
-﻿using DocumentManagmentSystem_Demo.Models;
+﻿using DoucmentManagmentSys.Models;
 
-namespace DocumentManagmentSystem_Demo.Helpers
+namespace DoucmentManagmentSys.Helpers
 {
     public class ServerFileManager
     {
@@ -89,6 +89,18 @@ namespace DocumentManagmentSystem_Demo.Helpers
         {
             Array.ForEach(Directory.GetFiles(Folder), File.Delete);
         }
+
+        public static void RemoveFileFromFolder(string FileName, string strFolder = "./UploadedFiles/")
+        {
+
+            if (File.Exists(strFolder + FileName))
+            {
+                File.Delete(strFolder + FileName);
+            }
+
+        }
+        
+
 
         public static async Task<List<PrimacyDocument>> FilesToDocs(string UserID, string strFolder = "./UploadedFiles/")
         {

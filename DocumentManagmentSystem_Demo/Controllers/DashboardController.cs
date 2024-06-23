@@ -1,12 +1,11 @@
-﻿
-using DocumentManagmentSystem_Demo.Models;
-using DocumentManagmentSystem_Demo.RoleManagment;
+﻿using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace DocumentManagmentSystem_Demo.Controllers
+namespace DoucmentManagmentSys.Controllers
 {
     // only accessable by admin
 

@@ -1,11 +1,11 @@
 ﻿using CC.Web.Helpers;
-
-using DocumentManagmentSystem_Demo.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using DocumentManagmentSystem_Demo.RoleManagment;
+using DoucmentManagmentSys.RoleManagment;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Models;
 
-namespace DocumentManagmentSystem_Demo.Controllers
+namespace DoucmentManagmentSys.Controllers
 {
     public class MailController : Controller
     {

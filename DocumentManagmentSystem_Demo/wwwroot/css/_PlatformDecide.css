@@ -77,12 +77,14 @@ h1 {
 
 .left {
     left: 0;
-    background: url("/PNGs/SplitScreen/left/leftSS.png") center center ;
+    background: url("/PNGs/SplitScreen/left/leftSS.png") center center;
     background-repeat: repeat-x;
     background-size: cover;
-    transition: all 0.5s ease-in-out;
+    background-position: var(--background-position-xLeft, 0%) 50%;
     max-width: 75%;
     min-width: 25%;
+    transition: width 0.9s ease-in-out;
+
 }
 
     .left::before {
@@ -104,9 +106,11 @@ h1 {
     background: url("/PNGs/SplitScreen/right/rightSS.png") center center;
     background-repeat: repeat-x;
     background-size: cover;
-    transition: all 0.5s ease-in-out;
+    background-position: var(--background-position-xRight, 0%) 50%;
     max-width: 75%;
     min-width: 25%;
+    transition: width 0.9s ease-in-out;
+
 }
 
     .right::before {
@@ -125,12 +129,13 @@ h1 {
 
 .hover-left .left {
     /*width: var(--hover-width);*/
-    animation: moveBackground 10s linear infinite;
+    /*animation: moveBackground 10s linear infinite;*/
+
 }
 
 .hover-left .right {
     /*width: var(--small-width);*/
-    transition: all 0.5s ease-in-out;
+    transition: width 0.9s ease-in-out;
 }
 
 /*    .hover-left .right::before {
@@ -139,12 +144,12 @@ h1 {
 
 .hover-right .right {
     /*width: var(--hover-width);*/
-    animation: moveBackground 10s linear infinite;
+    /*animation: moveBackground 10s linear infinite;*/
 }
 
 .hover-right .left {
-    /*width: var(--small-width);*/
-    transition: all 0.5s ease-in-out;
+    /*width: var(--small-width);*/ /*transition: all 0.9s ease-in-out,background-position 0.0s;*/
+    transition: width 0.9s ease-in-out;
 }
 
 /*    .hover-right .left::before {
