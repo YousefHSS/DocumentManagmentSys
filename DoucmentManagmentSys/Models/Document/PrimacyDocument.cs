@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Helpers.Word;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
@@ -118,8 +119,14 @@ namespace DoucmentManagmentSys.Models
             status = Status.Under_Finalization;
         }
 
-        public void Reject(string reason)
+        public MessageResult Reject(string reason, IFormFile? fileWithReason = null)
         {
+            MessageResult result = new MessageResult();
+            if (fileWithReason != null)
+            {
+                result = ServerFileManager.UploadtoServer(fileWithReason);
+ 
+            }
             Reason = reason;
             if (status == Status.Under_Revison)
             {
@@ -129,7 +136,7 @@ namespace DoucmentManagmentSys.Models
             {
                 status = Status.Under_Revison;
             }
-
+            return result;
 
         }
 

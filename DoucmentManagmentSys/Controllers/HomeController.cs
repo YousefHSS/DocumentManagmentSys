@@ -131,18 +131,30 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Uploader,Revisor")]
         public IActionResult DeleteFile(int id, string fileName)
         {
+
             PrimacyDocument document = _DocsRepo.Find([id, fileName]);
+
             if (document == null)
             {
                 return Content("document not found");
             }
             else
             {
-                _DocsRepo.Delete(document);
-                _DocsRepo.SaveChanges();
-                return RedirectToAction("index", "Home", new { Message = "File deleted successfully." });
+                if (document.Creator == User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                {
+                    _DocsRepo.Delete(document);
+                    _DocsRepo.SaveChanges();
+                    return RedirectToAction("index", "Home", new { Message = "File deleted successfully." });
+                }
+                else
+                {
+                    return RedirectToAction("index", "Home", new { Message = "You don't have permission to delete this file." });
+                }
+                
+
             }
         }
 
@@ -292,12 +304,33 @@ namespace DoucmentManagmentSys.Controllers
         [HttpPost]
         [Authorize(Roles = "Revisor ,Finalizer")]
         [ValidateAntiForgeryToken]
-        public IActionResult Reject(int id, string Filename, string reason)
+        public IActionResult Reject(int id, string Filename, string reason, IFormFile FileWithRejectionComments)
         {
             MessageResult result = new MessageResult("File not Rejected.");
             PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
             if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
             {
+                if (FileWithRejectionComments != null)
+                {
+                    //update the document with the rejection comments
+                    MessageResult RejectioResult= Doc.Reject(reason, FileWithRejectionComments);
+                    if (!RejectioResult.Status)
+                    {
+                        result.Status = false;
+                        result.Message = RejectioResult.Message;
+                        return RedirectToAction("Index", "Home", new {  actionTaken = "Rejected", message = RejectioResult.Message });
+                    }
+                    else
+                    {
+                        MessageResult RejectioResult2= _DocsRepo.Update(id, FileWithRejectionComments.FileName);
+                        _DocsRepo.SaveChanges();
+                        result.Status = true;
+                        result.Message = "File Rejected successfully, Commented File Saved.";
+                        AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected_And_Commented, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                        return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Rejected", status = Doc.status, reason = reason });
+
+                    }
+                }
                 Doc.Reject(reason);
                 _DocsRepo.SaveChanges();
                 result.Status = true;
