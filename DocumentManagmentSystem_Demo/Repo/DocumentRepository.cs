@@ -1,11 +1,11 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.InkML;
-using DocumentManagmentSystem_Demo.Data;
-using DocumentManagmentSystem_Demo.Helpers;
-using DocumentManagmentSystem_Demo.Models;
+using DoucmentManagmentSys.Data;
+using DoucmentManagmentSys.Helpers;
+using DoucmentManagmentSys.Models;
 using NPOI.SS.Formula.Functions;
 
-namespace DocumentManagmentSystem_Demo.Repo
+namespace DoucmentManagmentSys.Repo
 {
     public class DocumentRepository : MainRepo<PrimacyDocument>
     {
@@ -38,7 +38,7 @@ namespace DocumentManagmentSystem_Demo.Repo
 
         public MessageResult Update(int id, string NewName)
         {
-            
+
 
             var Cleansed = ClearFileName(NewName);
             MessageResult Result = new MessageResult();
@@ -50,7 +50,7 @@ namespace DocumentManagmentSystem_Demo.Repo
             if (DocumentInDb != null)
             {
                 //check if extension is same as old one if the old one is pdf then check for docx
-                if (DocumentInDb.FileExtensiton == ".pdf" )
+                if (DocumentInDb.FileExtensiton == ".pdf")
                 {
                     if (System.IO.Path.GetExtension(NewName) != ".docx")
                     {
@@ -58,7 +58,7 @@ namespace DocumentManagmentSystem_Demo.Repo
                         Result.Message = "The uploaded Document must be in .docx format";
                         return Result;
                     }
-                    
+
                 }
                 else if (System.IO.Path.GetExtension(NewName) != DocumentInDb.FileExtensiton)
                 {
@@ -66,7 +66,7 @@ namespace DocumentManagmentSystem_Demo.Repo
                     Result.Message = "The uploaded Document must be in " + DocumentInDb.FileExtensiton + " format";
                     return Result;
                 }
-                
+
 
                 DocumentInDb.FileName = Cleansed;
                 DocumentInDb.UpdatedAt = DateTime.Now;
@@ -74,6 +74,7 @@ namespace DocumentManagmentSystem_Demo.Repo
                 FileTypes.ChangeTypeTo(".docx", DocumentInDb);
                 DocumentInDb.status = PrimacyDocument.Status.Under_Revison;
                 _context.Update(DocumentInDb);
+                ServerFileManager.RemoveFileFromFolder(NewName);
             }
             else
             {
@@ -98,7 +99,7 @@ namespace DocumentManagmentSystem_Demo.Repo
             List<PrimacyDocument> DocumentInDb = _context.Set<PrimacyDocument>().ToList();
             if (search != null)
             {
-                 DocumentInDb = _context.Set<PrimacyDocument>().Where(u => u.FileName.Contains(search)).ToList();
+                DocumentInDb = _context.Set<PrimacyDocument>().Where(u => u.FileName.Contains(search)).ToList();
             }
             if (DN != null)
             {
@@ -111,17 +112,17 @@ namespace DocumentManagmentSystem_Demo.Repo
                 DocumentInDb = VR == "Descending" ? DocumentInDb.OrderByDescending(u => u.Version).ToList() : DocumentInDb.OrderBy(u => u.Version).ToList();
 
             }
-            if(CA != null)
+            if (CA != null)
             {
                 DocumentInDb = CA == "Descending" ? DocumentInDb.OrderByDescending(u => u.CreatedAt).ToList() : DocumentInDb.OrderBy(u => u.CreatedAt).ToList();
 
             }
-            if(UA != null)
+            if (UA != null)
             {
                 DocumentInDb = UA == "Descending" ? DocumentInDb.OrderByDescending(u => u.UpdatedAt).ToList() : DocumentInDb.OrderBy(u => u.UpdatedAt).ToList();
 
             }
-            if (SS != null && SS[0]!="1")
+            if (SS != null && SS[0] != "1")
             {
                 //SS is array of status , get only the ones that are in the array
                 DocumentInDb = SS.Any() ? DocumentInDb.Where(u => SS.Contains(u.status.ToString())).ToList() : DocumentInDb;
@@ -129,7 +130,7 @@ namespace DocumentManagmentSystem_Demo.Repo
             }
 
 
-           
+
 
 
             return DocumentInDb;
@@ -138,7 +139,8 @@ namespace DocumentManagmentSystem_Demo.Repo
 
         }
 
-        public PrimacyDocument Find(params object?[]? keyValues) {
+        public PrimacyDocument Find(params object?[]? keyValues)
+        {
             //check if object in array of keys is a string
             foreach (var item in keyValues)
             {
@@ -153,16 +155,17 @@ namespace DocumentManagmentSystem_Demo.Repo
             }
             //then continue the function normallly as in the base class
             return base.Find(keyValues)!;
-                        
+
 
         }
 
-        public string ClearFileName(string fileName) {
+        public string ClearFileName(string fileName)
+        {
             //then check if the name has file extension
             if (System.IO.Path.HasExtension(fileName.ToString()!))
             {
                 //remove it and assign to original index object
-                 return System.IO.Path.GetFileNameWithoutExtension(fileName.ToString()!);
+                return System.IO.Path.GetFileNameWithoutExtension(fileName.ToString()!);
 
             }
             return fileName;

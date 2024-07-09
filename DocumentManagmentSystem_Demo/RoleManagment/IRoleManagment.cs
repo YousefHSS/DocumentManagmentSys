@@ -1,9 +1,9 @@
-﻿using DocumentManagmentSystem_Demo.Models;
+﻿using DoucmentManagmentSys.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace DocumentManagmentSystem_Demo.RoleManagment
+namespace DoucmentManagmentSys.RoleManagment
 {
     public interface IRoleManagment
     {

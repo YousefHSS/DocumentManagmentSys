@@ -1,0 +1,89 @@
+﻿.btn-primary {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+.btn-primary {
+  color: #0586e4;
+  border-color: #0586e4 !important;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #00599a !important;
+}
+
+.btn-download {
+  color: #40d003;
+  border-color: #40d003 !important;
+}
+.btn-download:hover {
+  color: #fff;
+  background-color: #178025 !important;
+}
+
+.btn-success {
+  color: #40d003;
+  border-color: #40d003 !important;
+}
+.btn-success:hover {
+  color: #fff;
+  background-color: #178025 !important;
+}
+
+.btn-danger {
+  color: #cc0707;
+  border-color: #cc0707 !important;
+}
+.btn-danger:hover {
+  color: #fff;
+  background-color: #760000 !important;
+}
+
+.btn-block {
+  color: #000000;
+  border-color: #000000 !important;
+}
+.btn-block:hover {
+  color: #fff;
+  background-color: #ffffff !important;
+}
+
+.btn, .btn-primary, .btn-download, .btn-success, .btn-danger, .btn-block {
+  appearance: none;
+  background-color: transparent;
+  border: 2px solid #1A1A1A;
+  border-radius: 15px;
+  box-sizing: border-box;
+  color: #3B3B3B;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Roobert, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+  outline: none;
+  padding: 0.4rem 1rem;
+  text-align: center;
+  text-decoration: none;
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  will-change: transform;
+}
+
+.btn:disabled, .btn-primary:disabled, .btn-download:disabled, .btn-success:disabled, .btn-danger:disabled, .btn-block:disabled {
+  pointer-events: none;
+}
+
+.btn:hover, .btn-primary:hover, .btn-download:hover, .btn-success:hover, .btn-danger:hover, .btn-block:hover {
+  color: #fff;
+  background-color: #1A1A1A;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 4px 8px;
+  transform: translateY(-2px);
+}
+
+.btn:active, .btn-primary:active, .btn-download:active, .btn-success:active, .btn-danger:active, .btn-block:active {
+  box-shadow: none;
+  transform: translateY(0);
+}

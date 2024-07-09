@@ -1,4 +1,4 @@
-﻿using DocumentManagmentSystem_Demo.Controllers;
+﻿using DoucmentManagmentSys.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;

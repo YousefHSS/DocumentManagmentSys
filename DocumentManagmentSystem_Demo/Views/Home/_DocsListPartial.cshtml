@@ -1,57 +1,56 @@
-﻿
+﻿@foreach (var item in Model)
+{
+    <tr>
+        <td>@item.FileName</td>
+        <td>@item.Version</td>
+        <td>@item.CreatedAt</td>
+        <td>@item.UpdatedAt</td>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.FileName</td>
-            <td>@item.Version</td>
-            <td>@item.CreatedAt</td>
-            <td>@item.UpdatedAt</td>
-
-            <td>
-                <div class="rounded-2 fw-bold p-1 container shadow-sm" style="background-color: @GetStatusColor(item.status.ToString())"> @item.status.ToString().Replace("_", " ") </div>
-                <div class="bubbleContainer container">
-                    
-                @* a red notification will appear here *@
-                    @if (item.Reason != null)
-                    {
-
-                        @* circle icon *@
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-circle-fill" id="bubbleContainer" viewBox="0 0 16 16">
-                            <circle cx="8" cy="8" r="8" />
-                        </svg>
-                        @* a fixed bubble with the reason *@
-                        <div class="bubble notification">
-                            <p>@item.Reason</p>
-                        </div>
-                       
-                    }
-
-                </div>
-            </td>
-            @functions
-            {
-            string GetStatusColor(string status)
-            {
-                switch (status)
-                {
-                    case "Under_Revison":
-                        return "#FFC107"; // Yellow
-                    case "Under_Finalization":
-                        return "#007BFF"; // Blue
-                    case "Approved":
-                        return "#28A745"; // Green
-                    case "Rejected":
-                        return "#DC3545"; // Red
-                    default:
-                        return "#FFFFFF"; // White
-                }
-            }
-
-        }
         <td>
-            @if (User.IsInRole("Revisor") || User.IsInRole("Uploader")){
-            @using (Html.BeginForm("Update", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            <div class="rounded-2 fw-bold p-1 container shadow-sm" style="background-color: @GetStatusColor(item.status.ToString())"> @item.status.ToString().Replace("_", " ") </div>
+            <div class="bubbleContainer container">
+
+                @* a red notification will appear here *@
+                @if (item.Reason != null)
+                {
+
+                    @* circle icon *@
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-circle-fill" id="bubbleContainer" viewBox="0 0 16 16">
+                        <circle cx="8" cy="8" r="8" />
+                    </svg>
+                    @* a fixed bubble with the reason *@
+                    <div class="bubble notification">
+                        <p>@item.Reason</p>
+                    </div>
+
+                }
+
+            </div>
+        </td>
+        @functions
+        {
+        string GetStatusColor(string status)
+        {
+            switch (status)
+            {
+                case "Under_Revison":
+                    return "#FFC107"; // Yellow
+                case "Under_Finalization":
+                    return "#007BFF"; // Blue
+                case "Approved":
+                    return "#28A745"; // Green
+                case "Rejected":
+                    return "#DC3545"; // Red
+                default:
+                    return "#FFFFFF"; // White
+            }
+        }
+
+    }
+    <td>
+        @if (User.IsInRole("Revisor") || User.IsInRole("Uploader"))
+            {
+                @using (Html.BeginForm("Update", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
                 {
                     <INPUT id="oFile" type="file" runat="server" NAME="oFile" class="form-control">
                     <input type="hidden" name="id" value="@item.Id" />
@@ -65,108 +64,120 @@
                 }
 
             }
-        </td> 
-            <td>
-                <form method="post" asp-controller="Home" asp-action="DownloadFile" style="display:ruby;">
-                    <input type="hidden" name="name" value="@item.FileName" />
-                    <input type="hidden" name="id" value="@item.Id" />
+        </td>
+        <td>
+            <form method="post" asp-controller="Home" asp-action="DownloadFile" style="display:ruby;">
+                <input type="hidden" name="name" value="@item.FileName" />
+                <input type="hidden" name="id" value="@item.Id" />
 
 
-                    <button type="submit" class="btn-download p-2 rounded-2">
-                            @* download icon *@
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                            <path d="M8 1a7 7 0 0 1 7 7v4a1 1 0 0 1-2 0V8a5 5 0 0 0-5-5 5 5 0 0 0-5 5v4a1 1 0 0 1-2 0V8a7 7 0 0 1 7-7z" />
-                            <path d="M7.646 11.854a.5.5 0 0 1-.708 0L4.646 9.354a.5.5 0 0 1 .708-.708L8 10.793l2.646-2.147a.5.5 0 0 1 .708.708l-3 2.5a.5.5 0 0 1-.708 0z" />
-                        </svg>
-                        Download
-                    </button>
-                </form>
+                <button type="submit" class="btn-download p-2 rounded-2">
+                    @* download icon *@
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                        <path d="M8 1a7 7 0 0 1 7 7v4a1 1 0 0 1-2 0V8a5 5 0 0 0-5-5 5 5 0 0 0-5 5v4a1 1 0 0 1-2 0V8a7 7 0 0 1 7-7z" />
+                        <path d="M7.646 11.854a.5.5 0 0 1-.708 0L4.646 9.354a.5.5 0 0 1 .708-.708L8 10.793l2.646-2.147a.5.5 0 0 1 .708.708l-3 2.5a.5.5 0 0 1-.708 0z" />
+                    </svg>
+                    Download
+                </button>
+            </form>
 
-            </td>
-                @{
+        </td>
+        @{
 
-                    var action = "";
-                    var text = "";
+            var action = "";
+            var text = "";
 
-                    if (User.IsInRole("Revisor") && item.status == PrimacyDocument.Status.Under_Revison)
-                    {
-                        action = "Revise";
-                        text = "Send to Final Revision";
-                    }
-                    else if (User.IsInRole("Finalizer") && item.status == PrimacyDocument.Status.Under_Finalization)
-                    {
-                        action = "Approve";
-                        text = "Finalize";
-                    }
-                    else
-                    {
-                        action = "";
-                        text = "";
-                    }
+            if (User.IsInRole("Revisor") && item.status == PrimacyDocument.Status.Under_Revison)
+            {
+                action = "Revise";
+                text = "Send to Final Revision";
+            }
+            else if (User.IsInRole("Finalizer") && item.status == PrimacyDocument.Status.Under_Finalization)
+            {
+                action = "Approve";
+                text = "Finalize";
+            }
+            else
+            {
+                action = "";
+                text = "";
+            }
 
-                }
-                @if (action == "")
-                {
-                <td>
-                </td>
-                }
-                else
-                {
-                <td>
-                    
-                        <button type="button" class="btn-danger p-2 rounded-2 w-100 mb-1" onclick="Reject('@item.FileName','@item.Id')">Reject</button>
-                    
-                    <br />
+        }
+        <td>
+            @if (action == "")
+            {
+
+
+
+            }
+            else
+            {
+                <button type="button" class="btn-danger p-2 rounded-2 w-100 mb-1" onclick="Reject('@item.FileName','@item.Id')">Reject</button>
+
+                <br />
                 <form id=@action method="post" asp-controller="Home" asp-action=@action>
-                        <input type="hidden" name="id" value="@item.Id" />
-                        <input type="hidden" name="FileName" value="@item.FileName" />
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <input type="hidden" name="FileName" value="@item.FileName" />
                     <button type="submit" class="btn-success p-2 rounded-2 w-100">@action</button>
-                    </form>
-                </td>
-                }
-                <td>
-                    <form asp-action="Index" asp-controller="HistoryLog">
+                </form>
+                <br />
+            }
+            @* if document is created by this uploader then show delete button *@
+            @if ((item as PrimacyDocument).Creator == User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+            {
+                
+                <form id=@action method="post" asp-controller="Home" asp-action="DeleteFile">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <input type="hidden" name="FileName" value="@item.FileName" />
+                    <button type="submit" class="btn-danger p-2 rounded-2 w-100">Delete</button>
+                </form>
+            }
+        </td>
+        <td>
+            <form asp-action="Index" asp-controller="HistoryLog">
                 <input type="hidden" name="doc_name" value="@item.FileName" />
-                        <button type="submit" class="btn-block p-2 rounded-2 w-100" @* onclick="showLogs('@item.FileName')" *@>
-                                <img class="navbar-toggler-icon" src="~/PNGs/log.png" alt="History" />
-                        </button>
-                    </form>
+                <button type="submit" class="btn-block p-2 rounded-2 w-100" @* onclick="showLogs('@item.FileName')" *@>
+                    <img class="navbar-toggler-icon" src="~/PNGs/log.png" alt="History" />
+                </button>
+            </form>
 
-                </td>
+        </td>
 
-        </tr>
+
+    </tr>
+}
+<div id="PopupPlaceHolder"></div>
+
+
+<script>
+
+
+    function Reject(FileName, id) {
+        $.ajax({
+            url: "/Home/RejectPopup",
+            type: "POST",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+            },
+            data: { FileName: FileName, id: id },
+            success: function (data) {
+
+                // replace the div with the new data
+                $("#PopupPlaceHolder").html(data);
+
+
+            }
+        });
     }
-    <div id="PopupPlaceHolder"></div>
 
 
-    <script>
-        
-        
-        function Reject(FileName, id) {
-                        $.ajax({
-                            url: "/Home/RejectPopup",
-                            type: "POST",
-                            beforeSend: function (request) {
-                                request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
-                            },
-                data: { FileName: FileName, id: id },
-                            success: function (data) {
-
-                                // replace the div with the new data
-                                $("#PopupPlaceHolder").html(data);
 
 
-                            }
-                        });
-                    }
+</script>
 
-    
+<script src="~/js/Logs.js">
 
+</script>
 
-    </script>
-
-        <script src="~/js/Logs.js">
-         
-        </script>
-   
 

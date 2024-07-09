@@ -1,12 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-using DocumentManagmentSystem_Demo.Models;
-using DocumentManagmentSystem_Demo.Repo;
+using DoucmentManagmentSys.Models;
+using DoucmentManagmentSys.Repo;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DocumentManagmentSystem_Demo.Controllers
+namespace DoucmentManagmentSys.Controllers
 {
 
     public class HistoryLogController : Controller
@@ -26,14 +26,14 @@ namespace DocumentManagmentSystem_Demo.Controllers
         [Authorize]
         public IActionResult Index(string doc_name)
         {
-                        //get document by name
+            //get document by name
             var Document = _DocumentRepo.GetWhere(x => x.FileName == doc_name).FirstOrDefault();
 
             //get history log of document
             var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == Document).FirstOrDefault();
             //return view with history log
             //get all history actions with that log id
-            List<HistoryAction>? HistoryActions =null;
+            List<HistoryAction>? HistoryActions = null;
             if (historyLog != null)
             {
                 HistoryActions = _HistoryActionRepo.GetWhere(x => x.historyLog == historyLog).ToList();
@@ -43,7 +43,7 @@ namespace DocumentManagmentSystem_Demo.Controllers
             //return partial view
             return View(model: HistoryActions);
         }
-       
+
 
 
 

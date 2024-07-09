@@ -6,9 +6,12 @@
     <title>@ViewData["Title"] - DMS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/btns.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Filters.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/NewDropdowns.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DoucmentManagmentSys.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
+    <link rel="shortcut icon" type="x-icon" href="~/favicon.ico" />
 
 </head>
 <body>
@@ -39,6 +42,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ArchivedDocuments" asp-action="index">Archived</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="DocumentTemplate" asp-action="CreateForm">Create Document</a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -56,8 +62,11 @@
             &copy; 2024 - DoucmentManagmentSys - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/NewSelects.js"></script>
+    <script src="~/js/ckeditor_4.22.1_20a23f1da269/ckeditor/ckeditor.js"></script>
+
 
 
     @await RenderSectionAsync("Scripts", required: false)

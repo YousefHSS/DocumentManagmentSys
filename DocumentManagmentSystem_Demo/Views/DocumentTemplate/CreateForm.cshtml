@@ -1,0 +1,20 @@
+﻿@model IEnumerable<string>
+@* a dropdown that on chnages displays a new form*@
+@{
+    ViewData["Title"] = "Create Document";
+}
+@* Title Choose DDocument Type *@
+<h1>Choose Document Type</h1>
+<form method="post" asp-action="GetCreationForm">
+    <select class="NewDropdown" name="TemplateTitle" id="TemplateTitle">
+    @foreach (var item in Model)
+    {
+        <option value="@item">@item</option>
+    }
+</select>
+    
+    <button type="submit" class="btn-primary btn">Proceed</button>
+</form>
+
+
+

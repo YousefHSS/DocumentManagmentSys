@@ -78,12 +78,8 @@
         <div class="fullcover">
             <div class="fullcover block" style="padding:0px;">
 
-                <div class="checkbox-wrapper-55">
-                    <label class="rocker rocker-small">
-                        <input type="checkbox" name="@item">
-                        <span class="switch-left">Yes</span>
-                        <span class="switch-right">No</span>
-                    </label>
+                <div class="checkbox-wrapper-25">
+                    <input type="checkbox" name="@item">
                 </div>
                 <div class="HoverText font-small">
                     Show only @item by me?
@@ -159,7 +155,7 @@
         <div class="FiltersTab row" onclick="GetNamesOfChangedValues()">
             <div class="filterbtn col d-flex justify-content-center block">
                 @* use the filters icon from PNGs *@
-                <div class="box" onclick="toggleTransition()">
+                <div class="BiggerOnHover" onclick="toggleTransition()">
                     <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/filter.png" alt="filter" id="filters" />
                     
                 </div>
@@ -167,7 +163,7 @@
             </div>
             <div class="filterbtn col d-flex justify-content-center block" style="display:none !important">
                 @* use the filters icon from PNGs *@
-                <div class="box" onclick="ClearFilters()">
+                    <div class="BiggerOnHover" onclick="ClearFilters()">
                     <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/cancel.png" alt="filter" id="filters" />
                     
                 </div>
@@ -175,7 +171,7 @@
             </div>
             <div class="filterbtn col d-flex justify-content-center block" style="display:none !important">
                 @* use the filters icon from PNGs *@
-                <div class="box" onclick="ApplyFilters()">
+                    <div class="BiggerOnHover" onclick="ApplyFilters()">
                     <img class="FiltersIcon navbar-toggler-icon" src="~/PNGs/tick.png" alt="filter" id="filters" />
                     
                 </div>

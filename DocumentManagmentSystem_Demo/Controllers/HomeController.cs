@@ -1,14 +1,15 @@
-using DocumentManagmentSystem_Demo.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using DocumentManagmentSystem_Demo.Repo;
-using DocumentManagmentSystem_Demo.RoleManagment;
+using DoucmentManagmentSys.Repo;
+using DoucmentManagmentSys.RoleManagment;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNet.Identity;
 using System.Reflection;
-using DocumentManagmentSystem_Demo.Helpers;
-using System.Linq;
+using DoucmentManagmentSys.Helpers;
+using DoucmentManagmentSys.Helpers.Word;
+using DoucmentManagmentSys.Models;
+
 
 
 
@@ -16,6 +17,7 @@ namespace DoucmentManagmentSys.Controllers
 {
     public class HomeController : Controller
     {
+
         private readonly ILogger<HomeController> _logger;
 
 
@@ -89,10 +91,8 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-        public async Task<MessageResult> UpdateToDB(int id, string newName)
+        public MessageResult UpdateToDB(int id, string newName)
         {
-
-
             string strFolder = "./UploadedFiles/";
             MessageResult Result = _DocsRepo.Update(id, newName);
             if (Result.Status)
@@ -104,8 +104,6 @@ namespace DoucmentManagmentSys.Controllers
 
             ServerFileManager.CleanDirectory(strFolder);
             return Result;
-
-
         }
 
         [HttpPost]
@@ -133,38 +131,46 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Uploader,Revisor")]
         public IActionResult DeleteFile(int id, string fileName)
         {
+
             PrimacyDocument document = _DocsRepo.Find([id, fileName]);
+
             if (document == null)
             {
                 return Content("document not found");
             }
             else
             {
-                _DocsRepo.Delete(document);
-                _DocsRepo.SaveChanges();
-                return RedirectToAction("index", "Home", new { Message = "File deleted successfully." });
+                if (document.Creator == User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                {
+                    _DocsRepo.Delete(document);
+                    _DocsRepo.SaveChanges();
+                    return RedirectToAction("index", "Home", new { Message = "File deleted successfully." });
+                }
+                else
+                {
+                    return RedirectToAction("index", "Home", new { Message = "You don't have permission to delete this file." });
+                }
+                
+
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(IFormFile oFile, int id)
+        public IActionResult Update(IFormFile oFile, int id)
         {
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
 
             if (result.Status)
             {
-                result = await UpdateToDB(id, oFile.FileName);
+                result = UpdateToDB(id, oFile.FileName);
             }
             ViewBag.Messages = result.Message;
-            TempData["Id"] = id;
 
             return RedirectToAction("index", "Home", new { ViewBag.Messages });
-
-
-            //return RedirectToAction("index", "Home", ViewBag.Message = "File updated successfully.");
 
         }
 
@@ -201,20 +207,20 @@ namespace DoucmentManagmentSys.Controllers
         [HttpGet]
         [Authorize]
         //DN = Document Name, VR = Version, CA = Created At, UA = Updated At, SS = Status, UP = Updated By, DD = Downloaded BY
-        public IActionResult GSearch(string search,string? DN,string? VR, string? CA,string? UA, string? SS,string? UP, string? DD)
+        public IActionResult GSearch(string search, string? DN, string? VR, string? CA, string? UA, string? SS, string? UP, string? DD)
         {
             string[]? SSArray = SS?.Split(',');
             var DocumentInDb = _DocsRepo.Search(search, DN, VR, CA, UA, SSArray);
             var documentIds = DocumentInDb.Select(doc => doc.Id).ToList();
-            var currentUserName = PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name?? "").Result;
+            var currentUserName = PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name ?? "").Result;
 
             //UP show updated by me only from the history actions
             if (UP != null && UP == "on")
             {
-                var HistoryActions = _HistoryActionRepo.GetWhere(x=> (x.Action == HistoryAction.Updated && x.UserName == currentUserName),x=>x.historyLog).ToList();
+                var HistoryActions = _HistoryActionRepo.GetWhere(x => (x.Action == HistoryAction.Updated && x.UserName == currentUserName), x => x.historyLog).ToList();
                 var HistoryLogs2 = HistoryActions.Select(x => x.historyLog).ToList() ?? new List<HistoryLog>();
                 var documentIds2 = HistoryLogs2.Select(log => log.Document_id.Id).ToList() ?? new List<int>();
-                DocumentInDb = DocumentInDb.Where(doc=> documentIds2.Contains(doc.Id)).ToList();
+                DocumentInDb = DocumentInDb.Where(doc => documentIds2.Contains(doc.Id)).ToList();
             }
             //DD show downloaded by me only from the history actions
             if (DD != null && DD == "on")
@@ -236,7 +242,7 @@ namespace DoucmentManagmentSys.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Finalizer")]
-        public IActionResult Approve(int id, string Filename , string Stamp="off")
+        public IActionResult Approve(int id, string Filename)
         {
 
             MessageResult result = new MessageResult("File not Approved.");
@@ -246,13 +252,12 @@ namespace DoucmentManagmentSys.Controllers
 
 
                 //before approving and converting to pdf
-                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name??"").Result);
+                AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name ?? "").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
-                if (Stamp=="on")
-                {
-                    wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
-                }
-                
+
+                wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
+
+
 
                 Doc.Approve(_ArchivedDocumentRepo);
                 _DocsRepo.SaveChanges();
@@ -288,8 +293,6 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-
-
         [HttpPost]
         [Authorize(Roles = "Finalizer ,Revisor")]
         [ValidateAntiForgeryToken]
@@ -298,20 +301,42 @@ namespace DoucmentManagmentSys.Controllers
             return PartialView("_ReasonPopup", _DocsRepo.Find([id, Filename]));
         }
 
-
-
         [HttpPost]
         [Authorize(Roles = "Revisor ,Finalizer")]
         [ValidateAntiForgeryToken]
-        public IActionResult Reject(int id, string Filename, string reason)
+        public IActionResult Reject(int id, string Filename, string reason, IFormFile FileWithRejectionComments)
         {
             MessageResult result = new MessageResult("File not Rejected.");
             PrimacyDocument Doc = _DocsRepo.Find([id, Filename]);
             if ((Doc.status == PrimacyDocument.Status.Under_Finalization && User.IsInRole("Finalizer")) || (Doc.status == PrimacyDocument.Status.Under_Revison && User.IsInRole("Revisor")))
             {
-                //displayRejectPopup
+                if (FileWithRejectionComments != null)
+                {
+                    //update the document with the rejection comments
+                    MessageResult RejectioResult= Doc.Reject(reason, FileWithRejectionComments);
+                    if (!RejectioResult.Status)
+                    {
+                        result.Status = false;
+                        result.Message = RejectioResult.Message;
+                        return RedirectToAction("Index", "Home", new {  actionTaken = "Rejected", message = RejectioResult.Message });
+                    }
+                    else
+                    {
+                        MessageResult RejectioResult2= _DocsRepo.Update(id, FileWithRejectionComments.FileName);
+                        if (!RejectioResult2.Status)
+                        {
+                            result.Status = false;
+                            result.Message = RejectioResult2.Message;
+                            return RedirectToAction("Index", "Home", new { actionTaken = "Rejected", message = RejectioResult2.Message });
+                        }
+                        _DocsRepo.SaveChanges();
+                        result.Status = true;
+                        result.Message = "File Rejected successfully, Commented File Saved.";
+                        AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected_And_Commented, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                        return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Rejected", status = Doc.status, reason = reason });
 
-
+                    }
+                }
                 Doc.Reject(reason);
                 _DocsRepo.SaveChanges();
                 result.Status = true;
@@ -321,13 +346,6 @@ namespace DoucmentManagmentSys.Controllers
             }
 
             return RedirectToAction("index", "Home", new { Message = result.Status });
-        }
-
-
-
-        public IActionResult Docs()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -353,12 +371,12 @@ namespace DoucmentManagmentSys.Controllers
         {
             if (Destination != "Register")
             {
-                Destination="Login";
+                Destination = "Login";
             }
             return PartialView("_PlatformDecide", Destination);
         }
 
     }
 
-  
+
 }
