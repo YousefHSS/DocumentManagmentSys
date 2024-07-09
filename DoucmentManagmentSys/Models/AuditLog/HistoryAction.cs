@@ -34,11 +34,11 @@ namespace DoucmentManagmentSys.Models
         public static string Rejected = "Rejected";
         public static string Revised = "Checked";
         public static string Downloaded = "Downloaded";
-        public static string Rejected_And_Commented = "Rejected_And_Commented";
+        public static string Rejected_With_Comments = "Rejected_With_Comments";
 
         internal static string[] GetAllActionTypes()
         {
-            return [Created, Updated, Deleted, Approved, Rejected, Revised, Downloaded, Rejected_And_Commented];
+            return [Created, Updated, Deleted, Approved, Rejected, Revised, Downloaded, Rejected_With_Comments];
         }
     }
 }

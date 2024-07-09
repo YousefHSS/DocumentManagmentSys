@@ -126,8 +126,8 @@
             @* if document is created by this uploader then show delete button *@
             @if ((item as PrimacyDocument).Creator == User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
             {
-                
-                <form id=@action method="post" asp-controller="Home" asp-action="DeleteFile">
+
+                <form id=@action method="post" asp-controller="Home" asp-action="DeleteConfirmation">
                     <input type="hidden" name="id" value="@item.Id" />
                     <input type="hidden" name="FileName" value="@item.FileName" />
                     <button type="submit" class="btn-danger p-2 rounded-2 w-100">Delete</button>
@@ -142,6 +142,11 @@
                 </button>
             </form>
 
+        </td>
+        <td>
+            <button onclick="ToViewHTML('@item.FileName','@item.Id')" class="btn-block p-2 rounded-2 w-100">
+                <img class="navbar-toggler-icon" width="20" src="~/PNGs/search.png" alt="History" />
+            </button>
         </td>
 
 
@@ -171,6 +176,12 @@
         });
     }
 
+    function ToViewHTML(FileName, id) {
+        //create form and submit
+
+        window.open("/Home/ViewHTML?id=" + id + "&FileName=" + FileName, "_blank");
+
+    }
 
 
 

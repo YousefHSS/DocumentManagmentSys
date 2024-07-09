@@ -11,5 +11,5 @@
 <form method="post" asp-controller="Home" asp-action="DeleteFile">
     <input type="hidden" name="id" value="@ViewBag.Id" />
     <input type="hidden" name="FileName" value="@ViewBag.FileName" />
-    <button type="submit">Confirm Delete @ViewBag.FileName</button>
+    <button class="btn btn-danger" type="submit">Confirm Delete @ViewBag.FileName</button>
 </form>

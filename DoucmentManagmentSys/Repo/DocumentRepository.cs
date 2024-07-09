@@ -1,9 +1,6 @@
-﻿using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.InkML;
-using DoucmentManagmentSys.Data;
+﻿using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Models;
-using NPOI.SS.Formula.Functions;
 
 namespace DoucmentManagmentSys.Repo
 {
@@ -72,7 +69,6 @@ namespace DoucmentManagmentSys.Repo
                 DocumentInDb.UpdatedAt = DateTime.Now;
                 DocumentInDb.Content = ServerFileManager.GetFileContent(NewName).Result ?? DocumentInDb.Content;
                 FileTypes.ChangeTypeTo(".docx", DocumentInDb);
-                DocumentInDb.status = PrimacyDocument.Status.Under_Revison;
                 _context.Update(DocumentInDb);
                 ServerFileManager.RemoveFileFromFolder(NewName);
             }

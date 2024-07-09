@@ -9,6 +9,10 @@ using System.Reflection;
 using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Helpers.Word;
 using DoucmentManagmentSys.Models;
+using Mammoth;
+using DocumentFormat.OpenXml.Packaging;
+using OpenXmlPowerTools;
+using System.Xml.Linq;
 
 
 
@@ -47,13 +51,21 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-        public IActionResult Index(string Message, string Messages, string? SortBY)
+        [Authorize]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult InProcess(string Message, string Messages, string? SortBY)
         {
             ViewBag.Message = Message ?? "";
             ViewBag.Messages = Messages ?? "";
             TempData["Id"] = TempData["Id"] ?? "";
 
-            return View(SortBY != null ? OrderByProperty<PrimacyDocument>(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
+            return View(SortBY != null ? OrderByProperty(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
         }
 
         [HttpPost]
@@ -156,6 +168,16 @@ namespace DoucmentManagmentSys.Controllers
                 
 
             }
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmation(int id, string FileName)
+        {
+            ViewBag.id = id;
+            ViewBag.FileName = FileName;
+            return View("Confirmation");
         }
 
         [HttpPost]
@@ -322,6 +344,7 @@ namespace DoucmentManagmentSys.Controllers
                     }
                     else
                     {
+                        _DocsRepo.SaveChanges();
                         MessageResult RejectioResult2= _DocsRepo.Update(id, FileWithRejectionComments.FileName);
                         if (!RejectioResult2.Status)
                         {
@@ -332,7 +355,7 @@ namespace DoucmentManagmentSys.Controllers
                         _DocsRepo.SaveChanges();
                         result.Status = true;
                         result.Message = "File Rejected successfully, Commented File Saved.";
-                        AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected_And_Commented, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
+                        AuditLogHelper.AddLogThenProcced(HistoryAction.Rejected_With_Comments, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
                         return RedirectToAction("SendMail", "Mail", new { Filename = Filename, actionTaken = "Rejected", status = Doc.status, reason = reason });
 
                     }
@@ -374,6 +397,32 @@ namespace DoucmentManagmentSys.Controllers
                 Destination = "Login";
             }
             return PartialView("_PlatformDecide", Destination);
+        }
+
+        public IActionResult ViewHTML(int id, string Filename)
+        {
+
+
+
+            var Doc = _DocsRepo.Find([id, Filename]);
+            XElement html;
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                memoryStream.Write(Doc.Content, 0, Doc.Content.Length);
+                memoryStream.Position = 0;
+                using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
+                {
+                    HtmlConverterSettings settings = new HtmlConverterSettings()
+                    {
+                        PageTitle = "My Page Title"
+                    };
+                     html = HtmlConverter.ConvertToHtml(doc, settings);
+                    // Your further processing...
+                }
+            }
+            return View("ViewHTML", html.ToStringNewLineOnAttributes());
+
         }
 
     }

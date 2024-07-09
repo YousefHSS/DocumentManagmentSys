@@ -1,0 +1,145 @@
+﻿@using Microsoft.AspNetCore.Html
+@using DoucmentManagmentSys.Models
+@model IEnumerable<PrimacyDocument>
+
+@{
+    ViewData["Title"] = "In Process Documents";
+
+
+}
+@{
+    Func<dynamic, IHtmlContent> TableHeader =
+    @<th scope="col" class="justify-content-between">
+        @item
+    </th>
+    ;
+}
+
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+
+
+    @if (User.IsInRole("Uploader") || User.IsInRole("Revisor"))
+    {
+        @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <INPUT id="oFile" type="file" runat="server" NAME="oFile" class="form-control">
+            <br />
+            <button id="btnUpload" type="submit" text="Upload" runat="server" class="btn-success p-2 rounded-2">Upload</button>
+            <br />
+            <Panel ID="frmConfirmation" Visible="False" Runat="server">
+
+
+
+
+
+            </Panel>
+
+        }
+    }
+    <Label id="lblUploadResult" Runat="server"> @ViewBag.Message</Label>
+
+
+    @* <a asp-area="" asp-controller="Home" asp-action="SaveFilesToDB" class="btn-success p-2 rounded-2 text-decoration-none">Save All</a> *@
+
+    @* sapcecing *@
+
+    @*a filter to search *@
+    @* UseExtensions the search partial *@
+    @await Html.PartialAsync("_SearchPartial")
+    @* a table that holds all the documents from DB with a popup confirmation for delete and Download*@
+    <table id="sourceTable" class="table-striped table-hover table-bordered table">
+        <thead class="thead-dark">
+            <tr>
+                @TableHeader("Document Name")
+                @TableHeader("Version")
+                @TableHeader("Created At")
+                @TableHeader("Updated At")
+                @TableHeader("Status")
+                @TableHeader("Update")
+                @TableHeader("Download")
+                @TableHeader("Action")
+                @TableHeader("History")
+                @TableHeader("View")
+
+            </tr>
+        </thead>
+        <tbody class="DocsListPartial">
+            @await Html.PartialAsync("_DocsListPartial", Model)
+        </tbody>
+    </table>
+
+    @*     var user = User.IsInRole("Admin");
+    <div>@user</div>
+
+    if (!User.IsInRole("Admin"))
+    {
+        <div>click here to be admin @user
+        </div>
+        <a asp-area="" asp-controller="Home" asp-action="Admin" class="btn-success p-2 rounded-2 text-decoration-none">Admin</a>
+    }
+
+    else
+    {
+        <div>
+            click here to remove admin @user
+        </div>
+        <a asp-area="" asp-controller="Home" asp-action="User" class="btn-success p-2 rounded-2 text-decoration-none">User</a>
+
+    } *@
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <p>Please Login </p>
+    </div>
+}
+
+@section Scripts {
+
+    <script>
+
+        // function Search() {
+        //     get if there any Sorting in the url
+        //     var SortingBy =    $("#SortingBy").val();
+        //     var search = $(".form-control").val();
+        //     $.ajax({
+        //         url: "/Home/Search",
+        //         type: "POST",
+        //         beforeSend: function (request) {
+        //             request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+        //         },
+        //         data: { search: search },
+        //         success: function (data) {
+
+        //             // replace the whole page with the new data
+        //             $(".DocsListPartial").html(data);
+
+        //         }
+        //     });
+        // }
+        $(document).ready(function () {
+
+            const container = document.getElementsByClassName('bubbleContainer');
+
+
+            // get elemenent after the container
+
+            for (let i = 0; i < container.length; i++) {
+                const bubble = container[i].querySelector('.bubble');
+                container[i].addEventListener('mouseover', () => {
+                    bubble.classList.add('active');
+
+                });
+
+                container[i].addEventListener('mouseout', () => {
+                    bubble.classList.remove('active');
+
+                });
+            }
+
+        });
+    </script>
+
+}

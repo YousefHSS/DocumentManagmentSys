@@ -29,6 +29,10 @@
     @include button-variant(  #cc0707, #fff,  #760000 );
     @extend .btn;
 }
+.btn-warning {
+    @include button-variant(#ffd800, #fff, #a49702);
+    @extend .btn;
+}
 .btn-block {
     @include button-variant(#000000, #fff,  #ffffff);
     @extend .btn;

@@ -28,6 +28,7 @@
 
 	<ItemGroup>
 	  <Content Remove="wwwroot\css\BackgroundFloatAnimation.js" />
+	  <Content Remove="wwwroot\js\Bend.js" />
 	  <Content Remove="wwwroot\js\GetArchivedVersions.js" />
 	  <Content Remove="wwwroot\js\GetCreationForm.js" />
 	</ItemGroup>
@@ -39,6 +40,7 @@
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="wwwroot\css\BackgroundFloatAnimation.js" />
 	  <_ContentIncludedByDefault Remove="wwwroot\css\Filters.css" />
+	  <_ContentIncludedByDefault Remove="wwwroot\js\Bend.js" />
 	  <_ContentIncludedByDefault Remove="wwwroot\js\GetCreationForm.js" />
 	</ItemGroup>
 
@@ -51,6 +53,7 @@
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
 		<PackageReference Include="itext7" Version="8.0.3" />
 		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.3" />
+		<PackageReference Include="Mammoth" Version="1.4.0" />
 		<PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
@@ -78,6 +81,7 @@
 
 	<ItemGroup>
 	  <None Include="wwwroot\js\BackgroundFloatAnimation.js" />
+	  <None Include="wwwroot\js\Bend.js" />
 	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\adapters\jquery.js" />
 	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\build-config.js" />
 	  <None Include="wwwroot\js\ckeditor_4.22.1_20a23f1da269\ckeditor\CHANGES.md" />

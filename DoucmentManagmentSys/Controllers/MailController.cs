@@ -64,7 +64,7 @@ namespace DoucmentManagmentSys.Controllers
             }
 
             // Redirect to the home page with a success message
-            return RedirectToAction("index", "Home", new { Message = "Mail Sent." });
+            return RedirectToAction("InProcess", "Home", new { Message = "Mail Sent." });
         }
 
     }
