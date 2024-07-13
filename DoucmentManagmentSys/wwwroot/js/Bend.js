@@ -39,4 +39,17 @@ function createCurvedTextWithin(element, angle , radius) {
         currentDegree += degreeIncrement;
     }
 }
-positionElementsInCircle('.circle', 100); // Adjust '100' based on the desired radius
+function injectHTMLIntoIframe(iframeId, htmlContent) {
+    const iframe= document.getElementById(iframeId);
+
+    if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+        // Open the iframe document for writing
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(htmlContent);
+        iframe.contentWindow.document.close();
+    } else {
+        console.error('Iframe not found or not accessible');
+    }
+}
+
+//positionElementsInCircle('.circle', 100); // Adjust '100' based on the desired radius

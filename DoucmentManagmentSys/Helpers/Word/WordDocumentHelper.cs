@@ -16,6 +16,7 @@ using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using ParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Models;
+using System.Text;
 
 namespace DoucmentManagmentSys.Helpers.Word
 {
@@ -306,6 +307,33 @@ namespace DoucmentManagmentSys.Helpers.Word
                 File.Delete(filePath);
             }
         }
+        public static byte[] ConvertToPdfAndReturnOutput(PrimacyDocument primacyDocument)
+        {
+            //if (Path.Exists($"./TempView/{primacyDocument.FileName}.pdf"))
+            //{
+            //    return $"./TempView/{primacyDocument.FileName}.pdf";
+            //}
+            if (FileTypes.IsFileTypeWord(primacyDocument.FileExtensiton))
+            {
+                //write primacyDocument.content to file in uploadedfiles
+
+                var filePath = $"./TempView/{primacyDocument.FileName}{primacyDocument.FileExtensiton}";
+
+                File.WriteAllBytes(filePath, primacyDocument.Content);
+
+
+                //convert file to pdf
+                var pdfFilePath = ConvertWordFile(filePath, "./TempView");
+                //replace content with new file content
+                File.Delete(filePath);
+                return File.ReadAllBytes(pdfFilePath);
+            }
+            else
+            {
+                return null;
+            }
+            
+        }
 
         internal void StampDocument(MainRepo<HistoryAction> _HistoryActionRepo, MainRepo<HistoryLog> _HistoryLogRepo)
         {
@@ -382,6 +410,50 @@ namespace DoucmentManagmentSys.Helpers.Word
             if (!File.Exists(libreOfficePath)) throw new FileNotFoundException("It seems that LibreOffice is not where it should be, please ensure the path exists.");
 
             var procStartInfo = new ProcessStartInfo(libreOfficePath, $@"--headless --convert-to pdf:writer_pdf_Export ""{file}"" --outdir ""{outputDirectory}""")
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = Environment.CurrentDirectory
+            };
+
+            Process process = new() { StartInfo = procStartInfo };
+
+            process.Start();
+
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+                throw new LibreOfficeFailedException(process.ExitCode);
+
+            if (!File.Exists(outputFile)) throw new FileNotFoundException("The convert to word process has failed to convert the file!");
+
+            return outputFile;
+        }
+
+        public static string ConvertDocxStreamToHtmlString(string file, string outputDirectory)
+        {
+            if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputDirectory)) throw new Exception("Invalid parameters passed to convert word function.");
+
+            if (!File.Exists(file)) throw new FileNotFoundException($"The file passed to the convert word process ({file}) could not be found.");
+
+            if (!Directory.Exists(outputDirectory)) throw new DirectoryNotFoundException($"The output folder passed to the convert word process ({outputDirectory}) does not exist.");
+
+            if (outputDirectory.EndsWith(@"\")) outputDirectory = outputDirectory[..^1];
+
+            var fileInfo = new FileInfo(file);
+
+            if (fileInfo.Extension.ToLower() == ".doc" && fileInfo.Extension.ToLower() == ".docx") throw new ArgumentOutOfRangeException($"The file type passed to the convert word process is an invalid type ({fileInfo.Extension}).");
+
+            var outputFile = outputDirectory + @"\" + Path.GetFileNameWithoutExtension(fileInfo.Name) + ".pdf";
+
+            if (File.Exists(outputFile)) File.Delete(outputFile);
+
+            var libreOfficePath = GetLibreOfficePath();
+
+            if (!File.Exists(libreOfficePath)) throw new FileNotFoundException("It seems that LibreOffice is not where it should be, please ensure the path exists.");
+
+            var procStartInfo = new ProcessStartInfo(libreOfficePath, $@"--headless --convert-to html:HTML ""{file}"" --outdir ""{outputDirectory}""")
             {
                 RedirectStandardOutput = true,
                 UseShellExecute = false,

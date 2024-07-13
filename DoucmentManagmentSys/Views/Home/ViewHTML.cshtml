@@ -1,15 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Html
 @using DoucmentManagmentSys.Models
-@model string
+@model Tuple<int, string>
 
 @{
     ViewData["Title"] = "View Document";
 }
+<script src="~/js/pdfjs-dist-master/build/pdf.js" type="module"></script>
+<script src="~/js/pdfjs-dist-master/web/pdf_viewer.js" type="module"></script>
+
+<link href="~/js/pdfjs-dist-master/web/pdf_viewer.css" rel="stylesheet" />
+<div id="pageContainer" class="pdfViewer singlePageView"></div>
+
+<script src="~/js/pageviewer.js" type="module"></script>
 
 
-@* //two buttons with the svg icon *@
-<div class="">
-    @Html.Raw(@Model)
-</div>
-
-<script src="~/js/Bend.js"></script>

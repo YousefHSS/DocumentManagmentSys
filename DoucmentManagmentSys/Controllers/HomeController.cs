@@ -13,6 +13,7 @@ using Mammoth;
 using DocumentFormat.OpenXml.Packaging;
 using OpenXmlPowerTools;
 using System.Xml.Linq;
+using NPOI.HPSF;
 
 
 
@@ -404,25 +405,47 @@ namespace DoucmentManagmentSys.Controllers
 
 
 
+            //var Doc = _DocsRepo.Find([id, Filename]);
+
+            //XElement html;
+
+            //using (MemoryStream memoryStream = new MemoryStream())
+            //{
+            //    memoryStream.Write(Doc.Content, 0, Doc.Content.Length);
+            //    memoryStream.Position = 0;
+            //    using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
+            //    {
+            //        HtmlConverterSettings settings = new HtmlConverterSettings()
+            //        {
+            //            PageTitle = "My Page Title",
+            //            CssClassPrefix = "htmlTest",
+            //            AdditionalCss = "body{width:600px;}"
+
+
+            //    };
+            //        html = HtmlConverter.ConvertToHtml(doc, settings);
+            //    }
+            //}
+
+
+
+
+            var modelT = new Tuple<int, string>(id, Filename);
+            return View("ViewHTML", modelT);
+            
+
+        }
+        public IActionResult GetPdf(int id, string Filename)
+        {
             var Doc = _DocsRepo.Find([id, Filename]);
-            XElement html;
-
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                memoryStream.Write(Doc.Content, 0, Doc.Content.Length);
-                memoryStream.Position = 0;
-                using (WordprocessingDocument doc = WordprocessingDocument.Open(memoryStream, true))
-                {
-                    HtmlConverterSettings settings = new HtmlConverterSettings()
-                    {
-                        PageTitle = "My Page Title"
-                    };
-                     html = HtmlConverter.ConvertToHtml(doc, settings);
-                    // Your further processing...
-                }
-            }
-            return View("ViewHTML", html.ToStringNewLineOnAttributes());
-
+            byte[] pdfContent = WordDocumentHelper.ConvertToPdfAndReturnOutput(Doc); // Implement this method to get your PDF content as byte array
+            return File(pdfContent, "application/pdf");
+        }
+        public IActionResult GetFile(string Filename)
+        {
+           
+            byte[] pdfContent = System.IO.File.ReadAllBytes("TempView/"+Filename); // Implement this method to get your PDF content as byte array
+            return File(pdfContent, "application/pdf");
         }
 
     }
