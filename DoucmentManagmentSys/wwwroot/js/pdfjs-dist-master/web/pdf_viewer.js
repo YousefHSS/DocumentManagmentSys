@@ -5964,7 +5964,9 @@ class PDFViewer {
     }
     this.container = options.container;
     this.#resizeObserver.observe(this.container);
-    this.viewer = options.viewer || options.container.firstElementChild;
+      this.viewer = options.viewer || options.container.firstElementChild;
+      
+      console.log("bool", !(this.container?.tagName.toUpperCase() === "DIV" && this.viewer?.tagName.toUpperCase() === "DIV"));
     if (!(this.container?.tagName.toUpperCase() === "DIV" && this.viewer?.tagName.toUpperCase() === "DIV")) {
       throw new Error("Invalid `container` and/or `viewer` option.");
     }

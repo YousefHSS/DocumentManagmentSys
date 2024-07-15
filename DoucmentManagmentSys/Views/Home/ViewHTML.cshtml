@@ -9,8 +9,19 @@
 <script src="~/js/pdfjs-dist-master/web/pdf_viewer.js" type="module"></script>
 
 <link href="~/js/pdfjs-dist-master/web/pdf_viewer.css" rel="stylesheet" />
-<div id="pageContainer" class="pdfViewer singlePageView"></div>
+<link href="~/css/ViewHTML.css" rel="stylesheet" />
+@* two buttons forNext and Prev *@
+<div id="viewerSuperContainer">
+<div id="viewerToolbar">
+    <button id="prevButton">Prev</button>
+    <button id="nextButton">Next</button>
+</div>
+<div id="viewerContainer" class="pdfViewer" style="position: absolute;">
+   <div id="viewer"></div>
+</div>
+</div>
 
-<script src="~/js/pageviewer.js" type="module"></script>
+
+<script src="~/js/Initialize.js" type="module"></script>
 
 
