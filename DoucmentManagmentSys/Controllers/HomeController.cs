@@ -14,6 +14,7 @@ using DocumentFormat.OpenXml.Packaging;
 using OpenXmlPowerTools;
 using System.Xml.Linq;
 using NPOI.HPSF;
+using Spire.Doc.Documents;
 
 
 
@@ -438,8 +439,17 @@ namespace DoucmentManagmentSys.Controllers
         public IActionResult GetPdf(int id, string Filename)
         {
             var Doc = _DocsRepo.Find([id, Filename]);
-            byte[] pdfContent = WordDocumentHelper.ConvertToPdfAndReturnOutput(Doc); // Implement this method to get your PDF content as byte array
-            return File(pdfContent, "application/pdf");
+            if (FileTypes.IsFileTypeWord(Doc.FileExtensiton))
+            {
+                byte[] pdfContent = WordDocumentHelper.ConvertToPdfAndReturnOutput(Doc); // Implement this method to get your PDF content as byte array
+                return File(pdfContent, "application/pdf");
+            }
+            else
+            {
+                //convert to byte and return content
+                return File(Doc.Content, "application/pdf");
+            }
+
         }
         public IActionResult GetFile(string Filename)
         {

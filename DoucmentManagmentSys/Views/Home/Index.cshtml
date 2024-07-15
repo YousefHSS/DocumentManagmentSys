@@ -8,7 +8,7 @@
 }
 @* //two buttons with the svg icon *@
 <div class="d-flex justify-content-center">
-    <a class="btn-warning m-1 p-3" href="Home/InProcess">
+    <a id="InProcess" class="btn-warning m-1 p-3" href="Home/InProcess">
         Documents In Process
         <img style="filter:hue-rotate(330deg)" src="~/images/in progress.svg" />
     </a>
@@ -17,4 +17,11 @@
     </a>
 </div>
 
+
 <script src="~/js/Bend.js"></script>
+<script>
+    document.addEventListener( "DOMContentLoaded", () => {
+        var InProcess= document.getElementById("InProcess");
+        InProcess.click();
+    })
+</script>

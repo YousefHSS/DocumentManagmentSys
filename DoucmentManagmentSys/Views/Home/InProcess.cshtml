@@ -23,17 +23,10 @@
     {
         @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
-            <INPUT id="oFile" type="file" runat="server" NAME="oFile" class="form-control">
+            <INPUT id="oFile" type="file" runat="server" name="oFile" class="form-control">
             <br />
             <button id="btnUpload" type="submit" text="Upload" runat="server" class="btn-success p-2 rounded-2">Upload</button>
             <br />
-            <Panel ID="frmConfirmation" Visible="False" Runat="server">
-
-
-
-
-
-            </Panel>
 
         }
     }

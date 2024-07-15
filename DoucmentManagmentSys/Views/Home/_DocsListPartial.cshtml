@@ -2,7 +2,18 @@
 {
     <tr>
         <td>@item.FileName</td>
-        <td>@item.Version</td>
+        <td>
+            @if(int.Parse(item.Version)<0)
+            {
+                <div>000</div>
+                ;
+            }
+            else
+            {
+                @item.Version;
+            }
+            
+        </td>
         <td>@item.CreatedAt</td>
         <td>@item.UpdatedAt</td>
 

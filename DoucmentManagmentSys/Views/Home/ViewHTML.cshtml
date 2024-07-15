@@ -5,13 +5,16 @@
 @{
     ViewData["Title"] = "View Document";
 }
-<script src="~/js/pdfjs-dist-master/build/pdf.js" type="module"></script>
+<div style="height:100vh" class="w-100 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<iframe class="w-100 h-100" src="./GetPdf?fileName=@Model.Item2&id=@Model.Item1"></iframe>
+</div>
+@* <script src="~/js/pdfjs-dist-master/build/pdf.js" type="module"></script>
 <script src="~/js/pdfjs-dist-master/web/pdf_viewer.js" type="module"></script>
 
 <link href="~/js/pdfjs-dist-master/web/pdf_viewer.css" rel="stylesheet" />
 <link href="~/css/ViewHTML.css" rel="stylesheet" />
 @* two buttons forNext and Prev *@
-<div id="viewerSuperContainer">
+@* <div id="viewerSuperContainer">
 <div id="viewerToolbar">
     <button id="prevButton">Prev</button>
     <button id="nextButton">Next</button>
@@ -22,6 +25,6 @@
 </div>
 
 
-<script src="~/js/Initialize.js" type="module"></script>
+<script src="~/js/Initialize.js" type="module"></script> *@
 
 

@@ -30,8 +30,12 @@ namespace DoucmentManagmentSys.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string Version { get; set; }
+
+        [NotMapped]
+        public static int VersionOffset = -1;
         public string? Reason { get; set; }
         public Status status { get; set; }
+
 
         [ForeignKey(nameof(Id))]
         public string Creator { get; set; }
@@ -44,7 +48,8 @@ namespace DoucmentManagmentSys.Models
             CreatedAt = DateTime.Now;
             UpdatedAt = DateTime.Now;
             //version is now a 3 digit number
-            Version = "000";
+            Version  = (int.Parse("000") + VersionOffset).ToString("000");
+
             status = Status.Under_Revison;
         }
 
@@ -68,7 +73,8 @@ namespace DoucmentManagmentSys.Models
         {
             if (Version == null)
             {
-                Version = "000";
+                
+                Version = (int.Parse("000") + VersionOffset).ToString("000");
             }
             else
             {

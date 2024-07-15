@@ -60,7 +60,15 @@ namespace DoucmentManagmentSys.Controllers
             // Send an email to each user
             foreach (var user in users)
             {
-                await emailSender.SendEmailAsync(user, Filename + " has been " + actionTaken, body);
+                try
+                {
+                    await emailSender.SendEmailAsync(user, Filename + " has been " + actionTaken, body);
+                }
+                catch
+                {
+                    Console.WriteLine("could not send mails server is not connected to internet");
+                }
+                
             }
 
             // Redirect to the home page with a success message
