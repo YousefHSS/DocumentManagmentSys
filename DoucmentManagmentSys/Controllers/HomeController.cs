@@ -444,11 +444,16 @@ namespace DoucmentManagmentSys.Controllers
                 byte[] pdfContent = WordDocumentHelper.ConvertToPdfAndReturnOutput(Doc); // Implement this method to get your PDF content as byte array
                 return File(pdfContent, "application/pdf");
             }
-            else
+            else if(FileTypes.IsFileTypePdf(Doc.FileExtensiton))
             {
                 //convert to byte and return content
                 return File(Doc.Content, "application/pdf");
             }
+            else
+            {
+                return View("Home");
+            }
+
 
         }
         public IActionResult GetFile(string Filename)

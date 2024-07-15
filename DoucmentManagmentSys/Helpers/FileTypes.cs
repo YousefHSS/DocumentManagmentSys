@@ -26,8 +26,13 @@ namespace DoucmentManagmentSys.Helpers
         }
         public static bool IsFileTypeWord(string fileType)
         {
-            return AllowedFileTypesWord.Contains(GetContentType(fileType.ToLower()));
+            return GetContentType(fileType.ToLower()) == "application/msword" || GetContentType(fileType.ToLower()) == "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
         }
+        public static bool IsFileTypePdf(string fileType)
+        {
+            return GetContentType(fileType.ToLower()) == "application/pdf";
+        }
+
         //Get Content type from name of file
         public static string GetContentType(string fileName)
         {

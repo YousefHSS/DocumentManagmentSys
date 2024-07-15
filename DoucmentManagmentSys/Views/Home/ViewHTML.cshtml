@@ -5,7 +5,8 @@
 @{
     ViewData["Title"] = "View Document";
 }
-<div style="height:100vh" class="w-100 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<img accesskey="loader" id="loader" src="~/images/Loading.gif" />
+<div id="viewer" style="height:100vh" class="w-100 d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 <iframe class="w-100 h-100" src="./GetPdf?fileName=@Model.Item2&id=@Model.Item1"></iframe>
 </div>
 @* <script src="~/js/pdfjs-dist-master/build/pdf.js" type="module"></script>
@@ -26,5 +27,17 @@
 
 
 <script src="~/js/Initialize.js" type="module"></script> *@
+<script>
 
+   // Loading Icon Until the frame is loaded
+    document.onreadystatechange = function () {
+        if (document.readyState !== "complete") {
+            document.querySelector("#viewer").style.visibility = "hidden";
+            document.querySelector("#loader").style.visibility = "visible";
+        } else {
+            document.querySelector("#loader").style.display = "none";
+            document.querySelector("#viewer").style.visibility = "visible";
+        }
+    };
+</script>
 

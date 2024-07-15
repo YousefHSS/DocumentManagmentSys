@@ -326,7 +326,13 @@ namespace DoucmentManagmentSys.Helpers.Word
                 var pdfFilePath = ConvertWordFile(filePath, "./TempView");
                 //replace content with new file content
                 File.Delete(filePath);
-                return File.ReadAllBytes(pdfFilePath);
+                var pdfFileBytes = File.ReadAllBytes(pdfFilePath);
+                File.Delete(pdfFilePath);
+                return pdfFileBytes;
+            }
+            else if (FileTypes.IsFileTypePdf(primacyDocument.FileExtensiton))
+            {
+                return primacyDocument.Content;
             }
             else
             {
