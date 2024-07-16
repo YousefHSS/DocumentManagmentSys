@@ -451,7 +451,8 @@ namespace DoucmentManagmentSys.Controllers
             }
             else
             {
-                return View("Home");
+                //return an empty byte
+                return File(new byte[]{}, "application/pdf");
             }
 
 
