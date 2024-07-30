@@ -254,9 +254,9 @@ namespace DoucmentManagmentSys.Controllers
                 var documentIds2 = HistoryLogs2.Select(log => log.Document_id.Id).ToList() ?? new List<int>();
                 DocumentInDb = DocumentInDb.Where(doc => documentIds2.Contains(doc.Id)).ToList();
             }
-            return View("index", DocumentInDb);
+            return View("InProcess", DocumentInDb);
 
-
+            
         }
         [HttpPost]
         [Authorize(Roles = "Finalizer")]
@@ -436,7 +436,16 @@ namespace DoucmentManagmentSys.Controllers
             
 
         }
-        public IActionResult GetPdf(int id, string Filename)
+
+        public IActionResult CommentsEditor(int id, string Filename)
+        {
+
+            var modelT = new Tuple<int, string>(id, Filename);
+            return View("CommentsEditor", modelT);
+
+        }
+
+        public IActionResult GetPdf(int id = 3007, string Filename = "superuser-479118(1)")
         {
             var Doc = _DocsRepo.Find([id, Filename]);
             if (FileTypes.IsFileTypeWord(Doc.FileExtensiton))

@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Html
+@using DoucmentManagmentSys.Models
+@model Tuple<int, string>
+
+@{
+    ViewData["Title"] = "View Document";
+}
+
+<script src="~/js/pdfjs-dist-master/build/pdf.js" type="module"></script>
+<script src="~/js/pdfjs-dist-master/web/pdf_viewer.js" type="module"></script>
+<script src="~/js/Initialize.js" type="module"></script>
+@* two buttons forNext and Prev *@
+<div id="viewerSuperContainer">
+<div id="viewerToolbar">
+    <button id="prevButton">Prev</button>
+    <button id="nextButton">Next</button>
+</div>
+<div id="viewerContainer" class="pdfViewer" style="position: absolute;">
+   <canvas id="viewer"></canvas>
+</div>
+</div>
+
+
+
+
+

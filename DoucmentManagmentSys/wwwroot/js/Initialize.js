@@ -28,7 +28,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 const CMAP_URL = "../js/pdfjs-dist-master/cmaps/";
 const CMAP_PACKED = true;
 
-const DEFAULT_URL = "./GetFile?fileName=Validation Protocol of Assay(1).pdf";
+const DEFAULT_URL = "./GetFile";
 // To test the AcroForm and/or scripting functionality, try e.g. this file:
 // "../../test/pdfs/160F-2019.pdf"
 
