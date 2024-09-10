@@ -54,9 +54,9 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(string Message)
         {
-            return View();
+            return RedirectToAction("InProcess", "Home", new { Message });
         }
 
         [HttpGet]
