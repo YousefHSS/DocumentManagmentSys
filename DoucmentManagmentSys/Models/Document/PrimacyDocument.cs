@@ -96,6 +96,7 @@ namespace DoucmentManagmentSys.Models
             status = Status.Approved;
 
             WordDocumentHelper.ConvertToPdfAndUpdate(this);
+
             ArchivedDocument? AD = _ArchivedDocsRepo.GetWhere(x => x.FileName == FileName).FirstOrDefault();
             //check if there is an archived document with same Document Id
             if (AD == null)

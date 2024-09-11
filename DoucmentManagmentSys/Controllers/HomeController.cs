@@ -278,8 +278,8 @@ namespace DoucmentManagmentSys.Controllers
                 //before approving and converting to pdf
                 AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name ?? "").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
-
                 wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
+                wordDocumenthelper.AddWatermark();
 
 
 

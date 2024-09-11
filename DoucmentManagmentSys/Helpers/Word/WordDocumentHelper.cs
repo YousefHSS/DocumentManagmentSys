@@ -17,6 +17,10 @@ using ParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphPrope
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Models;
 using System.Text;
+using WP = DocumentFormat.OpenXml.Drawing.Pictures;
+using V = DocumentFormat.OpenXml.Vml;
+using Picture = DocumentFormat.OpenXml.Wordprocessing.Picture;
+
 
 namespace DoucmentManagmentSys.Helpers.Word
 {
@@ -25,6 +29,7 @@ namespace DoucmentManagmentSys.Helpers.Word
         private PrimacyDocument document;
         private MemoryStream ms;
         private MainDocumentPart? mainPart;
+        private static string imagePart1Data = "";
         public WordDocumentHelper(PrimacyDocument document)
         {
             this.document = document;
@@ -56,7 +61,7 @@ namespace DoucmentManagmentSys.Helpers.Word
 
 
                     CreateFooterIfDoesntExist(mainPart);
-
+                    
                     MakeMarginsNarrow(mainPart);
                     Document MainPartDoc = mainPart.Document;
                     // Get the first section properties
@@ -129,6 +134,7 @@ namespace DoucmentManagmentSys.Helpers.Word
 
         private static void CreateHeaderIfDoesntExist(MainDocumentPart mainPart)
         {
+
             // Check if the document already has a footer part
             HeaderPart existingHeaderPart = mainPart.GetPartsOfType<HeaderPart>().FirstOrDefault();
 
@@ -174,6 +180,17 @@ namespace DoucmentManagmentSys.Helpers.Word
 
             ImagePart imagePart = PreAddImage(headerPart);
             var relationshipId = headerPart.GetIdOfPart(imagePart);
+            // Assuming the image size is 5486400L x 3200400L (adjust as needed)
+            long imageWidth = 798640L;
+            long imageHeight = 798640L;
+
+            // A4 page dimensions in EMUs
+            long pageWidth = 11906000L;
+            long pageHeight = 16838000L;
+
+            // Calculate position to center the image
+            long CentreOffsetX = (pageWidth - imageWidth) / 2;
+            long CentreOffsetY = (pageHeight - imageHeight) / 2;
             var wrapSquare = new WrapSquare()
             {
                 WrapText = WrapTextValues.BothSides // This sets the wrapping style to 'square'.
@@ -181,32 +198,36 @@ namespace DoucmentManagmentSys.Helpers.Word
             Run run = new Run();
             Drawing drawing = new Drawing(
 
-           new Inline(
+           new DW.Anchor(
                  new SimplePosition() { X = 0, Y = 0 },
                  new HorizontalPosition(
-                     new PositionOffset("689900") // Use appropriate position offset
+                     new PositionOffset(CentreOffsetX.ToString()) // Use appropriate position offset
                  )
                  { RelativeFrom = HorizontalRelativePositionValues.Page },
                  new VerticalPosition(
-                     new PositionOffset("0") // Use appropriate position offset
+                     new PositionOffset(CentreOffsetY.ToString()) // Use appropriate position offset
                  )
-                 { RelativeFrom = VerticalRelativePositionValues.BottomMargin },
-                 new Extent() { Cx = 512000L * 2, Cy = 512000L }, // Set the size of the image (Cx = width, Cy = height)
+                 { RelativeFrom = VerticalRelativePositionValues.Page },
+                 new Extent() { Cx = imageWidth, Cy = imageHeight }, // Set the size of the image (Cx = width, Cy = height)
                  new EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
-                 wrapSquare,
+                 new DW.WrapNone(),
                  new DocProperties() { Id = (UInt32Value)1U, Name = "Picture 1" },
                  new DW.NonVisualGraphicFrameDrawingProperties(
                      new GraphicFrameLocks() { NoChangeAspect = true }),
                  new Graphic(
                      new GraphicData(
                          new PIC.Picture(
-                             new PIC.NonVisualPictureProperties(
-                                 new PIC.NonVisualDrawingProperties() { Id = (UInt32Value)0U, Name = "New Image" },
-                                 new PIC.NonVisualPictureDrawingProperties()),
-                             new PIC.BlipFill(
-                                 new Blip() { Embed = relationshipId },
-                                 new Stretch(new FillRectangle())),
-                             new PIC.ShapeProperties(
+                             new NonVisualPictureProperties(
+                                 new NonVisualDrawingProperties() { Id = (UInt32Value)0U, Name = "New Image" },
+                                 new NonVisualPictureDrawingProperties()),
+                             new BlipFill(
+                                 new AlphaReplace() { Alpha = 2000},
+                                 new Blip()
+                                 { Embed = relationshipId },
+
+                                 new Stretch(new FillRectangle())
+                                 ),
+                             new ShapeProperties(
                                  new Transform2D(
                                      new Offset() { X = 0L, Y = 0L },
                                      new Extents() { Cx = 512000L, Cy = 512000L }),
@@ -224,6 +245,13 @@ namespace DoucmentManagmentSys.Helpers.Word
                DistanceFromBottom = (UInt32Value)0U,
                DistanceFromLeft = (UInt32Value)0U,
                DistanceFromRight = (UInt32Value)0U,
+
+               SimplePos = false,
+               RelativeHeight = (UInt32Value)0U,
+               BehindDoc = true,
+               Locked = false,
+               LayoutInCell = true,
+               AllowOverlap = true
 
 
            }
@@ -354,8 +382,97 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
             //update footer and header
             StampFooter(footerStrings);
-            //StampHeader();
+            StampHeader();
 
+        }
+
+        public void AddWatermark()
+        {
+            try
+            {
+                using (WordprocessingDocument package = WordprocessingDocument.Open(this.ms, true))
+                {
+                    
+                    
+
+                    //CreateHeaderIfDoesntExist(package.MainDocumentPart);
+                    //AddImageToHeader(package);
+                    InsertCustomWatermark(package, @"F:\Documents\DoucmentManagmentSys\DoucmentManagmentSys\wwwroot\images\Watermark.png");
+                    //save
+                    package.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+
+
+        private static void InsertCustomWatermark(WordprocessingDocument package, string p)
+        {
+            SetWaterMarkPicture(p);
+            MainDocumentPart mainDocumentPart1 = package.MainDocumentPart;
+            if (mainDocumentPart1 != null)
+            {
+                mainDocumentPart1.DeleteParts(mainDocumentPart1.HeaderParts);
+                HeaderPart headPart1 = mainDocumentPart1.AddNewPart<HeaderPart>();
+                GenerateHeaderPart1Content(headPart1);
+                string rId = mainDocumentPart1.GetIdOfPart(headPart1);
+                ImagePart image = headPart1.AddNewPart<ImagePart>("image/png", "rId999");
+                GenerateImagePart1Content(image);
+                IEnumerable<SectionProperties> sectPrs = mainDocumentPart1.Document.Body.Elements<SectionProperties>();
+                foreach (var sectPr in sectPrs)
+                {
+                    sectPr.RemoveAllChildren<HeaderReference>();
+                    sectPr.PrependChild(new HeaderReference() { Id = rId });
+                }
+            }
+        }
+
+        private static void GenerateHeaderPart1Content(HeaderPart headerPart1)
+        {
+            Header header1 = new Header();
+            Paragraph paragraph2 = new Paragraph();
+            Run run1 = new Run();
+            Picture picture1 = new Picture();
+            V.Shape shape1 = new V.Shape() { Id = "WordPictureWatermark75517470", Style = "position:absolute;left:0;text-align:left;margin-left:0;margin-top:0;width:415.2pt;height:456.15pt;z-index:-251656192;mso-position-horizontal:center;mso-position-horizontal-relative:margin;mso-position-vertical:center;mso-position-vertical-relative:margin", OptionalString = "_x0000_s2051", AllowInCell = false, Type = "#_x0000_t75" };
+            V.ImageData imageData1 = new V.ImageData() { Gain = "19661f", BlackLevel = "22938f", Title = "??", RelationshipId = "rId999" };
+            shape1.Append(imageData1);
+            picture1.Append(shape1);
+            run1.Append(picture1);
+            paragraph2.Append(run1);
+            header1.Append(paragraph2);
+            headerPart1.Header = header1;
+        }
+        private static void GenerateImagePart1Content(ImagePart imagePart1)
+        {
+            System.IO.Stream data = GetBinaryDataStream(imagePart1Data);
+            imagePart1.FeedData(data);
+            data.Close();
+        }
+
+        private static System.IO.Stream GetBinaryDataStream(string base64String)
+        {
+            return new System.IO.MemoryStream(System.Convert.FromBase64String(base64String));
+        }
+
+        public static void SetWaterMarkPicture(string file)
+        {
+            FileStream inFile;
+            try
+            {
+                inFile = new FileStream(file, FileMode.Open, FileAccess.Read);
+                byte[] byteArray = new byte[inFile.Length];
+                long byteRead = inFile.Read(byteArray, 0, (int)inFile.Length);
+                inFile.Close();
+                imagePart1Data = Convert.ToBase64String(byteArray, 0, byteArray.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private void StampHeader()
@@ -378,7 +495,9 @@ namespace DoucmentManagmentSys.Helpers.Word
                         //could cause an error
                         //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
                         sectionProps.PrependChild(new TitlePage());
+                        
                         AddImageToHeader(doc);
+                        //AddWatermark();
                     }
 
                     // Save the changes
@@ -518,7 +637,7 @@ namespace DoucmentManagmentSys.Helpers.Word
         public static ImagePart PreAddImage(HeaderPart HeaderPart)
         {
             ImagePart imagePart = HeaderPart.AddImagePart(ImagePartType.Jpeg);
-            using (FileStream stream = new FileStream(Path.GetFullPath("wwwroot/images/logo.jpg"), FileMode.Open))
+            using (FileStream stream = new FileStream(Path.GetFullPath("wwwroot/images/Watermark.png"), FileMode.Open))
             {
                 imagePart.FeedData(stream);
             }
