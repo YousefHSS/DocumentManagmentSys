@@ -10,9 +10,30 @@
 @{
     Func<dynamic, IHtmlContent> TableHeader =
     @<th scope="col" class="justify-content-between">
-        @item
-    </th>
+            @item
+        </th>
     ;
+}
+@if (@ViewBag.Message != "")
+{
+    <div class="toast-container position-fixed top-0 start-50 p-3" style="z-index: 11">
+        <div class="toast text-white bg-danger border-0"
+             id="TToast"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+
+            <div class="d-flex">
+                <div class="toast-body">
+                    @ViewBag.Message
+                </div>
+                <button type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 }
 
 @if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -30,7 +51,7 @@
 
         }
     }
-    <Label id="lblUploadResult" Runat="server"> @ViewBag.Message</Label>
+    @* <Label id="lblUploadResult" Runat="server"> @ViewBag.Message</Label> *@
 
 
     @* <a asp-area="" asp-controller="Home" asp-action="SaveFilesToDB" class="btn-success p-2 rounded-2 text-decoration-none">Save All</a> *@
@@ -112,8 +133,22 @@ else
         //         }
         //     });
         // }
+        function TToast() {
+            var toastElList = [].slice.call(document.querySelectorAll('#TToast'));
+            
+            if (toastElList.length !=0) {
+                 var toastList = toastElList.map(function (toastEl) {
+                                return new bootstrap.Toast(toastEl);
+                            });
+                            toastList.forEach(toast => toast.show());
+            }
+           
+        }
+
         $(document).ready(function () {
 
+
+            TToast();
             const container = document.getElementsByClassName('bubbleContainer');
 
 
