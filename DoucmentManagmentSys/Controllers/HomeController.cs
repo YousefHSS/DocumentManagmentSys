@@ -15,6 +15,7 @@ using OpenXmlPowerTools;
 using System.Xml.Linq;
 using NPOI.HPSF;
 using Spire.Doc.Documents;
+using DoucmentManagmentSys.Attributes;
 
 
 
@@ -54,17 +55,19 @@ namespace DoucmentManagmentSys.Controllers
         }
 
         [Authorize]
-        public IActionResult Index(string Message)
+        public IActionResult Index(string Message , string Messages)
         {
-            return RedirectToAction("InProcess", "Home", new { Message });
+
+            return RedirectToAction("InProcess", "Home", new { Message , Messages });
         }
 
         [HttpGet]
         [Authorize]
         public IActionResult InProcess(string Message, string Messages, string? SortBY)
         {
-            ViewBag.Message = Message ?? "";
-            ViewBag.Messages = Messages ?? "";
+            
+            ViewData["Message"] = Message ?? "";
+            ViewData["Messages"] = Messages ?? "";
             TempData["Id"] = TempData["Id"] ?? "";
 
             return View(SortBY != null ? OrderByProperty(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
@@ -81,7 +84,7 @@ namespace DoucmentManagmentSys.Controllers
                 result = await SaveToDB();
             }
 
-            return RedirectToAction("index", "Home", new { Message = result.Message });
+            return RedirectToAction("InProcess", "Home", new { Message = result.Message });
         }
 
 
@@ -99,7 +102,7 @@ namespace DoucmentManagmentSys.Controllers
                 _DocsRepo.SaveChanges();
             }
 
-            ViewBag.Message = Result.Message;
+            ViewData["Message"] = Result.Message;
             ServerFileManager.CleanDirectory(strFolder);
             return Result;
 
@@ -120,7 +123,7 @@ namespace DoucmentManagmentSys.Controllers
             return Result;
         }
 
-        [HttpPost]
+        [HttpPost, PasswordConfirmation]
         [Authorize]
         public IActionResult DownloadFile(string name, int id)
         {
@@ -192,9 +195,9 @@ namespace DoucmentManagmentSys.Controllers
             {
                 result = UpdateToDB(id, oFile.FileName);
             }
-            ViewBag.Messages = result.Message;
+            ViewData["Message"] = result.Message;
 
-            return RedirectToAction("index", "Home", new { ViewBag.Messages });
+            return RedirectToAction("index", "Home", new { Message = result.Message });
 
         }
 
@@ -258,13 +261,13 @@ namespace DoucmentManagmentSys.Controllers
 
             
         }
-        [HttpPost]
-        [Authorize(Roles = "Finalizer")]
-        public IActionResult ConfirmApprove(int id, string Filename)
-        {
-            return PartialView("_DigitalSigniturePopup", _DocsRepo.Find([id, Filename]));
-        }
-        [HttpPost]
+        //[HttpPost]
+        //[Authorize(Roles = "Finalizer")]
+        //public IActionResult ConfirmApprove(int id, string Filename)
+        //{
+        //    return PartialView("_DigitalSigniturePopup", _DocsRepo.Find([id, Filename]));
+        //}
+        [HttpPost, PasswordConfirmation]
         [Authorize(Roles = "Finalizer")]
         public IActionResult Approve(int id, string Filename)
         {

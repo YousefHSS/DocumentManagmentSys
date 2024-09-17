@@ -1,0 +1,53 @@
+﻿@using System.Text.Json
+
+@{
+    var returnUrl = ViewData["ReturnUrl"] as string;
+    var formDataJson = ViewData["FormData"] as string;
+    IDictionary<string, object> formdatakeyed = null;
+
+    if (!string.IsNullOrEmpty(formDataJson))
+    {
+        try
+        {
+            formdatakeyed = JsonSerializer.Deserialize<IDictionary<string, object>>(formDataJson);
+        }
+        catch (JsonException ex)
+        {
+            // Handle JSON deserialization error
+            throw new InvalidOperationException("Failed to deserialize FormData JSON string", ex);
+        }
+    }
+    else
+    {
+        throw new InvalidOperationException("FormData is null or empty");
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+</head>
+<body>
+    <form id="redirectForm" method="post" action="@returnUrl">
+        @if (formdatakeyed != null)
+        {
+            @foreach (var key in formdatakeyed.Keys)
+            {
+                <input type="hidden" name="@key" value="@formdatakeyed[key]" />
+            }
+        }
+    </form>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+
+
+            document.getElementById('redirectForm').submit();
+            setTimeout(function() {
+            window.history.go(-2);
+            }, 2000);
+
+        });
+    </script>
+</body>
+</html>

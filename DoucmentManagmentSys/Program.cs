@@ -1,5 +1,6 @@
 using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Helpers;
+using DoucmentManagmentSys.Middleware;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
@@ -13,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("Az") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -22,20 +23,23 @@ builder.Services.AddDefaultIdentity<PrimacyUser>(options => options.SignIn.Requi
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-// Register a factory delegate to resolve UserManager<IdentityUser> requests to UserManager<PrimacyUser>
 
+// Register a factory delegate to resolve UserManager<IdentityUser> requests to UserManager<PrimacyUser>
 builder.Services.AddTransient<UserManager<PrimacyUser>>();
 builder.Services.AddTransient<RoleManager<IdentityRole>>();
-
 builder.Services.AddTransient<SignInManager<PrimacyUser>>();
-//builder.Services.AddTransient(typeof(EmailSender));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient(typeof(MainRepo<>));
 builder.Services.AddTransient(typeof(DocumentRepository));
-
-
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 
+// Add session services
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set timeout as per your requirement
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -47,7 +51,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -56,28 +59,26 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession(); // Enable session
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<PasswordConfirmationMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<PrimacyUser>>();
-    CreateRoles(app.Services, userManager, roleManager).Wait();    // do you things here
+    CreateRoles(app.Services, userManager, roleManager).Wait();
 }
 
-
-
-
-
-
 app.Run();
-
 
 async Task CreateRoles(IServiceProvider serviceProvider, UserManager<PrimacyUser> userManager, RoleManager<IdentityRole> roleManager)
 {

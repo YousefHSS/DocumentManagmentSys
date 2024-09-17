@@ -14,10 +14,11 @@
         </th>
     ;
 }
-@if (@ViewBag.Message != "")
+@if (ViewData["Message"] != "")
 {
+    var message = ViewData["Message"].ToString();
     <div class="toast-container position-fixed top-0 start-50 p-3" style="z-index: 11">
-        <div class="toast text-white bg-danger border-0"
+        <div class="toast text-white bg-@(message.Contains("Error") ? "danger" : "success") border-0"
              id="TToast"
              role="alert"
              aria-live="assertive"
@@ -25,7 +26,7 @@
 
             <div class="d-flex">
                 <div class="toast-body">
-                    @ViewBag.Message
+                    @message.Replace("Error : ", "").Trim()
                 </div>
                 <button type="button"
                         class="btn-close btn-close-white me-2 m-auto"

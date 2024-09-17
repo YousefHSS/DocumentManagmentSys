@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewData["Title"] = "Confirmation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h1>Confirmation</h1>
+
+
+
+<form method="post" asp-controller="Home" asp-action="DeleteFile">
+    <input type="hidden" name="id" value="@ViewBag.Id" />
+    <input type="hidden" name="FileName" value="@ViewBag.FileName" />
+    <button class="btn btn-danger" type="submit">Confirm @Model.Controller @Model.Action @ViewBag.FileName</button>
+</form>
