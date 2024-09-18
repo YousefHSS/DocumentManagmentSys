@@ -54,11 +54,9 @@ namespace DoucmentManagmentSys.Models
         }
 
         // Methods
-        public void UpdateContent(byte[] newContent, Status? newStatus = null)
+        public void UpdateDocument()
         {
-            Content = newContent;
-            UpdatedAt = DateTime.Now;
-            status = newStatus ?? status;
+            this.status = Status.Under_Revison;
         }
 
         public enum Status
@@ -103,7 +101,7 @@ namespace DoucmentManagmentSys.Models
             {
                 ICollection<ArchivedVersion> versions = new Collection<ArchivedVersion>();
 
-                versions.Add(new ArchivedVersion() { Document = AD, Version = Version, Content = Content });
+                versions.Append(new ArchivedVersion() { Document = AD, Version = Version, Content = Content });
                 //add to the archive a new version
                 _ArchivedDocsRepo.Add(new ArchivedDocument()
                 {

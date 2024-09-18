@@ -1,6 +1,6 @@
 using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Helpers;
-using DoucmentManagmentSys.Middleware;
+
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
@@ -64,7 +64,7 @@ app.UseSession(); // Enable session
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<PasswordConfirmationMiddleware>();
+
 
 app.MapControllerRoute(
     name: "default",

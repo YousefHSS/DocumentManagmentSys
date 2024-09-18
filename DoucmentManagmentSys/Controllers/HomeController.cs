@@ -108,12 +108,32 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Update(IFormFile oFile, int id)
+        {
+            MessageResult result = ServerFileManager.UploadtoServer(oFile);
+
+            if (result.Status)
+            {
+                result = UpdateToDB(id, oFile.FileName);
+            }
+            ViewData["Message"] = result.Message;
+
+            return RedirectToAction("index", "Home", new { Message = result.Message });
+
+        }
+
         public MessageResult UpdateToDB(int id, string newName)
         {
             string strFolder = "./UploadedFiles/";
             MessageResult Result = _DocsRepo.Update(id, newName);
+
             if (Result.Status)
             {
+                var Doc = _DocsRepo.Find([id, newName]);
+                Doc.UpdateDocument();
+
                 AuditLogHelper.AddLogThenProcced(HistoryAction.Updated, newName, id, _DocsRepo, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name!).Result);
 
                 _DocsRepo.SaveChanges();
@@ -123,7 +143,7 @@ namespace DoucmentManagmentSys.Controllers
             return Result;
         }
 
-        [HttpPost, PasswordConfirmation]
+        [HttpPost]
         [Authorize]
         public IActionResult DownloadFile(string name, int id)
         {
@@ -146,7 +166,7 @@ namespace DoucmentManagmentSys.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, PasswordConfirmation]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Uploader,Revisor")]
         public IActionResult DeleteFile(int id, string fileName)
@@ -185,35 +205,14 @@ namespace DoucmentManagmentSys.Controllers
             return View("Confirmation");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Update(IFormFile oFile, int id)
-        {
-            MessageResult result = ServerFileManager.UploadtoServer(oFile);
-
-            if (result.Status)
-            {
-                result = UpdateToDB(id, oFile.FileName);
-            }
-            ViewData["Message"] = result.Message;
-
-            return RedirectToAction("index", "Home", new { Message = result.Message });
-
-        }
+        
 
         public IActionResult Privacy()
         {
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Confirmation(int id, string FileName)
-        {
-            ViewBag.id = id;
-            ViewBag.FileName = FileName;
-            return View("Confirmation");
-        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -298,7 +297,7 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, PasswordConfirmation]
         [Authorize(Roles = "Revisor")]
         public IActionResult Revise(int id, string Filename)
         {
@@ -328,7 +327,7 @@ namespace DoucmentManagmentSys.Controllers
             return PartialView("_ReasonPopup", _DocsRepo.Find([id, Filename]));
         }
 
-        [HttpPost]
+        [HttpPost, PasswordConfirmation]
         [Authorize(Roles = "Revisor ,Finalizer")]
         [ValidateAntiForgeryToken]
         public IActionResult Reject(int id, string Filename, string reason, IFormFile FileWithRejectionComments)

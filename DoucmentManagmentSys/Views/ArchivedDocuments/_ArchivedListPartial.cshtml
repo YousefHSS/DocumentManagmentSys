@@ -1,12 +1,14 @@
-﻿
+﻿@{
+    var i=0;
+}
 @foreach (ArchivedDocument item in Model)
 {
     <tr>
         <td>@(item.FileName ?? "N/A")</td>
         <form asp-action="download" asp-controller="ArchivedDocuments" method="post">
-        <td>
+        <td onclick="GetVersions(@item.Id, this)">
             @* a list of versions with default beign latest version when clicked fetches other version from db *@
-            <select class="NewDropdown" name="version" onmouseover="GetVersions(@item.Id, this)" id="versions">
+            <select class="NewDropdown" name="version"  id="@i">
                 <option>Latest</option>
            
             </select>
@@ -25,6 +27,7 @@
        
 
     </tr>
+    i++;
 }
 <div id="PopupPlaceHolder"></div>
 

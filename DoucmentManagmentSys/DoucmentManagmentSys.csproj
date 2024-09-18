@@ -90,6 +90,7 @@
 
 	<ItemGroup>
 		<Folder Include="Data\Migrations\" />
+		<Folder Include="Middleware\" />
 		<Folder Include="Migrations\" />
 		<Folder Include="TempView\" />
 		<Folder Include="UploadedFiles\" />
