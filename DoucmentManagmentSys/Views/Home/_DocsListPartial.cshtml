@@ -127,10 +127,16 @@
                 <button type="button" class="btn-danger p-2 rounded-2 w-100 mb-1" onclick="Reject('@item.FileName','@item.Id')">Reject</button>
 
                 <br />
-                <form id=@action method="post" asp-controller="Home" asp-action=@action>
+                <form id=@action+@item.FileName+@item.Id class="password-protected-form" method="post" asp-controller="Home" asp-action=@action>
                     <input type="hidden" name="id" value="@item.Id" />
                     <input type="hidden" name="FileName" value="@item.FileName" />
                     <button type="submit" class="btn-success p-2 rounded-2 w-100">@action</button>
+                    <!-- Popup Modal for Password Input -->
+                    <div id="passwordPopup" style="display: block;">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password">
+                        <button id="submitPassword">Submit</button>
+                    </div>
                 </form>
                 <br />
             }
@@ -138,15 +144,20 @@
             @if ((item as PrimacyDocument).Creator == User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
             {
 
-                <form id=@action method="post" asp-controller="Home" asp-action="DeleteConfirmation">
+                <form id=@action method="post" asp-controller="Home" class="password-protected-form" asp-action="DeleteConfirmation">
                     <input type="hidden" name="id" value="@item.Id" />
                     <input type="hidden" name="FileName" value="@item.FileName" />
                     <button type="submit" class="btn-danger p-2 rounded-2 w-100">Delete</button>
+                    <div id="passwordPopup" style="display: none;">
+                        <label for="password">Password:</label>
+                        <input  type="password" id="password" name="password">
+                        <button class="btn-success p-2 rounded-2 w-100" id="submitPassword">Submit</button>
+                    </div>
                 </form>
             }
         </td>
         <td>
-            <form asp-action="Index" asp-controller="HistoryLog">
+            <form asp-action="Index"  asp-controller="HistoryLog">
                 <input type="hidden" name="doc_name" value="@item.FileName" />
                 <button type="submit" class="btn-block p-2 rounded-2 w-100" @* onclick="showLogs('@item.FileName')" *@>
                     <img class="navbar-toggler-icon" src="~/PNGs/log.png" alt="History" />
@@ -166,39 +177,40 @@
 <div id="PopupPlaceHolder"></div>
 
 
-<script>
+    <script>
 
 
-    function Reject(FileName, id) {
-        $.ajax({
-            url: "/Home/RejectPopup",
-            type: "POST",
-            beforeSend: function (request) {
-                request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
-            },
-            data: { FileName: FileName, id: id },
-            success: function (data) {
-
-                // replace the div with the new data
-                $("#PopupPlaceHolder").html(data);
+       
 
 
-            }
-        });
-    }
+        function Reject(FileName, id) {
+            $.ajax({
+                url: "/Home/RejectPopup",
+                type: "POST",
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                },
+                data: { FileName: FileName, id: id },
+                success: function (data) {
 
-    function ToViewHTML(FileName, id) {
-
-        window.open("/Home/ViewHTML?id=" + id + "&FileName=" + FileName, "_self");
-
-    }
+                    // replace the div with the new data
+                    $("#PopupPlaceHolder").html(data);
 
 
+                }
+            });
+        }
 
-</script>
+        function ToViewHTML(FileName, id) {
 
-<script src="~/js/Logs.js">
+            window.open("/Home/ViewHTML?id=" + id + "&FileName=" + FileName, "_self");
 
-</script>
+        }
+
+
+
+    </script>
+
+
 
 

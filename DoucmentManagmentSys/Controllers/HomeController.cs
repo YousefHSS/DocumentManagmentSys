@@ -166,7 +166,7 @@ namespace DoucmentManagmentSys.Controllers
             }
         }
 
-        [HttpPost, PasswordConfirmation]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Uploader,Revisor")]
         public IActionResult DeleteFile(int id, string fileName)
@@ -266,7 +266,7 @@ namespace DoucmentManagmentSys.Controllers
         //{
         //    return PartialView("_DigitalSigniturePopup", _DocsRepo.Find([id, Filename]));
         //}
-        [HttpPost, PasswordConfirmation]
+        [HttpPost]
         [Authorize(Roles = "Finalizer")]
         public IActionResult Approve(int id, string Filename)
         {
@@ -297,7 +297,7 @@ namespace DoucmentManagmentSys.Controllers
 
         }
 
-        [HttpPost, PasswordConfirmation]
+        [HttpPost]
         [Authorize(Roles = "Revisor")]
         public IActionResult Revise(int id, string Filename)
         {
@@ -327,7 +327,7 @@ namespace DoucmentManagmentSys.Controllers
             return PartialView("_ReasonPopup", _DocsRepo.Find([id, Filename]));
         }
 
-        [HttpPost, PasswordConfirmation]
+        [HttpPost]
         [Authorize(Roles = "Revisor ,Finalizer")]
         [ValidateAntiForgeryToken]
         public IActionResult Reject(int id, string Filename, string reason, IFormFile FileWithRejectionComments)

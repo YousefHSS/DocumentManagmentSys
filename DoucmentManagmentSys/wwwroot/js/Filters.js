@@ -230,7 +230,7 @@ function GetNamesOfChangedValues(){
             }
         }
     }
-    console.log(changedNames);
+    //console.log(changedNames);
     return changedNames;
 }
 
@@ -264,14 +264,14 @@ function fillSearchFormData() {
     searchForm.querySelector('input[id="Statuses"]').value = selectedValues == null ? '' : selectedValues.join(',');
     searchForm.querySelector('input[id="Updated"]').value = UpdatedcheckBox == null ? '' : UpdatedcheckBox.value;
     searchForm.querySelector('input[id="Downloaded"]').value = DownloadedcheckBox == null ? '' : DownloadedcheckBox.value;
-    //log the data
-    console.log("Document Name:", DocumentNameRadioButton);
-    console.log("Version:", VersionRadioButton);
-    console.log("Created At:", CreatedAtRadioButton);
-    console.log("Updated At:", UpdatedAtRadioButton);
-    console.log("Statuses:", selectedValues);
-    console.log("Updated:", UpdatedcheckBox);
-    console.log("Downloaded:", DownloadedcheckBox);
+    ////log the data
+    //console.log("Document Name:", DocumentNameRadioButton);
+    //console.log("Version:", VersionRadioButton);
+    //console.log("Created At:", CreatedAtRadioButton);
+    //console.log("Updated At:", UpdatedAtRadioButton);
+    //console.log("Statuses:", selectedValues);
+    //console.log("Updated:", UpdatedcheckBox);
+    //console.log("Downloaded:", DownloadedcheckBox);
 
     
     
