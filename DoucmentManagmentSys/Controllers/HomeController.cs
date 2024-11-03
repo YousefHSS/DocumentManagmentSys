@@ -75,13 +75,31 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Uploader,Revisor")]
-        public async Task<IActionResult> UploadFile(IFormFile oFile)
+        public async Task<IActionResult> UploadFile(IFormFile oFile,string SuperCode, string SubCode , string SubVersionCode="000" , string VersionCode="000")
         {
+            string FullCode = SuperCode + "-" + SubCode  + SubVersionCode + "-" + VersionCode;
+            if (!WordDocumentHelper.IsValidCode(FullCode))
+            {
+                return RedirectToAction("InProcess", "Home", new { Message = "Code is not valid." });
+            }
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
 
             if (result.Status)
             {
                 result = await SaveToDB();
+                if (result.Info != null)
+                {
+                   
+
+                    foreach (Tuple<int, string> item in result.Info)
+                    {
+                        var Doc = _DocsRepo.GetWhere(x => x.FileName ==  item.Item2).FirstOrDefault();
+                        Doc.Code= FullCode;
+                        _DocsRepo.Update(Doc);
+                    }
+                }
+                
+               
             }
 
             return RedirectToAction("InProcess", "Home", new { Message = result.Message });
@@ -110,6 +128,7 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [PasswordConfirmationAttribute]
         public IActionResult Update(IFormFile oFile, int id)
         {
             MessageResult result = ServerFileManager.UploadtoServer(oFile);
@@ -169,6 +188,7 @@ namespace DoucmentManagmentSys.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Uploader,Revisor")]
+        
         public IActionResult DeleteFile(int id, string fileName)
         {
 
@@ -198,6 +218,7 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [PasswordConfirmationAttribute]
         public IActionResult DeleteConfirmation(int id, string FileName)
         {
             ViewBag.id = id;
@@ -207,10 +228,6 @@ namespace DoucmentManagmentSys.Controllers
 
         
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
 
 
 
@@ -268,6 +285,7 @@ namespace DoucmentManagmentSys.Controllers
         //}
         [HttpPost]
         [Authorize(Roles = "Finalizer")]
+        [PasswordConfirmationAttribute]
         public IActionResult Approve(int id, string Filename)
         {
 
@@ -299,6 +317,7 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Revisor")]
+        [PasswordConfirmationAttribute]
         public IActionResult Revise(int id, string Filename)
         {
             MessageResult result = new MessageResult("File not Revised.");
@@ -330,6 +349,7 @@ namespace DoucmentManagmentSys.Controllers
         [HttpPost]
         [Authorize(Roles = "Revisor ,Finalizer")]
         [ValidateAntiForgeryToken]
+        [PasswordConfirmationAttribute]
         public IActionResult Reject(int id, string Filename, string reason, IFormFile FileWithRejectionComments)
         {
             MessageResult result = new MessageResult("File not Rejected.");

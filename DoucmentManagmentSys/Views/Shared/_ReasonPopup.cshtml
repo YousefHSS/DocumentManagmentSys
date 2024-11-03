@@ -4,14 +4,14 @@
     <div id="rejectionReasonPopupDark" class="position-absolute start-0 top-0 w-100 h-100 bg-dark" style="opacity:0.5; z-index:1;"></div>
 
 
-    <div id="PopupBody"  class="  position-fixed bg-light rounded-1 p-1 m-1 popupWhite border-2">
+    <div id="PopupBody" class="position-fixed bg-light rounded-1 p-1 m-1 popupWhite border-2">
         <div class="d-flex justify-content-center">        
             <a href="./CommentsEditor?id=@Model.Id&filename=@Model.FileName" class="btn btn-primary m-1" onclick="document.getElementById('rejectionReasonPopup').style.display='none';">Add Comments</a>
         </div>
         <div class="d-flex justify-content-center">
             <h1>OR</h1>
         </div>
-        <form class="m-1 border-2" id="FinalReject" asp-controller="Home" asp-action="Reject" enctype="multipart/form-data">
+        <form class="password-protected-form m-1 border-2" id="FinalReject" asp-controller="Home" asp-action="Reject" enctype="multipart/form-data">
             <div class="form-group">
                     <input type="hidden" name="id" value="@Model.Id" />
                     <input type="hidden" name="FileName" value="@Model.FileName" />
@@ -33,6 +33,11 @@
             
 
             <button type="submit" class="btn btn-primary m-1">Submit</button>
+            <div id="passwordPopup" style="display: none;">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+                <button type="submit" class="btn-success p-2 rounded-2 w-100" id="submitPassword">Submit</button>
+            </div>
         </form>
     </div>
 
@@ -50,3 +55,4 @@
             }
         }
 </script>
+<script src="~/js/Functions.js"></script>

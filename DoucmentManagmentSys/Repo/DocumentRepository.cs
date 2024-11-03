@@ -23,11 +23,17 @@ namespace DoucmentManagmentSys.Repo
             foreach (PrimacyDocument document in DocumentsNotInDb)
             {
                 _context.Add(document);
+                Result.Info =new List<Tuple<int, string>>
+                {
+                    new Tuple<int, string>(document.Id, document.FileName)
+
+                };
             }
             if (DocumentsNotInDb.Count() == 0)
             {
                 Result.Status = false;
                 Result.Message = "The document(s) Uploaded Before";
+                
             }
 
             return Result;

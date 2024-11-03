@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Repo;
 using Microsoft.AspNetCore.Authorization;
-using DocumentFormat.OpenXml.EMMA;
 using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Models;
 

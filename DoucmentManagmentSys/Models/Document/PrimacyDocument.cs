@@ -36,6 +36,8 @@ namespace DoucmentManagmentSys.Models
         public string? Reason { get; set; }
         public Status status { get; set; }
 
+        public string? Code { get; set; }
+
 
         [ForeignKey(nameof(Id))]
         public string Creator { get; set; }

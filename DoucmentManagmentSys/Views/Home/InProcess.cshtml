@@ -10,8 +10,8 @@
 @{
     Func<dynamic, IHtmlContent> TableHeader =
     @<th scope="col" class="justify-content-between">
-            @item
-        </th>
+                    @item
+                </th>
     ;
 }
 @if (ViewData["Message"] != "")
@@ -43,14 +43,51 @@
 
     @if (User.IsInRole("Uploader") || User.IsInRole("Revisor"))
     {
+        <div class="bordered border-solid border-1 rounded-1 p-2" style="border:solid 1px #dee2e6;">
+        <h1>Add Document</h1>
         @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
+
+            <label>Document Code</label>
+
+            <div class="form-group d-flex">
+                <select name="SuperCode" onchange="superCodeChanged(this)" class="form-select">
+                        <option value="RMS">RMS</option>
+                        <option value="ARS">ARS</option>
+                        <option value="ASS">ASS</option>
+                        <option value="PMS">PMS</option>
+                </select>
+                        
+                            <div class="form-group d-flex align-items-center h1 ">
+                                -
+                            </div>
+                       
+                <select name="SubCode" style="display:block" class="form-select normalCode">
+                        <option value="A">A</option>
+                        <option value="E">E</option>
+                        <option value="V">V</option>
+                    
+                </select>
+                        
+                        
+
+                <input type="text" class="form-control" id="subVersionCode" name="SubVersionCode" pattern="[0-9]{3}" maxlength="3" placeholder="000" />
+                        
+                        <div class="form-group d-flex align-items-center h1">
+                            -
+                        </div>
+
+                <input type="text" class="form-control" id="versionCode" name="VersionCode" pattern="[0-9]{3}" placeholder="000" />
+            </div
+            <label>File</label>
             <INPUT id="oFile" type="file" runat="server" name="oFile" class="form-control">
             <br />
+            
             <button id="btnUpload" type="submit" text="Upload" runat="server" class="btn-success p-2 rounded-2">Upload</button>
             <br />
 
         }
+        </div>
     }
     @* <Label id="lblUploadResult" Runat="server"> @ViewBag.Message</Label> *@
 
@@ -68,6 +105,7 @@
             <tr>
                 @TableHeader("Document Name")
                 @TableHeader("Version")
+                @TableHeader("Code")
                 @TableHeader("Created At")
                 @TableHeader("Updated At")
                 @TableHeader("Status")
@@ -76,6 +114,7 @@
                 @TableHeader("Action")
                 @TableHeader("History")
                 @TableHeader("View")
+
 
             </tr>
         </thead>
@@ -113,6 +152,8 @@ else
 
 @section Scripts {
 
+
+
     <script>
 
         // function Search() {
@@ -134,6 +175,23 @@ else
         //         }
         //     });
         // }
+
+        
+
+
+        function superCodeChanged(element) { 
+            console.log(Object.values(document.getElementsByClassName("normalCode")))
+            if (element.value !== "RMS") {
+                Object.values(document.getElementsByClassName("normalCode")).forEach(element => {
+                    element.style.display = "none";
+                })
+            }
+            else {
+                Object.values(document.getElementsByClassName("normalCode")).forEach(element => {
+                    element.style.display = "revert";
+                })
+            }
+        }
         function TToast() {
             var toastElList = [].slice.call(document.querySelectorAll('#TToast'));
             
@@ -147,6 +205,21 @@ else
         }
 
         $(document).ready(function () {
+
+
+            document.getElementById('subVersionCode').addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            if (this.value.length > 3) {
+                this.value = this.value.slice(0, 3); // Limit to 3 digits
+            }
+            });
+
+            document.getElementById('versionCode').addEventListener('input', function (e) {
+                this.value = this.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                if (this.value.length > 3) {
+                    this.value = this.value.slice(0, 3); // Limit to 3 digits
+                }
+            });
 
 
             TToast();

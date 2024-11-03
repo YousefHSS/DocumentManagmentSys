@@ -43,6 +43,7 @@ namespace DoucmentManagmentSys.Helpers
 
             MessageResult result;
             result.Status = true;
+            result.Info = null;
 
             string strFilePath;
 
