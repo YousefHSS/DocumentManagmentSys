@@ -41,12 +41,12 @@ namespace DoucmentManagmentSys.Helpers.Word
 
         private static readonly List<string> CodePatterns = new List<string>
         {
-            @"RMS-A\d{3}-\d{3}",
-            @"RMS-E\d{3}-\d{3}",
-            @"RMS-V\d{3}-\d{3}",
-            @"ARS-\d{3}-\d{3}",
-            @"ASS-\d{3}-\d{3}",
-            @"PMS-\d{3}-\d{3}"
+            @"RMS-A\d{3}-\d{0,3}",
+            @"RMS-E\d{3}-\d{0,3}",
+            @"RMS-V\d{3}-\d{0,3}",
+            @"ARS-\d{3}-\d{0,3}",
+            @"ASS-\d{3}-\d{0,3}",
+            @"PMS-\d{3}-\d{0,3}"
         };
 
         public static bool IsValidCode(string input)
@@ -292,7 +292,7 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
         }
 
-        public string ExtractCode()
+        public string? ExtractCode()
         {
             if (FileTypes.IsFileTypeWord(document.FileExtensiton))
             {

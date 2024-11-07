@@ -1,19 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text.Json.Nodes;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using DoucmentManagmentSys.Helpers.Word;
-using DoucmentManagmentSys.Models;
+﻿using DoucmentManagmentSys.Helpers.Word;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
-using TableStyle = DocumentFormat.OpenXml.Wordprocessing.TableStyle;
-using Text = DocumentFormat.OpenXml.Wordprocessing.Text;
 
 namespace DoucmentManagmentSys.Controllers
 {

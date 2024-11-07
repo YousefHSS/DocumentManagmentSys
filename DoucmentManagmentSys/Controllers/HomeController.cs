@@ -61,6 +61,11 @@ namespace DoucmentManagmentSys.Controllers
             return RedirectToAction("InProcess", "Home", new { Message , Messages });
         }
 
+        private void checkCodes()
+        {
+
+        }
+
         [HttpGet]
         [Authorize]
         public IActionResult InProcess(string Message, string Messages, string? SortBY)
@@ -75,9 +80,9 @@ namespace DoucmentManagmentSys.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Uploader,Revisor")]
-        public async Task<IActionResult> UploadFile(IFormFile oFile,string SuperCode, string SubCode , string SubVersionCode="000" , string VersionCode="000")
+        public async Task<IActionResult> UploadFile(IFormFile oFile, string SuperCode, string SubCode, string SubVersionCode = "000", string VersionCode = "000")
         {
-            string FullCode = SuperCode + "-" + SubCode  + SubVersionCode + "-" + VersionCode;
+            string FullCode = SuperCode + "-" + SubCode + SubVersionCode + "-" + VersionCode;
             if (!WordDocumentHelper.IsValidCode(FullCode))
             {
                 return RedirectToAction("InProcess", "Home", new { Message = "Code is not valid." });
@@ -89,20 +94,54 @@ namespace DoucmentManagmentSys.Controllers
                 result = await SaveToDB();
                 if (result.Info != null)
                 {
-                   
-
                     foreach (Tuple<int, string> item in result.Info)
                     {
-                        var Doc = _DocsRepo.GetWhere(x => x.FileName ==  item.Item2).FirstOrDefault();
-                        Doc.Code= FullCode;
+
+                        var Doc = _DocsRepo.GetWhere(x => x.FileName == item.Item2).FirstOrDefault();
+                        WordDocumentHelper wordDocumentHelper = new WordDocumentHelper(Doc);
+                        Doc.Code = FullCode;
                         _DocsRepo.Update(Doc);
+                        _DocsRepo.SaveChanges();
+
+                        var ExistingCode = wordDocumentHelper.ExtractCode();
+                        if (ExistingCode != null && ExistingCode != FullCode)
+                        {
+                            var model = new Tuple<PrimacyDocument, string, string>(Doc, ExistingCode, FullCode);
+                            return View("ChooseCode", model);
+                        }
+                        
+                        
                     }
                 }
-                
-               
             }
 
             return RedirectToAction("InProcess", "Home", new { Message = result.Message });
+        }
+
+        [HttpGet]
+        public IActionResult UseExistingCode(int id, string code)
+        {
+            var document = _DocsRepo.Find([id, code]);
+            if (document != null)
+            {
+                document.Code = code;
+                _DocsRepo.Update(document);
+                _DocsRepo.SaveChanges();
+            }
+            return RedirectToAction("InProcess", "Home", new { Message = "Existing code applied." });
+        }
+
+        [HttpGet]
+        public IActionResult UseFullCode(int id, string code)
+        {
+            var document = _DocsRepo.Find([id, code]);
+            if (document != null)
+            {
+                document.Code = code;
+                _DocsRepo.Update(document);
+                _DocsRepo.SaveChanges();
+            }
+            return RedirectToAction("InProcess", "Home", new { Message = "Full code applied." });
         }
 
 
