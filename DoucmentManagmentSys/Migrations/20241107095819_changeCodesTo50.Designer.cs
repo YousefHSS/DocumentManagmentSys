@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoucmentManagmentSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241106202859_ModifyDocumentIndex")]
-    partial class ModifyDocumentIndex
+    [Migration("20241107095819_changeCodesTo50")]
+    partial class changeCodesTo50
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

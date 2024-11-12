@@ -1,0 +1,63 @@
+﻿@model IEnumerable<PrimacyDocument>
+@{
+    ViewData["Title"] = "Resolve Conflict";
+}
+
+<div class="container">
+    
+    <h1>Name: @Model.FirstOrDefault().FileName</h1>
+    <h1>Code: @Model.FirstOrDefault().Code</h1>
+    <h5>There are mulltiple documents with the same name and code</h5>
+    <h5>To resolve the conflict, Choose a Document</h5>
+    
+    <table class="table-striped table-bordered table">
+        <thead>
+            <tr>
+                <th>Create Date</th>
+                <th>Update Date</th>
+                <th>Uploaded By</th>
+                <th>Preview</th>
+                <th>Choose</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var document in Model)
+            {
+                <tr>
+                    <td>@document.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@document.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@document.CreatorName</td>
+                    <td>
+                        <button onclick="ToViewHTML('@document.FileName','@document.Id')" class="btn-block p-2 rounded-2 w-100">
+                            <img class="navbar-toggler-icon" width="20" src="~/PNGs/search.png" alt="Preview" />
+                        </button>
+                    </td>
+                    <td>
+                        <form method="post" class="password-protected-form" asp-action="ResolveConflict" asp-controller="Home">
+                            <input type="hidden" name="Id" value="@document.Id" />
+
+                            <button type="submit" class="btn btn-primary btn-sm" >
+                                Choose
+                            </button>
+                            <div id="passwordPopup" style="display: none;">
+                                <label for="password">Password:</label>
+                                <input type="password" id="password" name="password">
+                                <button type="submit" class="btn-success p-2 rounded-2 w-100" id="submitPassword">Submit</button>
+                            </div>
+                        </form>
+                        
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    
+    function ToViewHTML(FileName, id) {
+
+        window.open("/Home/ViewHTML?id=" + id + "&FileName=" + FileName, "_self");
+
+    }
+</script>

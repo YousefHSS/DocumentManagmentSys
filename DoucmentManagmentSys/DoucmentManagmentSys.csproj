@@ -92,7 +92,6 @@
 	<ItemGroup>
 		<Folder Include="Data\" />
 		<Folder Include="Middleware\" />
-		<Folder Include="Migrations\" />
 		<Folder Include="TempView\" />
 		<Folder Include="UploadedFiles\" />
 		<Folder Include="wwwroot\PDFs\" />

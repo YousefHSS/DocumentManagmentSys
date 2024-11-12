@@ -61,10 +61,6 @@ namespace DoucmentManagmentSys.Controllers
             return RedirectToAction("InProcess", "Home", new { Message , Messages });
         }
 
-        private void checkCodes()
-        {
-
-        }
 
         [HttpGet]
         [Authorize]
@@ -74,8 +70,10 @@ namespace DoucmentManagmentSys.Controllers
             ViewData["Message"] = Message ?? "";
             ViewData["Messages"] = Messages ?? "";
             TempData["Id"] = TempData["Id"] ?? "";
-
-            return View(SortBY != null ? OrderByProperty(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll());
+            
+            return View(
+                    CheckCodeConflicts(SortBY != null ? OrderByProperty(_DocsRepo.GetAll(), SortBY) : _DocsRepo.GetAll())
+                );
         }
 
         [HttpPost]
@@ -97,7 +95,11 @@ namespace DoucmentManagmentSys.Controllers
                     foreach (Tuple<int, string> item in result.Info)
                     {
 
-                        var Doc = _DocsRepo.GetWhere(x => x.FileName == item.Item2).FirstOrDefault();
+                        var Doc = _DocsRepo.GetWhere(x => (x.FileName == item.Item2) && (x.Id == item.Item1)).FirstOrDefault();
+                        if (Doc == null)
+                        {
+                            continue;
+                        }
                         WordDocumentHelper wordDocumentHelper = new WordDocumentHelper(Doc);
                         Doc.Code = FullCode;
                         _DocsRepo.Update(Doc);
@@ -114,35 +116,86 @@ namespace DoucmentManagmentSys.Controllers
                     }
                 }
             }
-
+            
             return RedirectToAction("InProcess", "Home", new { Message = result.Message });
         }
 
-        [HttpGet]
-        public IActionResult UseExistingCode(int id, string code)
+        private IEnumerable<PrimacyDocument> CheckCodeConflicts(IEnumerable<PrimacyDocument> docs, MessageResult? result = null)
         {
-            var document = _DocsRepo.Find([id, code]);
-            if (document != null)
+            var docGroups = docs.GroupBy(d => new { d.Code, d.FileName });
+            var conflictedDocs = new List<PrimacyDocument>();
+
+            foreach (var group in docGroups)
             {
-                document.Code = code;
-                _DocsRepo.Update(document);
-                _DocsRepo.SaveChanges();
+                if (group.Count() > 1)
+                {
+                    
+                    
+                    var oldestDoc = group.OrderBy(d => d.CreatedAt).First();
+                    oldestDoc.Conflict = group.Count();
+                    
+
+                    conflictedDocs.Add(oldestDoc);
+                }
+                else
+                {
+                    conflictedDocs.Add(group.Single());
+                } 
             }
-            return RedirectToAction("InProcess", "Home", new { Message = "Existing code applied." });
+
+            return conflictedDocs;
         }
 
         [HttpGet]
-        public IActionResult UseFullCode(int id, string code)
+        public IActionResult ResolveConflict(string fileName, string code)
         {
-            var document = _DocsRepo.Find([id, code]);
+            //gett alll docs wiith this code and this file name
+            var documents = _DocsRepo.GetWhere(x => (x.FileName == fileName) && (x.Code == code));
+            //gettt first accion of each docc from repo
+            foreach (var doc in documents)
+            {
+                var log = _HistoryLogRepo.GetWhere(x => x.Document_id.Id == doc.Id).FirstOrDefault();
+                if (log != null)
+                {
+                    var acion = _HistoryActionRepo.GetWhere(x => x.historyLog.id == log.id).FirstOrDefault();
+
+                    doc.CreatorName = acion.UserName;
+                }
+            }
+            return View(documents);
+
+        }
+
+        [HttpPost]
+        [PasswordConfirmationAttribute]
+        public IActionResult ResolveConflict(string Id)
+        {
+           //soft delete all docs with this name and code except the one with this id
+           var lllleave = _DocsRepo.GetWhere(x => x.Id != int.Parse(Id)).FirstOrDefault();
+            var docs = _DocsRepo.GetWhere(x => x.Id != int.Parse(Id) && (x.Code == lllleave.Code) && (x.FileName == lllleave.FileName));
+            foreach (var doc in docs)
+            {
+                _DocsRepo.Delete(doc);
+            }
+            _DocsRepo.SaveChanges();
+            return RedirectToAction("InProcess", "Home", new { Message = "conflicts resolved." });
+
+        }
+
+        [HttpGet]
+        public IActionResult UseCode(int id, string fileName, string code)
+        {
+            var document = _DocsRepo.Find([id, fileName]);
             if (document != null)
             {
                 document.Code = code;
                 _DocsRepo.Update(document);
                 _DocsRepo.SaveChanges();
             }
-            return RedirectToAction("InProcess", "Home", new { Message = "Full code applied." });
+            return RedirectToAction("InProcess", "Home", new { Message = "code applied." });
         }
+
+        
 
 
 
@@ -338,7 +391,7 @@ namespace DoucmentManagmentSys.Controllers
                 AuditLogHelper.AddLogThenProcced(HistoryAction.Approved, Doc, _HistoryLogRepo, _HistoryActionRepo, PrimacyUser.GetCurrentUserName(_signInManager, User.Identity.Name ?? "").Result);
                 WordDocumentHelper wordDocumenthelper = new WordDocumentHelper(Doc);
                 wordDocumenthelper.StampDocument(_HistoryActionRepo, _HistoryLogRepo);
-                wordDocumenthelper.AddWatermark();
+                //wordDocumenthelper.AddWatermark();
 
 
 

@@ -1,6 +1,8 @@
 ﻿using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace DoucmentManagmentSys.Repo
 {
@@ -15,26 +17,45 @@ namespace DoucmentManagmentSys.Repo
             MessageResult Result = new MessageResult();
             Result.Status = true;
             Result.Message = "Documents added successfully";
-            var newDocumentIDs = entities.Select(u => u.FileName).Distinct().ToArray();
-
-            var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => newDocumentIDs.Contains(u.FileName)).Select(u => u.FileName).ToArray();
-
-            var DocumentsNotInDb = entities.Where(u => !DocumentInDb.Contains(u.FileName));
-            foreach (PrimacyDocument document in DocumentsNotInDb)
+            IEnumerable<PrimacyDocument>? addedDocuments = new List<PrimacyDocument>();
+            foreach (PrimacyDocument document in entities)
             {
                 _context.Add(document);
-                Result.Info =new List<Tuple<int, string>>
-                {
-                    new Tuple<int, string>(document.Id, document.FileName)
 
-                };
-            }
-            if (DocumentsNotInDb.Count() == 0)
-            {
-                Result.Status = false;
-                Result.Message = "The document(s) Uploaded Before";
+                // Store the added documents to get their IDs later
                 
+                
+
             }
+
+            _context.SaveChanges(); // Save changes to get the generated IDss
+            Result.Info = new List<Tuple<int, string>>();
+                foreach (var document in entities)
+                {
+                    // document.Id should now be populated with the generated ID
+                    Result.Info.Add(new Tuple<int, string>(document.Id, document.FileName));
+                }
+            
+            //var newDocumentIDs = entities.Select(u => u.FileName).Distinct().ToArray();
+
+            //var DocumentInDb = _context.Set<PrimacyDocument>().Where(u => newDocumentIDs.Contains(u.FileName)).Select(u => u.FileName).ToArray();
+
+            //var DocumentsNotInDb = entities.Where(u => !DocumentInDb.Contains(u.FileName));
+            //foreach (PrimacyDocument document in DocumentsNotInDb)
+            //{
+            //    _context.Add(document);
+            //    Result.Info =new List<Tuple<int, string>>
+            //    {
+            //        new Tuple<int, string>(document.Id, document.FileName)
+
+            //    };
+            //}
+            //if (DocumentsNotInDb.Count() == 0)
+            //{
+            //    Result.Status = false;
+            //    Result.Message = "The document(s) Uploaded Before";
+
+            //}
 
             return Result;
         }

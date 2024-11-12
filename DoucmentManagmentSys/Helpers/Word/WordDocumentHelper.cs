@@ -363,7 +363,7 @@ namespace DoucmentManagmentSys.Helpers.Word
                                     //null safety on para
 
                                     Run run = para.AppendChild(new Run());
-                                    run.AppendChild(new Text("Digitally Signed") { Space = SpaceProcessingModeValues.Preserve });
+                                    run.AppendChild(new Text(string.Join(" ", Newfooter)) { Space = SpaceProcessingModeValues.Preserve });
                                     footerPart.Footer.Append(para);
                                 }
                             }

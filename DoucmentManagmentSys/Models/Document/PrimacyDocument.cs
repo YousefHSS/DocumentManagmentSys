@@ -1,8 +1,10 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using DoucmentManagmentSys.Attributes;
 using DoucmentManagmentSys.Helpers;
 using DoucmentManagmentSys.Helpers.Word;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
+using Google.Apis.Drive.v3.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Mono.TextTemplating;
@@ -33,6 +35,9 @@ namespace DoucmentManagmentSys.Models
 
         [NotMapped]
         public static int VersionOffset = -1;
+
+        [NotMapped]
+        public int? Conflict { get; set; }
         public string? Reason { get; set; }
         public Status status { get; set; }
 
@@ -41,6 +46,11 @@ namespace DoucmentManagmentSys.Models
 
         [ForeignKey(nameof(Id))]
         public string Creator { get; set; }
+
+        [NotMapped]
+        public string CreatorName { get; set; } // Navigation property
+
+        //public bool IsDeleted { get; set; } 
 
 
 
@@ -60,6 +70,8 @@ namespace DoucmentManagmentSys.Models
         {
             this.status = Status.Under_Revison;
         }
+
+        
 
         public enum Status
         {
