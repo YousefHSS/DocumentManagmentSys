@@ -6,7 +6,7 @@ on:
       - main  # Replace with your branch name
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: windows-latest
 
     steps:
@@ -14,24 +14,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Install dependencies and build project
+      # Setup .NET SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'  # Replace with your .NET version
 
+      # Restore dependencies and build
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build the project
         run: dotnet publish -c Release -o ./publish
 
-      # Deploy to IIS Server
-      - name: Deploy to IIS
-        uses: appleboy/scp-action@v0.1.3
-        with:
-          host: YOUR_SERVER_IP
-          username: YOUR_USERNAME
-          password: YOUR_PASSWORD
-          source: ./publish/
-          target: C:/inetpub/wwwroot/YOUR_PROJECT_FOLDER
+      # Deploy using Web Deploy
+      - name: Deploy to IIS with Web Deploy
+        run: |
+          "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" ^
+            -verb:sync ^
+            -source:contentPath="./publish" ^
+            -dest:contentPath="C:\inetpub\wwwroot\DMSPP",ComputerName="https://192.168.1.100:8172/MSDeploy.axd?site=PrimacyPharmaDMS",UserName="$USERNAME",Password="$PASSWORD",AuthType="Basic" ^
+            -allowUntrusted
+        env:
+          USERNAME: ${{ secrets.WEBDEPLOY_USERNAME }}
+          PASSWORD: ${{ secrets.WEBDEPLOY_PASSWORD }}
