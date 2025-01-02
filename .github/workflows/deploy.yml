@@ -31,10 +31,10 @@ jobs:
       # Deploy using Web Deploy
       - name: Deploy to IIS with Web Deploy
         run: |
-          "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" ^
-            -verb:sync ^
-            -source:contentPath="./publish" ^
-            -dest:contentPath="C:\inetpub\wwwroot\DMSPP",ComputerName="https://192.168.1.100:8172/MSDeploy.axd?site=PrimacyPharmaDMS",UserName="$USERNAME",Password="$PASSWORD",AuthType="Basic" ^
+          "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe"
+            -verb:sync
+            -source:contentPath="./publish"
+            -dest:contentPath="C:\inetpub\wwwroot\DMSPP",ComputerName="https://192.168.1.100:8172/MSDeploy.axd?site=PrimacyPharmaDMS",UserName="$USERNAME",Password="$PASSWORD",AuthType="Basic"
             -allowUntrusted
         env:
           USERNAME: ${{ secrets.WEBDEPLOY_USERNAME }}
