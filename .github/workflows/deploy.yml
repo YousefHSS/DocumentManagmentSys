@@ -1,0 +1,40 @@
+name: Deploy to IIS Server
+
+on:
+  push:
+    branches:
+      - main  # Replace with your branch name
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'  # Replace with your .NET version
+
+      # Restore dependencies and build
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the project
+        run: dotnet publish -c Release -o ./publish
+
+      # Deploy using Web Deploy
+      - name: Deploy to IIS with Web Deploy
+        run: |
+          "C:/Program Files/IIS/Microsoft Web Deploy V3/msdeploy.exe" ^
+            -verb:sync ^
+            -source:contentPath="./publish" ^
+            -dest:contentPath="C:\inetpub\wwwroot\DMSPP",ComputerName="https://192.168.1.100:8172/MSDeploy.axd?site=PrimacyPharmaDMS",UserName="$USERNAME",Password="$PASSWORD",AuthType="Basic" ^
+            -allowUntrusted
+        env:
+          USERNAME: ${{ secrets.WEBDEPLOY_USERNAME }}
+          PASSWORD: ${{ secrets.WEBDEPLOY_PASSWORD }}
