@@ -20,12 +20,13 @@ jobs:
         with:
           dotnet-version: '8.0'  # Replace with your .NET version
 
-      # Restore dependencies and build
+      # Restore dependencies for DMS project only
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore DoucmentManagmentSys/DoucmentManagmentSys.csproj
 
+      # Build the DMS project only
       - name: Build the project
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish DoucmentManagmentSys/DoucmentManagmentSys.csproj -c Release -o ./publish
 
       # Deploy using Web Deploy
       - name: Deploy to IIS with Web Deploy
