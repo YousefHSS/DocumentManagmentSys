@@ -19,10 +19,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<PrimacyUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddControllersWithViews();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
+
+builder.Services.AddSwaggerGen();
 
 // Register a factory delegate to resolve UserManager<IdentityUser> requests to UserManager<PrimacyUser>
 builder.Services.AddTransient<UserManager<PrimacyUser>>();
@@ -33,20 +33,29 @@ builder.Services.AddTransient(typeof(MainRepo<>));
 builder.Services.AddTransient(typeof(DocumentRepository));
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 
-// Add session services
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set timeout as per your requirement
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
+
+builder.Services.AddIdentityCore<PrimacyUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddApiEndpoints();
+
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+
+
+
+    app.ApplyMigrations();
+
 }
 else
 {
@@ -59,17 +68,16 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession(); // Enable session
-
 app.UseAuthentication();
+
+// Add the authorization middleware
 app.UseAuthorization();
 
+app.MapIdentityApi<PrimacyUser>();
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
 
 
 using (var scope = app.Services.CreateScope())

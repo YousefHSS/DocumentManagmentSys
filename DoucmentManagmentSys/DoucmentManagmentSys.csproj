@@ -44,7 +44,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Views\Shared\_PlatformDecide.cshtml.css" />
+	  <None Remove="NotViews\Shared\_PlatformDecide.cshtml.css" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -75,7 +75,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
@@ -87,9 +86,13 @@
 		<PackageReference Include="NPOI" Version="2.7.0" />
 		<PackageReference Include="Open-Xml-PowerTools" Version="4.4.0" />
 		<PackageReference Include="OpenXmlPowerTools" Version="4.5.3.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Areas\" />
 		<Folder Include="Data\" />
 		<Folder Include="Middleware\" />
 		<Folder Include="TempView\" />
