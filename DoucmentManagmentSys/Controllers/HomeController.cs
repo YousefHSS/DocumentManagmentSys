@@ -171,7 +171,7 @@ namespace DoucmentManagmentSys.Controllers
         public IActionResult ResolveConflict(string Id)
         {
            //soft delete all docs with this name and code except the one with this id
-           var lllleave = _DocsRepo.GetWhere(x => x.Id != int.Parse(Id)).FirstOrDefault();
+           var lllleave = _DocsRepo.GetWhere(x => x.Id == int.Parse(Id)).FirstOrDefault();
             var docs = _DocsRepo.GetWhere(x => x.Id != int.Parse(Id) && (x.Code == lllleave.Code) && (x.FileName == lllleave.FileName));
             foreach (var doc in docs)
             {

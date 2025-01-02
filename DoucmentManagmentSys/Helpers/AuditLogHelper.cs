@@ -113,5 +113,18 @@ namespace DoucmentManagmentSys.Helpers
 
 
         }
+
+        internal static HistoryAction? GetLatestActionOfType(string Type,PrimacyDocument doc, MainRepo<HistoryAction> _HistoryActionRepo, MainRepo<HistoryLog> _HistoryLogRepo)
+        {
+
+            var historyLog = _HistoryLogRepo.GetWhere(x => x.Document_id == doc).FirstOrDefault();
+            var latestAction = _HistoryActionRepo.GetWhere(x => x.Action == Type && x.historyLog == historyLog)
+                                                     .OrderByDescending(x => x.CreatedAt) // Assuming there is a Date field to sort by
+                                                     .FirstOrDefault();
+            return latestAction;
+
+        }
+
+
     }
 }

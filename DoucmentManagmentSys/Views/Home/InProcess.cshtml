@@ -10,8 +10,8 @@
 @{
     Func<dynamic, IHtmlContent> TableHeader =
     @<th scope="col" class="justify-content-between">
-                    @item
-                </th>
+                        @item
+                    </th>
     ;
 }
 @if (ViewData["Message"] != "")
@@ -184,11 +184,13 @@ else
             if (element.value !== "RMS") {
                 Object.values(document.getElementsByClassName("normalCode")).forEach(element => {
                     element.style.display = "none";
+                    element.value = "";
                 })
             }
             else {
                 Object.values(document.getElementsByClassName("normalCode")).forEach(element => {
                     element.style.display = "revert";
+                    element.value = "A";
                 })
             }
         }

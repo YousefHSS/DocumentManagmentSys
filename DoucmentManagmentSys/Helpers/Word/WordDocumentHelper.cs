@@ -379,20 +379,106 @@ namespace DoucmentManagmentSys.Helpers.Word
             }
         }
 
+        public void StampFooter(string Newfooter)
+        {
+            //checked the document is word
+            if (FileTypes.IsFileTypeWord(document.FileExtensiton))
+            {
+                using (WordprocessingDocument doc = WordprocessingDocument.Open(ms, true))
+                {
+                    MainDocumentPart mainPart = doc.MainDocumentPart ?? doc.AddMainDocumentPart();
+
+                    CreateFooterIfDoesntExist(mainPart);
+
+                    MakeMarginsNarrow(mainPart);
+                    Document MainPartDoc = mainPart.Document;
+                    // Get the first section properties
+                    SectionProperties sectionProps = MainPartDoc.Body.Descendants<SectionProperties>().FirstOrDefault() ?? new SectionProperties();
+
+                    if (sectionProps != null)
+                    {
+                        //Don't Delete this line, reason: https://stackoverflow.com/questions/73061394/adding-replacing-header-to-first-page-only-for-existing-word-document-with-openx
+                        //TitlePage titlePage = sectionProps.Descendants<TitlePage>().FirstOrDefault();
+                        //if (titlePage == null)
+                        //{
+                        //    titlePage = new TitlePage();
+                        //    sectionProps.PrependChild(titlePage);
+                        //}
+
+                        // Get the first footer reference for the first page
+                        //there has to be a footer reference because we called the function CreateFooterIfDoesntExist
+                        FooterReference firstPageFooterRef = sectionProps.Descendants<FooterReference>().FirstOrDefault(f => f.Type.HasValue && f.Type == HeaderFooterValues.Default)!;
+
+                        if (firstPageFooterRef != null)
+                        {
+                            // Get the footer part for the first page
+                            List<FooterPart> firstPageFooterPart = mainPart.FooterParts.ToList();
+
+                            if (firstPageFooterPart != null)
+                            {
+                                foreach (FooterPart footerPart in firstPageFooterPart)
+                                {
+                                    // Modify the content of the first page footer
+                                    Paragraph para = new Paragraph();
+
+                                    //null safety on para
+
+                                    Run run = para.AppendChild(new Run());
+                                    run.AppendChild(new Text(Newfooter) { Space = SpaceProcessingModeValues.Preserve });
+                                    footerPart.Footer.Append(para);
+                                }
+                            }
+                        }
+                    }
+
+                    // Save the changes
+                    mainPart.Document.Save();
+                }
+
+                //Update Content
+                document.Content = ms.ToArray();
+            }
+        }
+
         internal void StampDocument(MainRepo<HistoryAction> _HistoryActionRepo, MainRepo<HistoryLog> _HistoryLogRepo)
         {
-            List<HistoryAction> LastActions = new List<HistoryAction>();
-            //from the audit log helper get every last action of each action type of this document
-            LastActions = AuditLogHelper.GetLatestActionsOfDocument(document, _HistoryActionRepo, _HistoryLogRepo);
-            //footer string is a list of strings of what should be written
-            List<string> footerStrings = new List<string>();
-            foreach (var action in LastActions)
-            {
-                footerStrings.Add(action.Action + " by: " + action.UserName + "         ");
-            }
+            //List<HistoryAction> LastActions = new List<HistoryAction>();
+            ////from the audit log helper get every last action of each action type of this document
+            //LastActions = AuditLogHelper.GetLatestActionsOfDocument(document, _HistoryActionRepo, _HistoryLogRepo);
+            ////footer string is a list of strings of what should be written
+            //List<string> footerStrings = new List<string>();
+            //foreach (var action in LastActions)
+            //{
+            //    footerStrings.Add(action.Action + " by: " + action.UserName + "         ");
+            //}
+
+            HistoryAction? approvedBy = AuditLogHelper.GetLatestActionOfType("Approved",document, _HistoryActionRepo, _HistoryLogRepo);
             //update footer and header
-            StampFooter(footerStrings);
-            StampHeader();
+            var footerString = "This Document was digitally signed , Approved by " + approvedBy.UserName + " SignCode:" + document.Id + approvedBy.id;
+            StampFooter(footerString);
+            if (!CheckFooter(footerString))
+            {
+                StampFooter(footerString);
+            }
+            //StampHeader();
+        }
+
+        private  bool CheckFooter(string CheckString)
+        {
+            using (WordprocessingDocument doc = WordprocessingDocument.Open(ms, false))
+            {
+                foreach (FooterPart footerPart in doc.MainDocumentPart.FooterParts)
+                {
+                    foreach (Paragraph para in footerPart.Footer.Descendants<Paragraph>())
+                    {
+                        if (para.InnerText.Contains(CheckString))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private static void AddImageToHeader(WordprocessingDocument doc)
