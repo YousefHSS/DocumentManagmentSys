@@ -1,15 +1,12 @@
 using DoucmentManagmentSys.Data;
 using DoucmentManagmentSys.Helpers;
-
+using DoucmentManagmentSys.Helpers.Auth;
 using DoucmentManagmentSys.Models;
 using DoucmentManagmentSys.Repo;
 using DoucmentManagmentSys.RoleManagment;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,12 +14,22 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+          
+
+//builder.Services.AddDefaultIdentity<PrimacyUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen();
+
+//// Register custom user store
+//builder.Services.AddScoped<IUserStore<PrimacyUser>, PrimacyUserStore>();
+
+//// Register custom user validator
+//builder.Services.AddScoped<IUserValidator<PrimacyUser>, PrimacyUserValidator>();
+
 
 // Register a factory delegate to resolve UserManager<IdentityUser> requests to UserManager<PrimacyUser>
 builder.Services.AddTransient<UserManager<PrimacyUser>>();
@@ -34,9 +41,28 @@ builder.Services.AddTransient(typeof(DocumentRepository));
 builder.Services.AddTransient(typeof(IRoleManagment), typeof(RoleManagment));
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+})
+.AddCookie(IdentityConstants.ApplicationScheme)
+.AddCookie("Identity.Bearer", options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+builder.Services.AddScoped<IUserValidator<PrimacyUser>, PrimacyUserValidator>();
 
-builder.Services.AddIdentityCore<PrimacyUser>()
+builder.Services.AddIdentityCore<PrimacyUser>(
+
+    options =>
+    {
+        options.SignIn.RequireConfirmedAccount =true;
+        options.User.RequireUniqueEmail = true;
+        
+    }
+    )
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
@@ -67,13 +93,14 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthentication();
 
 // Add the authorization middleware
 app.UseAuthorization();
+app.UseMiddleware<ApiResponseMiddleware>();
+app.MapControllers();
 
-app.MapIdentityApi<PrimacyUser>();
+
 //app.MapControllerRoute(
 //    name: "default",
 //    pattern: "{controller=Home}/{action=Index}/{id?}");
